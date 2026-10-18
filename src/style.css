@@ -290,13 +290,6 @@ html, body {
   box-shadow: 0 0 12px rgba(255, 51, 68, 0.6);
 }
 
-.tool-btn[data-tool="CLEAR"].active {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: #ffffff;
-  color: #ffffff;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
-}
-
 /* MODIFIER BUTTONS */
 .mod-btn {
   display: inline-flex;

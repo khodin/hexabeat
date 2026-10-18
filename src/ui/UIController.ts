@@ -4,7 +4,7 @@ import { HexCanvas } from './HexCanvas';
 import { ModifierType, Cell } from '../grid/HexTypes';
 import { PRESETS } from '../sequencer/Presets';
 
-export type CellTool = 'ENABLE' | 'DISABLE' | 'DEAD' | 'CLEAR';
+export type CellTool = 'ENABLE' | 'DISABLE' | 'DEAD';
 
 export class UIController {
   private activeTool: CellTool = 'ENABLE';
@@ -155,7 +155,7 @@ export class UIController {
           break;
         }
         case 'DISABLE': {
-          const mod = this.activeModifier !== 'NONE' ? this.activeModifier : cell.modifier;
+          const mod = this.activeModifier !== 'NONE' ? this.activeModifier : 'NONE';
           this.sequencer.setCell(q, r, false, false, mod);
           this.updateCellInfo(q, r, false, false, mod);
           break;
@@ -164,11 +164,6 @@ export class UIController {
           const isNowDead = !cell.isDead;
           this.sequencer.setCell(q, r, false, isNowDead, 'NONE');
           this.updateCellInfo(q, r, false, isNowDead, 'NONE');
-          break;
-        }
-        case 'CLEAR': {
-          this.sequencer.setCell(q, r, false, false, 'NONE');
-          this.updateCellInfo(q, r, false, false, 'NONE');
           break;
         }
       }

@@ -341,65 +341,15 @@ export class HexCanvas {
   }
 
   private drawCellContent(x: number, y: number, cell: Cell, isDead: boolean, isEnabled: boolean) {
-    this.ctx.save();
-
-    const scale = Math.max(0.7, Math.min(1.3, this.hexSize / 36));
-    const hasModifier = cell.modifier !== 'NONE';
-
-    // 1. DEAD CELL (Wall / Obstacle or Center Core)
     if (isDead) {
-      this.ctx.strokeStyle = '#ff3344';
-      this.ctx.lineWidth = 2.4 * scale;
-      this.ctx.lineCap = 'round';
-      this.ctx.beginPath();
-      this.ctx.moveTo(x - 6 * scale, y - 6 * scale);
-      this.ctx.lineTo(x + 6 * scale, y + 6 * scale);
-      this.ctx.moveTo(x + 6 * scale, y - 6 * scale);
-      this.ctx.lineTo(x - 6 * scale, y + 6 * scale);
-      this.ctx.stroke();
-
-      this.ctx.fillStyle = '#ff4455';
-      this.ctx.font = 'bold 9px "Segoe UI", Roboto, sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'top';
-      this.ctx.fillText('DEAD', x, y + 7 * scale);
-
-      this.ctx.restore();
+      // Color alone represents dead cells; no cross or DEAD wording
       return;
     }
 
-    // 2. ENABLED BEAT NODE (Active Trigger)
-    if (isEnabled) {
-      if (!hasModifier) {
-        // Glowing beat node disc
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, 5.5 * scale, 0, Math.PI * 2);
-        this.ctx.fillStyle = '#00e5ff';
-        this.ctx.shadowColor = 'rgba(0, 229, 255, 0.8)';
-        this.ctx.shadowBlur = 10;
-        this.ctx.fill();
-
-        // Inner white spark
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, 2.2 * scale, 0, Math.PI * 2);
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.fill();
-      } else {
-        // Smaller indicator dot when direction arrow is present
-        this.ctx.beginPath();
-        this.ctx.arc(x, y - this.hexSize * 0.28, 3 * scale, 0, Math.PI * 2);
-        this.ctx.fillStyle = '#00e5ff';
-        this.ctx.fill();
-      }
+    // Color alone represents enabled cells; no dot or spark
+    if (cell.modifier !== 'NONE') {
+      this.drawModifierGlyph(x, y, cell.modifier, isEnabled);
     }
-
-    // 3. Modifier Glyph
-    if (hasModifier) {
-      const glyphY = isEnabled ? y + this.hexSize * 0.12 : y;
-      this.drawModifierGlyph(x, glyphY, cell.modifier, isEnabled);
-    }
-
-    this.ctx.restore();
   }
 
   private drawArrowHead(tipX: number, tipY: number, angle: number, size: number) {
