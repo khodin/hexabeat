@@ -1,5 +1,5 @@
 import { Cell, Playhead, Preset, SoundType, ModifierType } from '../grid/HexTypes';
-import { generateGrid, cellKey, calculateBounce, getAccessibleDirections, COMPASS_DIR_MAP } from '../grid/HexMath';
+import { generateGrid, cellKey, calculateBounce, getAccessibleDirections, COMPASS_DIR_MAP, HEX_RADIUS } from '../grid/HexMath';
 import { AudioEngine } from '../audio/AudioEngine';
 import { PRESETS } from './Presets';
 
@@ -226,7 +226,7 @@ export class Sequencer {
         nextDir = COMPASS_DIR_MAP[cell.modifier];
       } else {
         // Stochastic random branching among accessible non-blocked neighbors
-        const accessible = getAccessibleDirections(playhead.q, playhead.r, 3, isBlocked);
+        const accessible = getAccessibleDirections(playhead.q, playhead.r, HEX_RADIUS, isBlocked);
         if (accessible.length > 0) {
           const randIdx = Math.floor(Math.random() * accessible.length);
           nextDir = accessible[randIdx];
@@ -236,7 +236,7 @@ export class Sequencer {
       }
 
       // 2. Physics bounce calculation
-      const bounceResult = calculateBounce(playhead.q, playhead.r, nextDir, 3, isBlocked);
+      const bounceResult = calculateBounce(playhead.q, playhead.r, nextDir, HEX_RADIUS, isBlocked);
 
       // 3. Update playhead positions
       playhead.prevQ = playhead.q;

@@ -10,7 +10,7 @@ const HEX_DIRECTIONS = [
   { dq: 1,  dr: -1, angle: (5 * Math.PI) / 3, name: 'NE' }, // 5
 ];
 
-const HEX_RADIUS = 3;
+const HEX_RADIUS = 5;
 
 function getHexDistance(q, r) {
   return (Math.abs(q) + Math.abs(r) + Math.abs(q + r)) / 2;
@@ -85,14 +85,14 @@ console.log('--- Testing Hex Math & Grid Logic ---');
 // Test 1: Grid size
 const grid = generateGrid();
 console.log(`Generated grid cell count: ${grid.size}`);
-assert.strictEqual(grid.size, 37, 'Grid must have exactly 37 cells for radius 3 (rings 0, 1, 2, 3)');
+assert.strictEqual(grid.size, 91, 'Grid must have exactly 91 cells for radius 5 (rings 0 to 5)');
 
 // Test 2: All cells within distance
 for (const [key, cell] of grid) {
   const dist = getHexDistance(cell.q, cell.r);
-  assert(dist <= 3, `Cell ${key} distance ${dist} must be <= 3`);
+  assert(dist <= 5, `Cell ${key} distance ${dist} must be <= 5`);
 }
-console.log('✓ All 37 cells satisfy dist <= 3');
+console.log('✓ All 91 cells satisfy dist <= 5');
 
 // Test 3: Boundary bounce
 let bounceTestsCount = 0;
@@ -180,7 +180,7 @@ const obstacleBlock = (q, r) => {
 
 for (let step = 1; step <= 1000; step++) {
   for (const head of activeHeads) {
-    const next = calculateBounce(head.q, head.r, head.dir, 3, obstacleBlock);
+    const next = calculateBounce(head.q, head.r, head.dir, HEX_RADIUS, obstacleBlock);
     head.q = next.nextQ;
     head.r = next.nextR;
     head.dir = next.nextDir;
@@ -204,9 +204,11 @@ const testViewports = [
 for (const vp of testViewports) {
   const padX = 16;
   const padY = 16;
-  const maxSizeX = (vp.w - padX) / (7 * Math.sqrt(3));
-  const maxSizeY = (vp.h - padY) / 11;
-  const hexSize = Math.max(14, Math.min(48, Math.min(maxSizeX, maxSizeY)));
+  const cols = 2 * HEX_RADIUS + 1;
+  const rows = 3 * HEX_RADIUS + 2;
+  const maxSizeX = (vp.w - padX) / (cols * Math.sqrt(3));
+  const maxSizeY = (vp.h - padY) / rows;
+  const hexSize = Math.max(11, Math.min(48, Math.min(maxSizeX, maxSizeY)));
 
   const originX = vp.w / 2;
   const originY = vp.h / 2;
@@ -234,7 +236,8 @@ for (const vp of testViewports) {
     }
   }
 }
-console.log('✓ Verified all 37 cells fit completely within mobile viewports (320px, 360px, 375px, 390px, 412px) without any horizontal clipping!');
+console.log('✓ Verified all 91 cells fit completely within mobile viewports (320px, 360px, 375px, 390px, 412px) without any horizontal clipping!');
 
 console.log('All HexaBeat unit tests passed!');
+
 

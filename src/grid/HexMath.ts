@@ -1,6 +1,6 @@
 import { DirectionOffset, Cell } from './HexTypes';
 
-export const HEX_RADIUS = 3; // Max axial distance (gives 37 cells: rings 0, 1, 2, 3)
+export const HEX_RADIUS = 5; // Max axial distance (gives 91 cells: rings 0, 1, 2, 3, 4, 5)
 
 // 6 axial directions in pointy-topped orientation
 // Order: Clockwise starting from Right / East (0 rad)

@@ -6,7 +6,8 @@ import {
   getHexVertices,
   isInsideGrid,
   HEX_DIRECTIONS,
-  COMPASS_DIR_MAP
+  COMPASS_DIR_MAP,
+  HEX_RADIUS
 } from '../grid/HexMath';
 
 export interface SoundStyle {
@@ -132,20 +133,22 @@ export class HexCanvas {
     this.originX = rect.width / 2;
     this.originY = rect.height / 2;
 
-    // The 37-cell hexagonal grid (radius 3) in pointy-topped orientation spans:
-    // Total horizontal span = 7 * sqrt(3) * hexSize ≈ 12.12436 * hexSize
-    // Total vertical span = 11 * hexSize
+    // The hexagonal grid of radius HEX_RADIUS in pointy-topped orientation spans:
+    // Total horizontal span = (2 * HEX_RADIUS + 1) * sqrt(3) * hexSize
+    // Total vertical span = (3 * HEX_RADIUS + 2) * hexSize
     // Safe margins: padX = 16px, padY = 16px to ensure all outer rings fit comfortably on mobile
     const padX = 16;
     const padY = 16;
     const maxAvailableWidth = Math.max(10, rect.width - padX);
     const maxAvailableHeight = Math.max(10, rect.height - padY);
 
-    const maxSizeX = maxAvailableWidth / (7 * Math.sqrt(3));
-    const maxSizeY = maxAvailableHeight / 11;
+    const cols = 2 * HEX_RADIUS + 1;
+    const rows = 3 * HEX_RADIUS + 2;
+    const maxSizeX = maxAvailableWidth / (cols * Math.sqrt(3));
+    const maxSizeY = maxAvailableHeight / rows;
 
     // Choose the dimension that guarantees both horizontal and vertical fitting
-    this.hexSize = Math.max(14, Math.min(48, Math.min(maxSizeX, maxSizeY)));
+    this.hexSize = Math.max(11, Math.min(48, Math.min(maxSizeX, maxSizeY)));
   }
 
   private initEvents() {
