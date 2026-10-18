@@ -1,4 +1,4 @@
-package com.hexadroid.app;
+package com.khodin.hexabeat;
 
 import com.getcapacitor.BridgeActivity;
 

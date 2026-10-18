@@ -6,12 +6,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Deploy to GitHub Pages](https://github.com/khodin/hexabeat/actions/workflows/deploy.yml/badge.svg)](https://github.com/khodin/hexabeat/actions/workflows/deploy.yml)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-00e5ff.svg)](https://khodin.github.io/hexabeat/)
+[![Download Android APK](https://img.shields.io/badge/Download-Android%20APK-3ddc84.svg?logo=android&logoColor=white)](https://github.com/khodin/hexabeat/releases/latest)
 
 ---
 
-## 🎮 [Launch Live Web App](https://khodin.github.io/hexabeat/)
+## 🎮 [Launch Live Web App](https://khodin.github.io/hexabeat/) • 📱 [Download Android APK](https://github.com/khodin/hexabeat/releases/latest)
 
-Play **HexaBeat** directly in your browser on desktop or mobile. No installation or account required.
+Play **HexaBeat** directly in your browser or install the native Android APK on your device.
 
 ---
 
@@ -28,8 +29,8 @@ Play **HexaBeat** directly in your browser on desktop or mobile. No installation
   - `↘ BTM-R` (South-East: $60^\circ$)
 - 🎲 **Stochastic / Random by Default**: Unrouted cells (`✦ NO ROUTE`) let playheads branch randomly between accessible neighbors, producing self-evolving generative polyrhythms.
 - 🧱 **Impassable Dead Cells & Center Launch Hub**: Paint impassable `DEAD` barrier walls. Playheads start from the center launch pad `(0, 0)` and once they disperse, the center locks into an impassable dead cell to prevent accidental stalling.
-- 🏃 **Multi-Playhead Engine**: Run 1, 2, or 3 playheads simultaneously with smooth 60 FPS cubic ease-out interpolation and dynamic collision deflection.
-- 📱 **Mobile & Android Ready**: Full touch/drag support, mobile safe-area insets (`env(safe-area-inset-bottom)`), responsive canvas scaling, and pre-configured Capacitor Android bridge.
+- 🏃 **Multi-Playhead Engine**: Run up to 6 simultaneous playheads radiating along the 6 hex facets with smooth 60 FPS cubic ease-out interpolation and dynamic collision deflection.
+- 📱 **Mobile & Android Ready**: Full touch/drag support, mobile safe-area insets (`env(safe-area-inset-bottom)`), responsive canvas scaling, and pre-built Android APK available.
 
 ---
 
