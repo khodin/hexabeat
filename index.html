@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>HexaBeat • Generative Hexagonal Rhythm Sequencer</title>
+    <meta name="theme-color" content="#0a0a10" />
+    <meta name="description" content="Generative 6-directional hexagonal rhythm sequencer inspired by JR Hexatone Pro, with procedural Web Audio synthesis." />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- HEADER / TRANSPORT BAR -->
+      <header class="header-bar">
+        <div class="brand">
+          <span class="brand-title">HexaBeat</span>
+        </div>
+
+        <div class="transport-controls">
+          <select id="preset-select" class="preset-select">
+            <option value="techno-drive">Techno Drive</option>
+            <option value="polyrhythm-orbit">Hex Polyrhythm</option>
+            <option value="idm-glitch">IDM Generative</option>
+            <option value="blank">Empty Canvas</option>
+          </select>
+
+          <div class="tempo-box">
+            <span class="tempo-label">BPM</span>
+            <input type="range" id="bpm-slider" class="tempo-slider" min="60" max="220" value="128" />
+            <span id="bpm-value" class="tempo-value">128</span>
+          </div>
+
+          <button id="btn-play" class="btn btn-primary" title="Start/Stop Sequencer">
+            ▶ PLAY
+          </button>
+          <button id="btn-step" class="btn" title="Step one 16th note">
+            ⏭
+          </button>
+          <button id="btn-reset" class="btn" title="Reset all playheads to center hub">
+            ⏮ RESET
+          </button>
+          <button id="btn-clear" class="btn" title="Clear Grid">
+            CLEAR
+          </button>
+        </div>
+      </header>
+
+      <!-- MAIN HEXAGONAL CANVAS -->
+      <main class="canvas-container">
+        <canvas id="hex-canvas"></canvas>
+      </main>
+
+      <!-- BOTTOM PALETTES & TOOLS -->
+      <footer class="bottom-dock">
+        <!-- SOUND PALETTE -->
+        <div class="palette-row">
+          <span class="palette-tag">SOUND</span>
+          <div class="palette-group" id="sound-palette">
+            <button class="sound-btn" data-sound="NONE" title="Erase sound">
+              <span class="btn-badge">CLR</span>
+            </button>
+            <button class="sound-btn active" data-sound="KICK" title="Kick Drum">
+              <span class="btn-badge">KICK</span>
+            </button>
+            <button class="sound-btn" data-sound="SNARE" title="Snare Drum">
+              <span class="btn-badge">SNARE</span>
+            </button>
+            <button class="sound-btn" data-sound="CLOSED_HH" title="Closed Hi-Hat">
+              <span class="btn-badge">CL.HAT</span>
+            </button>
+            <button class="sound-btn" data-sound="OPEN_HH" title="Open Hi-Hat">
+              <span class="btn-badge">OP.HAT</span>
+            </button>
+            <button class="sound-btn" data-sound="CLAP" title="Hand Clap">
+              <span class="btn-badge">CLAP</span>
+            </button>
+            <button class="sound-btn" data-sound="SYNTH" title="Synth Bass Pluck">
+              <span class="btn-badge">SYNTH</span>
+            </button>
+            <button class="sound-btn" data-sound="DEAD" title="Dead Cell (Impassable Wall / Blocker)">
+              <span class="btn-badge">DEAD</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- MODIFIER PALETTE & PLAYHEADS -->
+        <div class="palette-row">
+          <span class="palette-tag">ROUTING</span>
+          <div class="palette-group" id="modifier-palette">
+            <button class="mod-btn active" data-mod="NONE" title="No Routing (Default Random 6-direction movement)">
+              ✦ NO ROUTE
+            </button>
+            <button class="mod-btn" data-mod="DIR_TL" title="Route Top-Left (North-West: ↖)">
+              ↖ TOP-L
+            </button>
+            <button class="mod-btn" data-mod="DIR_TR" title="Route Top-Right (North-East: ↗)">
+              ↗ TOP-R
+            </button>
+            <button class="mod-btn" data-mod="DIR_L" title="Route Left (West: ←)">
+              ← LEFT
+            </button>
+            <button class="mod-btn" data-mod="DIR_R" title="Route Right (East: →)">
+              → RIGHT
+            </button>
+            <button class="mod-btn" data-mod="DIR_BL" title="Route Bottom-Left (South-West: ↙)">
+              ↙ BTM-L
+            </button>
+            <button class="mod-btn" data-mod="DIR_BR" title="Route Bottom-Right (South-East: ↘)">
+              ↘ BTM-R
+            </button>
+          </div>
+
+          <div class="playhead-toggles">
+            <span class="palette-tag">HEADS</span>
+            <button class="p-toggle active" data-id="1" title="Toggle Playhead 1 (Alpha)">1</button>
+            <button class="p-toggle active" data-id="2" title="Toggle Playhead 2 (Beta)">2</button>
+            <button class="p-toggle" data-id="3" title="Toggle Playhead 3 (Gamma)">3</button>
+          </div>
+        </div>
+
+        <!-- STATUS -->
+        <div class="status-bar">
+          <span id="selected-cell-info" class="status-chip">Cell: (0, 0) • KICK • PASS</span>
+          <span id="step-indicator" class="status-chip">Step: 0</span>
+        </div>
+      </footer>
+    </div>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
