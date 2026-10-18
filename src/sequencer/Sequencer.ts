@@ -32,10 +32,10 @@ export class Sequencer {
         name: 'Beta',
         q: 0,
         r: 0,
-        dir: 2,
+        dir: 1,
         color: '#ff007f',
         glowColor: 'rgba(255, 0, 127, 0.7)',
-        active: false,
+        active: true,
         prevQ: 0,
         prevR: 0,
         stepProgress: 1.0
@@ -45,9 +45,48 @@ export class Sequencer {
         name: 'Gamma',
         q: 0,
         r: 0,
-        dir: 4,
+        dir: 2,
         color: '#39ff14',
         glowColor: 'rgba(57, 255, 20, 0.7)',
+        active: false,
+        prevQ: 0,
+        prevR: 0,
+        stepProgress: 1.0
+      },
+      {
+        id: 4,
+        name: 'Delta',
+        q: 0,
+        r: 0,
+        dir: 3,
+        color: '#ffe600',
+        glowColor: 'rgba(255, 230, 0, 0.7)',
+        active: false,
+        prevQ: 0,
+        prevR: 0,
+        stepProgress: 1.0
+      },
+      {
+        id: 5,
+        name: 'Epsilon',
+        q: 0,
+        r: 0,
+        dir: 4,
+        color: '#a855f7',
+        glowColor: 'rgba(168, 85, 247, 0.7)',
+        active: false,
+        prevQ: 0,
+        prevR: 0,
+        stepProgress: 1.0
+      },
+      {
+        id: 6,
+        name: 'Zeta',
+        q: 0,
+        r: 0,
+        dir: 5,
+        color: '#ff6b2b',
+        glowColor: 'rgba(255, 107, 43, 0.7)',
         active: false,
         prevQ: 0,
         prevR: 0,
@@ -100,7 +139,7 @@ export class Sequencer {
       p.r = 0;
       p.prevQ = 0;
       p.prevR = 0;
-      p.dir = (idx * 2) % 6;
+      p.dir = idx % 6;
       p.stepProgress = 1.0;
     });
     this.currentStepIndex = 0;
@@ -146,7 +185,18 @@ export class Sequencer {
       }
     }
 
-    // Apply playheads
+    // Reset all playheads to inactive at center
+    this.playheads.forEach((p, idx) => {
+      p.q = 0;
+      p.r = 0;
+      p.prevQ = 0;
+      p.prevR = 0;
+      p.dir = idx % 6;
+      p.active = false;
+      p.stepProgress = 1.0;
+    });
+
+    // Apply preset playheads
     for (const pConfig of preset.playheads) {
       const playhead = this.playheads.find(p => p.id === pConfig.id);
       if (playhead) {
