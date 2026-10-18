@@ -26,16 +26,23 @@ export type ModifierType =
 export interface Cell {
   q: number;
   r: number;
-  sound: SoundType;
+  enabled: boolean;
+  isDead: boolean;
   modifier: ModifierType;
+  sound?: SoundType; // optional compatibility
   // Visual transient states
   lastTriggerTime?: number;
   triggerIntensity?: number;
+  lastTriggerColor?: string;
 }
 
 export interface Playhead {
   id: number;
   name: string;
+  sound: SoundType;
+  startQ: number;
+  startR: number;
+  startDir: number;
   q: number;
   r: number;
   dir: number; // 0 to 5
@@ -59,6 +66,19 @@ export interface Preset {
   id: string;
   name: string;
   bpm: number;
-  cells: Array<{ q: number; r: number; sound: SoundType; modifier: ModifierType }>;
-  playheads: Array<{ id: number; q: number; r: number; dir: number; active: boolean }>;
+  cells: Array<{
+    q: number;
+    r: number;
+    enabled?: boolean;
+    isDead?: boolean;
+    sound?: SoundType;
+    modifier: ModifierType;
+  }>;
+  playheads: Array<{
+    id: number;
+    q?: number;
+    r?: number;
+    dir?: number;
+    active: boolean;
+  }>;
 }

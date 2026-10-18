@@ -42,10 +42,13 @@ export function generateGrid(maxRadius: number = HEX_RADIUS): Map<string, Cell> 
     const r1 = Math.max(-maxRadius, -q - maxRadius);
     const r2 = Math.min(maxRadius, -q + maxRadius);
     for (let r = r1; r <= r2; r++) {
+      const isCenter = q === 0 && r === 0;
       grid.set(cellKey(q, r), {
         q,
         r,
-        sound: 'NONE',
+        enabled: false,
+        isDead: isCenter,
+        sound: isCenter ? 'DEAD' : 'NONE',
         modifier: 'NONE'
       });
     }

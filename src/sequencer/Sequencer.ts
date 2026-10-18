@@ -5,6 +5,16 @@ import { PRESETS } from './Presets';
 
 export type StepListener = (stepIndex: number, triggeredCells: Cell[]) => void;
 
+// 6 Playheads: each starts on its own position on circle 1 around center with its own dedicated sound
+export const PLAYHEAD_INITIAL_CONFIGS = [
+  { id: 1, name: 'Alpha', sound: 'KICK' as SoundType, startQ: 1, startR: 0, startDir: 0, color: '#00ffff', glowColor: 'rgba(0, 255, 255, 0.7)', active: true },
+  { id: 2, name: 'Beta', sound: 'SNARE' as SoundType, startQ: 0, startR: 1, startDir: 1, color: '#ff007f', glowColor: 'rgba(255, 0, 127, 0.7)', active: true },
+  { id: 3, name: 'Gamma', sound: 'CLOSED_HH' as SoundType, startQ: -1, startR: 1, startDir: 2, color: '#39ff14', glowColor: 'rgba(57, 255, 20, 0.7)', active: false },
+  { id: 4, name: 'Delta', sound: 'OPEN_HH' as SoundType, startQ: -1, startR: 0, startDir: 3, color: '#ffe600', glowColor: 'rgba(255, 230, 0, 0.7)', active: false },
+  { id: 5, name: 'Epsilon', sound: 'CLAP' as SoundType, startQ: 0, startR: -1, startDir: 4, color: '#a855f7', glowColor: 'rgba(168, 85, 247, 0.7)', active: false },
+  { id: 6, name: 'Zeta', sound: 'SYNTH' as SoundType, startQ: 1, startR: -1, startDir: 5, color: '#ff6b2b', glowColor: 'rgba(255, 107, 43, 0.7)', active: false },
+];
+
 export class Sequencer {
   private grid: Map<string, Cell>;
   private playheads: Playhead[];
@@ -13,86 +23,15 @@ export class Sequencer {
 
   constructor(private audioEngine: AudioEngine) {
     this.grid = generateGrid();
-    this.playheads = [
-      {
-        id: 1,
-        name: 'Alpha',
-        q: 0,
-        r: 0,
-        dir: 0,
-        color: '#00ffff',
-        glowColor: 'rgba(0, 255, 255, 0.7)',
-        active: true,
-        prevQ: 0,
-        prevR: 0,
-        stepProgress: 1.0
-      },
-      {
-        id: 2,
-        name: 'Beta',
-        q: 0,
-        r: 0,
-        dir: 1,
-        color: '#ff007f',
-        glowColor: 'rgba(255, 0, 127, 0.7)',
-        active: true,
-        prevQ: 0,
-        prevR: 0,
-        stepProgress: 1.0
-      },
-      {
-        id: 3,
-        name: 'Gamma',
-        q: 0,
-        r: 0,
-        dir: 2,
-        color: '#39ff14',
-        glowColor: 'rgba(57, 255, 20, 0.7)',
-        active: false,
-        prevQ: 0,
-        prevR: 0,
-        stepProgress: 1.0
-      },
-      {
-        id: 4,
-        name: 'Delta',
-        q: 0,
-        r: 0,
-        dir: 3,
-        color: '#ffe600',
-        glowColor: 'rgba(255, 230, 0, 0.7)',
-        active: false,
-        prevQ: 0,
-        prevR: 0,
-        stepProgress: 1.0
-      },
-      {
-        id: 5,
-        name: 'Epsilon',
-        q: 0,
-        r: 0,
-        dir: 4,
-        color: '#a855f7',
-        glowColor: 'rgba(168, 85, 247, 0.7)',
-        active: false,
-        prevQ: 0,
-        prevR: 0,
-        stepProgress: 1.0
-      },
-      {
-        id: 6,
-        name: 'Zeta',
-        q: 0,
-        r: 0,
-        dir: 5,
-        color: '#ff6b2b',
-        glowColor: 'rgba(255, 107, 43, 0.7)',
-        active: false,
-        prevQ: 0,
-        prevR: 0,
-        stepProgress: 1.0
-      }
-    ];
+    this.playheads = PLAYHEAD_INITIAL_CONFIGS.map(cfg => ({
+      ...cfg,
+      q: cfg.startQ,
+      r: cfg.startR,
+      dir: cfg.startDir,
+      prevQ: cfg.startQ,
+      prevR: cfg.startR,
+      stepProgress: 1.0
+    }));
 
     // Connect audio engine lookahead tick to sequencer step
     this.audioEngine.setStepCallback((stepAudioTime: number) => {
@@ -111,13 +50,28 @@ export class Sequencer {
     return this.grid.get(cellKey(q, r));
   }
 
-  public setCell(q: number, r: number, sound: SoundType, modifier: ModifierType): Cell | undefined {
+  public setCell(
+    q: number,
+    r: number,
+    enabled: boolean,
+    isDead: boolean,
+    modifier: ModifierType
+  ): Cell | undefined {
     const key = cellKey(q, r);
     const cell = this.grid.get(key);
     if (cell) {
-      // Middle cell (0, 0) is always sound-free (start cell)
-      cell.sound = (q === 0 && r === 0) ? 'NONE' : sound;
-      cell.modifier = modifier;
+      if (q === 0 && r === 0) {
+        // Center core remains dead / blocker
+        cell.isDead = true;
+        cell.enabled = false;
+        cell.sound = 'DEAD';
+        cell.modifier = 'NONE';
+      } else {
+        cell.enabled = enabled;
+        cell.isDead = isDead;
+        cell.sound = isDead ? 'DEAD' : (enabled ? 'KICK' : 'NONE');
+        cell.modifier = modifier;
+      }
       return cell;
     }
     return undefined;
@@ -125,7 +79,10 @@ export class Sequencer {
 
   public clearGrid() {
     this.grid.forEach(cell => {
-      cell.sound = 'NONE';
+      const isCenter = cell.q === 0 && cell.r === 0;
+      cell.enabled = false;
+      cell.isDead = isCenter;
+      cell.sound = isCenter ? 'DEAD' : 'NONE';
       cell.modifier = 'NONE';
       cell.lastTriggerTime = 0;
       cell.triggerIntensity = 0;
@@ -134,12 +91,12 @@ export class Sequencer {
   }
 
   public resetPlayheadsToCenter() {
-    this.playheads.forEach((p, idx) => {
-      p.q = 0;
-      p.r = 0;
-      p.prevQ = 0;
-      p.prevR = 0;
-      p.dir = idx % 6;
+    this.playheads.forEach((p) => {
+      p.q = p.startQ;
+      p.r = p.startR;
+      p.prevQ = p.startQ;
+      p.prevR = p.startR;
+      p.dir = p.startDir;
       p.stepProgress = 1.0;
     });
     this.currentStepIndex = 0;
@@ -180,18 +137,30 @@ export class Sequencer {
     for (const item of preset.cells) {
       const cell = this.grid.get(cellKey(item.q, item.r));
       if (cell) {
-        cell.sound = item.sound;
-        cell.modifier = item.modifier;
+        if (item.isDead || item.sound === 'DEAD') {
+          cell.isDead = true;
+          cell.enabled = false;
+          cell.sound = 'DEAD';
+        } else if (item.enabled || (item.sound !== undefined && item.sound !== 'NONE')) {
+          cell.enabled = true;
+          cell.isDead = false;
+          cell.sound = 'KICK';
+        } else {
+          cell.enabled = false;
+          cell.isDead = false;
+          cell.sound = 'NONE';
+        }
+        cell.modifier = item.modifier || 'NONE';
       }
     }
 
-    // Reset all playheads to inactive at center
-    this.playheads.forEach((p, idx) => {
-      p.q = 0;
-      p.r = 0;
-      p.prevQ = 0;
-      p.prevR = 0;
-      p.dir = idx % 6;
+    // Reset all playheads to their dedicated initial positions on circle 1
+    this.playheads.forEach((p) => {
+      p.q = p.startQ;
+      p.r = p.startR;
+      p.prevQ = p.startQ;
+      p.prevR = p.startR;
+      p.dir = p.startDir;
       p.active = false;
       p.stepProgress = 1.0;
     });
@@ -200,11 +169,15 @@ export class Sequencer {
     for (const pConfig of preset.playheads) {
       const playhead = this.playheads.find(p => p.id === pConfig.id);
       if (playhead) {
-        playhead.q = pConfig.q;
-        playhead.r = pConfig.r;
-        playhead.prevQ = pConfig.q;
-        playhead.prevR = pConfig.r;
-        playhead.dir = pConfig.dir;
+        if (pConfig.q !== undefined && pConfig.r !== undefined) {
+          playhead.q = pConfig.q;
+          playhead.r = pConfig.r;
+          playhead.prevQ = pConfig.q;
+          playhead.prevR = pConfig.r;
+        }
+        if (pConfig.dir !== undefined) {
+          playhead.dir = pConfig.dir;
+        }
         playhead.active = pConfig.active;
         playhead.stepProgress = 1.0;
       }
@@ -226,45 +199,43 @@ export class Sequencer {
       if (!playhead.active) continue;
 
       const cell = this.grid.get(cellKey(playhead.q, playhead.r));
-      if (cell && cell.sound !== 'NONE') {
+      const isEnabled = cell && (cell.enabled || (cell.sound !== 'NONE' && cell.sound !== 'DEAD'));
+
+      if (isEnabled && cell) {
         const noteSeed = playhead.q * 3 + playhead.r * 5;
-        this.audioEngine.triggerSound(cell.sound, stepAudioTime, noteSeed);
+        // Each head has its dedicated sound!
+        this.audioEngine.triggerSound(playhead.sound, stepAudioTime, noteSeed);
 
         cell.lastTriggerTime = performance.now();
+        cell.lastTriggerColor = playhead.color;
         cell.triggerIntensity = 1.0;
         triggeredCells.push(cell);
       }
 
       // Obstacle / Dead Cell predicate
       const isBlocked = (testQ: number, testR: number) => {
-        // Center cell (0, 0) is an impassable dead cell once heads have left it
-        if (testQ === 0 && testR === 0 && (playhead.q !== 0 || playhead.r !== 0)) {
-          return true;
-        }
-        // User-placed dead cells
-        const targetCell = this.grid.get(cellKey(testQ, testR));
-        if (targetCell && targetCell.sound === 'DEAD') {
-          return true;
-        }
-        return false;
+        // Center cell (0, 0) is an impassable core
+        if (testQ === 0 && testR === 0) return true;
+        const target = this.grid.get(cellKey(testQ, testR));
+        return target ? (target.isDead || target.sound === 'DEAD') : false;
       };
 
-      // 1. Determine next direction from modifier
+      // 1. Check if cell has explicit modifier direction
       let nextDir = playhead.dir;
-      if (cell && cell.modifier !== 'NONE' && cell.modifier in COMPASS_DIR_MAP) {
-        // Explicit compass route (Top-Left, Top-Right, Left, Right, Bottom-Left, Bottom-Right)
+      if (cell && cell.modifier in COMPASS_DIR_MAP) {
         nextDir = COMPASS_DIR_MAP[cell.modifier];
       } else {
-        // When NOT routing (modifier is NONE / unrouted), movement is default RANDOM among accessible neighbors!
+        // Stochastic random branching among accessible non-blocked neighbors
         const accessible = getAccessibleDirections(playhead.q, playhead.r, 3, isBlocked);
         if (accessible.length > 0) {
-          nextDir = accessible[Math.floor(Math.random() * accessible.length)];
+          const randIdx = Math.floor(Math.random() * accessible.length);
+          nextDir = accessible[randIdx];
         } else {
           nextDir = (playhead.dir + 3) % 6;
         }
       }
 
-      // 2. Calculate movement with boundary and dead cell collision bounce
+      // 2. Physics bounce calculation
       const bounceResult = calculateBounce(playhead.q, playhead.r, nextDir, 3, isBlocked);
 
       // 3. Update playhead positions
@@ -277,13 +248,11 @@ export class Sequencer {
     }
 
     this.currentStepIndex++;
-    for (const listener of this.onStepListeners) {
-      listener(this.currentStepIndex, triggeredCells);
-    }
+    this.onStepListeners.forEach(listener => listener(this.currentStepIndex, triggeredCells));
   }
 
   public stepManual() {
-    this.executeStep(this.audioEngine.getCurrentTime());
+    this.executeStep(this.audioEngine.getCurrentTime() + 0.02);
   }
 
   public getCurrentStepIndex(): number {

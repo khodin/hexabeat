@@ -6,23 +6,26 @@ export const PRESETS: Preset[] = [
     name: 'Techno Drive',
     bpm: 128,
     playheads: [
-      { id: 1, q: 0, r: 0, dir: 0, active: true },
-      { id: 2, q: 0, r: 0, dir: 2, active: true },
-      { id: 3, q: 0, r: 0, dir: 4, active: false }
+      { id: 1, active: true },
+      { id: 2, active: true },
+      { id: 3, active: true },
+      { id: 4, active: false },
+      { id: 5, active: false },
+      { id: 6, active: false }
     ],
     cells: [
-      // Ring groove looping around center (Center 0,0 has NO sound)
-      { q: 1, r: 0, sound: 'CLOSED_HH', modifier: 'DIR_BR' },
-      { q: 1, r: 1, sound: 'SNARE', modifier: 'DIR_BL' },
-      { q: 0, r: 2, sound: 'KICK', modifier: 'DIR_L' },
-      { q: -1, r: 1, sound: 'CLOSED_HH', modifier: 'DIR_TL' },
-      { q: -2, r: 0, sound: 'KICK', modifier: 'DIR_TR' },
-      { q: -1, r: -1, sound: 'SNARE', modifier: 'DIR_R' },
-      { q: 0, r: -2, sound: 'CLAP', modifier: 'DIR_BR' },
-      { q: 1, r: -1, sound: 'OPEN_HH', modifier: 'DIR_R' },
+      // Ring groove looping around center
+      { q: 1, r: 0, enabled: true, modifier: 'DIR_BR' },
+      { q: 1, r: 1, enabled: true, modifier: 'DIR_BL' },
+      { q: 0, r: 2, enabled: true, modifier: 'DIR_L' },
+      { q: -1, r: 1, enabled: true, modifier: 'DIR_TL' },
+      { q: -2, r: 0, enabled: true, modifier: 'DIR_TR' },
+      { q: -1, r: -1, enabled: true, modifier: 'DIR_R' },
+      { q: 0, r: -2, enabled: true, modifier: 'DIR_BR' },
+      { q: 1, r: -1, enabled: true, modifier: 'DIR_R' },
       // Melodic accents
-      { q: 2, r: 0, sound: 'SYNTH', modifier: 'DIR_TL' },
-      { q: -2, r: 1, sound: 'SYNTH', modifier: 'DIR_TR' }
+      { q: 2, r: 0, enabled: true, modifier: 'DIR_TL' },
+      { q: -2, r: 1, enabled: true, modifier: 'DIR_TR' }
     ]
   },
   {
@@ -30,25 +33,28 @@ export const PRESETS: Preset[] = [
     name: 'Hex Polyrhythm',
     bpm: 120,
     playheads: [
-      { id: 1, q: 0, r: 0, dir: 0, active: true },
-      { id: 2, q: 0, r: 0, dir: 2, active: true },
-      { id: 3, q: 0, r: 0, dir: 4, active: true }
+      { id: 1, active: true },
+      { id: 2, active: true },
+      { id: 3, active: true },
+      { id: 4, active: true },
+      { id: 5, active: false },
+      { id: 6, active: false }
     ],
     cells: [
-      // Outer ring reflectors (Center 0,0 has NO sound)
-      { q: 2, r: -2, sound: 'KICK', modifier: 'DIR_BR' },
-      { q: 2, r: 0, sound: 'SNARE', modifier: 'DIR_BL' },
-      { q: 0, r: 2, sound: 'CLAP', modifier: 'DIR_L' },
-      { q: -2, r: 2, sound: 'KICK', modifier: 'DIR_TL' },
-      { q: -2, r: 0, sound: 'SNARE', modifier: 'DIR_TR' },
-      { q: 0, r: -2, sound: 'OPEN_HH', modifier: 'DIR_R' },
+      // Outer ring reflectors
+      { q: 2, r: -2, enabled: true, modifier: 'DIR_BR' },
+      { q: 2, r: 0, enabled: true, modifier: 'DIR_BL' },
+      { q: 0, r: 2, enabled: true, modifier: 'DIR_L' },
+      { q: -2, r: 2, enabled: true, modifier: 'DIR_TL' },
+      { q: -2, r: 0, enabled: true, modifier: 'DIR_TR' },
+      { q: 0, r: -2, enabled: true, modifier: 'DIR_R' },
       // Ring 1 inner deflectors
-      { q: 1, r: 0, sound: 'CLOSED_HH', modifier: 'DIR_TR' },
-      { q: -1, r: 0, sound: 'CLOSED_HH', modifier: 'DIR_BL' },
-      { q: 0, r: 1, sound: 'CLOSED_HH', modifier: 'DIR_TL' },
-      { q: 0, r: -1, sound: 'CLOSED_HH', modifier: 'DIR_BR' },
-      { q: 1, r: -1, sound: 'SYNTH', modifier: 'DIR_L' },
-      { q: -1, r: 1, sound: 'SYNTH', modifier: 'DIR_R' }
+      { q: 1, r: 0, enabled: true, modifier: 'DIR_TR' },
+      { q: -1, r: 0, enabled: true, modifier: 'DIR_BL' },
+      { q: 0, r: 1, enabled: true, modifier: 'DIR_TL' },
+      { q: 0, r: -1, enabled: true, modifier: 'DIR_BR' },
+      { q: 1, r: -1, enabled: true, modifier: 'DIR_L' },
+      { q: -1, r: 1, enabled: true, modifier: 'DIR_R' }
     ]
   },
   {
@@ -56,22 +62,25 @@ export const PRESETS: Preset[] = [
     name: 'IDM Generative',
     bpm: 135,
     playheads: [
-      { id: 1, q: 0, r: 0, dir: 1, active: true },
-      { id: 2, q: 0, r: 0, dir: 3, active: true },
-      { id: 3, q: 0, r: 0, dir: 5, active: false }
+      { id: 1, active: true },
+      { id: 2, active: true },
+      { id: 3, active: false },
+      { id: 4, active: false },
+      { id: 5, active: true },
+      { id: 6, active: true }
     ],
     cells: [
       // Generative cluster: default unrouted (NONE) moves randomly!
-      { q: 1, r: 0, sound: 'CLOSED_HH', modifier: 'DIR_BR' },
-      { q: -1, r: 0, sound: 'OPEN_HH', modifier: 'DIR_TL' },
-      { q: 0, r: 1, sound: 'SNARE', modifier: 'NONE' },
-      { q: 0, r: -1, sound: 'CLAP', modifier: 'NONE' },
-      { q: 1, r: -1, sound: 'SYNTH', modifier: 'DIR_L' },
-      { q: -1, r: 1, sound: 'SYNTH', modifier: 'DIR_R' },
-      { q: 2, r: -1, sound: 'KICK', modifier: 'DIR_BL' },
-      { q: -2, r: 1, sound: 'SNARE', modifier: 'DIR_TR' },
-      { q: 1, r: 1, sound: 'DEAD', modifier: 'NONE' },
-      { q: -1, r: -1, sound: 'DEAD', modifier: 'NONE' }
+      { q: 1, r: 0, enabled: true, modifier: 'DIR_BR' },
+      { q: -1, r: 0, enabled: true, modifier: 'DIR_TL' },
+      { q: 0, r: 1, enabled: true, modifier: 'NONE' },
+      { q: 0, r: -1, enabled: true, modifier: 'NONE' },
+      { q: 1, r: -1, enabled: true, modifier: 'DIR_L' },
+      { q: -1, r: 1, enabled: true, modifier: 'DIR_R' },
+      { q: 2, r: -1, enabled: true, modifier: 'DIR_BL' },
+      { q: -2, r: 1, enabled: true, modifier: 'DIR_TR' },
+      { q: 1, r: 1, isDead: true, modifier: 'NONE' },
+      { q: -1, r: -1, isDead: true, modifier: 'NONE' }
     ]
   },
   {
@@ -79,9 +88,12 @@ export const PRESETS: Preset[] = [
     name: 'Empty Canvas',
     bpm: 120,
     playheads: [
-      { id: 1, q: 0, r: 0, dir: 0, active: true },
-      { id: 2, q: 0, r: 0, dir: 2, active: false },
-      { id: 3, q: 0, r: 0, dir: 4, active: false }
+      { id: 1, active: true },
+      { id: 2, active: false },
+      { id: 3, active: false },
+      { id: 4, active: false },
+      { id: 5, active: false },
+      { id: 6, active: false }
     ],
     cells: []
   }

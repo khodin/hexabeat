@@ -140,4 +140,57 @@ for (let step = 2; step <= 1000; step++) {
 }
 console.log('✓ Simulated 1000 steps with dead cells and locked center - playhead never entered any dead cell or center cell!');
 
+// Test 5: 6 Playheads Radius-1 Starting Configurations & Concurrent Simulation
+const PLAYHEAD_CONFIGS = [
+  { id: 1, sound: 'KICK', startQ: 1, startR: 0, startDir: 0 },
+  { id: 2, sound: 'SNARE', startQ: 0, startR: 1, startDir: 1 },
+  { id: 3, sound: 'CLOSED_HH', startQ: -1, startR: 1, startDir: 2 },
+  { id: 4, sound: 'OPEN_HH', startQ: -1, startR: 0, startDir: 3 },
+  { id: 5, sound: 'CLAP', startQ: 0, startR: -1, startDir: 4 },
+  { id: 6, sound: 'SYNTH', startQ: 1, startR: -1, startDir: 5 },
+];
+
+const startPositions = new Set();
+for (const config of PLAYHEAD_CONFIGS) {
+  const dist = getHexDistance(config.startQ, config.startR);
+  assert.strictEqual(dist, 1, `Head ${config.id} (${config.sound}) must start on circle 1 (distance 1), got ${dist}`);
+  assert(isInsideGrid(config.startQ, config.startR), `Head ${config.id} must start inside the grid`);
+  const posKey = `${config.startQ},${config.startR}`;
+  assert(!startPositions.has(posKey), `Duplicate start position ${posKey} for head ${config.id}`);
+  startPositions.add(posKey);
+}
+assert.strictEqual(startPositions.size, 6, 'All 6 playheads must have distinct starting cells on circle 1');
+console.log('✓ All 6 playheads start at distinct cells on circle 1 (r=1) with dedicated sounds and outward directions.');
+
+// Concurrent 1000-step simulation of all 6 playheads
+const activeHeads = PLAYHEAD_CONFIGS.map(c => ({
+  id: c.id,
+  sound: c.sound,
+  q: c.startQ,
+  r: c.startR,
+  dir: c.startDir
+}));
+
+const obstacleBlock = (q, r) => {
+  // Center is permanently dead / impassable
+  if (q === 0 && r === 0) return true;
+  // Extra dead cells in ring 2
+  return q === 2 && r === -1;
+};
+
+for (let step = 1; step <= 1000; step++) {
+  for (const head of activeHeads) {
+    const next = calculateBounce(head.q, head.r, head.dir, 3, obstacleBlock);
+    head.q = next.nextQ;
+    head.r = next.nextR;
+    head.dir = next.nextDir;
+
+    assert(isInsideGrid(head.q, head.r), `Head ${head.id} escaped grid on step ${step}`);
+    assert(head.q !== 0 || head.r !== 0, `Head ${head.id} entered center on step ${step}`);
+    assert(!(head.q === 2 && head.r === -1), `Head ${head.id} entered dead cell on step ${step}`);
+  }
+}
+console.log('✓ Concurrently simulated 6 playheads across 1000 steps - all remained within grid boundaries and avoided center & dead cells!');
+
 console.log('All HexaBeat unit tests passed!');
+

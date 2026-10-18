@@ -257,9 +257,9 @@ export class HexCanvas {
 
   private drawCell(cell: Cell, now: number) {
     const { x, y } = hexToPixel(cell.q, cell.r, this.hexSize, this.originX, this.originY);
-    const isLockedCenter = cell.q === 0 && cell.r === 0 && this.sequencer.getCurrentStepIndex() > 0;
-    const effectiveSound = isLockedCenter ? 'DEAD' : cell.sound;
-    const style = SOUND_STYLES[effectiveSound];
+    const isCenter = cell.q === 0 && cell.r === 0;
+    const isDead = isCenter || cell.isDead || cell.sound === 'DEAD';
+    const isEnabled = !isDead && (cell.enabled || (cell.sound !== 'NONE' && cell.sound !== 'DEAD'));
     const key = `${cell.q},${cell.r}`;
     const isSelected = this.selectedCellKey === key;
 
@@ -284,25 +284,37 @@ export class HexCanvas {
     });
     this.ctx.closePath();
 
-    // Glow if active sound or triggered
-    if (cell.sound !== 'NONE' || triggerFactor > 0) {
-      this.ctx.shadowColor = triggerFactor > 0 ? '#ffffff' : style.glow;
-      this.ctx.shadowBlur = triggerFactor > 0 ? 20 * triggerFactor : 10;
-    }
-
-    // Fill
-    if (triggerFactor > 0) {
-      this.ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + 0.5 * triggerFactor})`;
+    if (isDead) {
+      this.ctx.fillStyle = SOUND_STYLES.DEAD.fill;
+      this.ctx.strokeStyle = isSelected ? '#ffffff' : SOUND_STYLES.DEAD.border;
+      this.ctx.lineWidth = isSelected ? 3 : 1.5;
+      this.ctx.shadowColor = SOUND_STYLES.DEAD.glow;
+      this.ctx.shadowBlur = 8;
+    } else if (isEnabled) {
+      if (triggerFactor > 0) {
+        const trigColor = cell.lastTriggerColor || '#ffffff';
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + 0.5 * triggerFactor})`;
+        this.ctx.strokeStyle = trigColor;
+        this.ctx.shadowColor = trigColor;
+        this.ctx.shadowBlur = 24 * triggerFactor;
+        this.ctx.lineWidth = 2.5;
+      } else {
+        this.ctx.fillStyle = 'rgba(0, 229, 255, 0.12)';
+        this.ctx.strokeStyle = isSelected ? '#ffffff' : 'rgba(0, 229, 255, 0.7)';
+        this.ctx.shadowColor = 'rgba(0, 229, 255, 0.4)';
+        this.ctx.shadowBlur = 10;
+        this.ctx.lineWidth = isSelected ? 3 : 1.8;
+      }
     } else {
-      this.ctx.fillStyle = style.fill;
+      // Disabled / Silent cell
+      this.ctx.fillStyle = 'rgba(16, 17, 28, 0.7)';
+      this.ctx.strokeStyle = isSelected ? '#ffffff' : 'rgba(40, 45, 68, 0.6)';
+      this.ctx.lineWidth = isSelected ? 2.5 : 1.2;
+      this.ctx.shadowBlur = 0;
     }
+
     this.ctx.fill();
-
-    // Border
-    this.ctx.lineWidth = isSelected ? 3 : (triggerFactor > 0 ? 2.5 : 1.5);
-    this.ctx.strokeStyle = isSelected ? '#ffffff' : (triggerFactor > 0 ? '#ffffff' : style.border);
     this.ctx.stroke();
-
     this.ctx.restore();
 
     // Trigger Shockwave ripple
@@ -316,27 +328,25 @@ export class HexCanvas {
         else this.ctx.lineTo(pt.x, pt.y);
       });
       this.ctx.closePath();
-      this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.8 * triggerFactor})`;
-      this.ctx.lineWidth = 2 * triggerFactor;
+      const trigColor = cell.lastTriggerColor || '#ffffff';
+      this.ctx.strokeStyle = trigColor;
+      this.ctx.globalAlpha = 0.8 * triggerFactor;
+      this.ctx.lineWidth = 2.2 * triggerFactor;
       this.ctx.stroke();
       this.ctx.restore();
     }
 
     // Inner Labels & Modifier Glyphs
-    this.drawCellContent(x, y, cell, style);
+    this.drawCellContent(x, y, cell, isDead, isEnabled);
   }
 
-  private drawCellContent(x: number, y: number, cell: Cell, style: SoundStyle) {
+  private drawCellContent(x: number, y: number, cell: Cell, isDead: boolean, isEnabled: boolean) {
     this.ctx.save();
 
     const scale = Math.max(0.7, Math.min(1.3, this.hexSize / 36));
-    const isLockedCenter = cell.q === 0 && cell.r === 0 && this.sequencer.getCurrentStepIndex() > 0;
-    const isDead = cell.sound === 'DEAD' || isLockedCenter;
-    const hasSound = cell.sound !== 'NONE';
     const hasModifier = cell.modifier !== 'NONE';
-    const isCenter = cell.q === 0 && cell.r === 0;
 
-    // 1. DEAD CELL (Wall / Obstacle or Locked Center)
+    // 1. DEAD CELL (Wall / Obstacle or Center Core)
     if (isDead) {
       this.ctx.strokeStyle = '#ff3344';
       this.ctx.lineWidth = 2.4 * scale;
@@ -358,32 +368,35 @@ export class HexCanvas {
       return;
     }
 
-    // 2. Sound Badge
-    if (hasSound) {
-      this.ctx.fillStyle = style.text;
-      this.ctx.font = 'bold 11px "Segoe UI", Roboto, sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      const textY = hasModifier ? y - this.hexSize * 0.28 : y;
-      this.ctx.fillText(style.label, x, textY);
-    } else if (isCenter && !hasModifier) {
-      // Active launch hub (at step 0 before playback starts)
-      this.ctx.fillStyle = '#00ffff';
-      this.ctx.font = 'bold 9px "Segoe UI", Roboto, sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      this.ctx.fillText('HUB', x, y);
-      this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.4)';
-      this.ctx.lineWidth = 1.2;
-      this.ctx.beginPath();
-      this.ctx.arc(x, y, this.hexSize * 0.38, 0, Math.PI * 2);
-      this.ctx.stroke();
+    // 2. ENABLED BEAT NODE (Active Trigger)
+    if (isEnabled) {
+      if (!hasModifier) {
+        // Glowing beat node disc
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 5.5 * scale, 0, Math.PI * 2);
+        this.ctx.fillStyle = '#00e5ff';
+        this.ctx.shadowColor = 'rgba(0, 229, 255, 0.8)';
+        this.ctx.shadowBlur = 10;
+        this.ctx.fill();
+
+        // Inner white spark
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 2.2 * scale, 0, Math.PI * 2);
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fill();
+      } else {
+        // Smaller indicator dot when direction arrow is present
+        this.ctx.beginPath();
+        this.ctx.arc(x, y - this.hexSize * 0.28, 3 * scale, 0, Math.PI * 2);
+        this.ctx.fillStyle = '#00e5ff';
+        this.ctx.fill();
+      }
     }
 
     // 3. Modifier Glyph
     if (hasModifier) {
-      const glyphY = hasSound ? y + this.hexSize * 0.26 : y;
-      this.drawModifierGlyph(x, glyphY, cell.modifier, hasSound);
+      const glyphY = isEnabled ? y + this.hexSize * 0.12 : y;
+      this.drawModifierGlyph(x, glyphY, cell.modifier, isEnabled);
     }
 
     this.ctx.restore();

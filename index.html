@@ -59,38 +59,37 @@
 
       <!-- BOTTOM PALETTES & TOOLS -->
       <footer class="bottom-dock">
-        <!-- SOUND PALETTE -->
+        <!-- CELL PALETTE -->
         <div class="palette-row">
-          <span class="palette-tag">SOUND</span>
-          <div class="palette-group" id="sound-palette">
-            <button class="sound-btn" data-sound="NONE" title="Erase sound">
+          <span class="palette-tag">CELL</span>
+          <div class="palette-group" id="cell-palette">
+            <button class="tool-btn active" data-tool="ENABLE" title="Enable Cell (Plays Playhead's Sound when hit)">
+              <span class="btn-badge">● ENABLE</span>
+            </button>
+            <button class="tool-btn" data-tool="DISABLE" title="Disable Cell (Silent Pass-Through, No Sound)">
+              <span class="btn-badge">○ DISABLE</span>
+            </button>
+            <button class="tool-btn" data-tool="DEAD" title="Dead Cell (Impassable Wall / Blocker)">
+              <span class="btn-badge">✕ DEAD</span>
+            </button>
+            <button class="tool-btn" data-tool="CLEAR" title="Clear Cell (Reset to disabled with no route)">
               <span class="btn-badge">CLR</span>
             </button>
-            <button class="sound-btn active" data-sound="KICK" title="Kick Drum">
-              <span class="btn-badge">KICK</span>
-            </button>
-            <button class="sound-btn" data-sound="SNARE" title="Snare Drum">
-              <span class="btn-badge">SNARE</span>
-            </button>
-            <button class="sound-btn" data-sound="CLOSED_HH" title="Closed Hi-Hat">
-              <span class="btn-badge">CL.HAT</span>
-            </button>
-            <button class="sound-btn" data-sound="OPEN_HH" title="Open Hi-Hat">
-              <span class="btn-badge">OP.HAT</span>
-            </button>
-            <button class="sound-btn" data-sound="CLAP" title="Hand Clap">
-              <span class="btn-badge">CLAP</span>
-            </button>
-            <button class="sound-btn" data-sound="SYNTH" title="Synth Bass Pluck">
-              <span class="btn-badge">SYNTH</span>
-            </button>
-            <button class="sound-btn" data-sound="DEAD" title="Dead Cell (Impassable Wall / Blocker)">
-              <span class="btn-badge">DEAD</span>
-            </button>
+          </div>
+
+          <div class="playhead-toggles">
+            <span class="palette-tag heads-tag">HEADS</span>
+            <button class="p-toggle active" data-id="1" title="Head 1: KICK (Cyan)"><span class="p-num">1</span> <span class="p-sound">KICK</span></button>
+            <button class="p-toggle active" data-id="2" title="Head 2: SNARE (Pink)"><span class="p-num">2</span> <span class="p-sound">SNR</span></button>
+            <button class="p-toggle" data-id="3" title="Head 3: CLOSED HAT (Green)"><span class="p-num">3</span> <span class="p-sound">HAT</span></button>
+            <button class="p-toggle" data-id="4" title="Head 4: OPEN HAT (Yellow)"><span class="p-num">4</span> <span class="p-sound">OPH</span></button>
+            <button class="p-toggle" data-id="5" title="Head 5: CLAP (Purple)"><span class="p-num">5</span> <span class="p-sound">CLP</span></button>
+            <button class="p-toggle" data-id="6" title="Head 6: SYNTH (Orange)"><span class="p-num">6</span> <span class="p-sound">SYN</span></button>
+            <button id="btn-reset-heads-dock" class="btn-reset-dock" title="Reset all playheads back to starting positions on circle 1">⏮ RESET</button>
           </div>
         </div>
 
-        <!-- MODIFIER PALETTE & PLAYHEADS -->
+        <!-- ROUTING PALETTE -->
         <div class="palette-row">
           <span class="palette-tag">ROUTING</span>
           <div class="palette-group" id="modifier-palette">
@@ -116,22 +115,13 @@
               ↘ BTM-R
             </button>
           </div>
-
-          <div class="playhead-toggles">
-            <span class="palette-tag heads-tag">HEADS</span>
-            <button class="p-toggle active" data-id="1" title="Toggle Playhead 1 (Alpha - Cyan)">1</button>
-            <button class="p-toggle active" data-id="2" title="Toggle Playhead 2 (Beta - Pink)">2</button>
-            <button class="p-toggle" data-id="3" title="Toggle Playhead 3 (Gamma - Green)">3</button>
-            <button class="p-toggle" data-id="4" title="Toggle Playhead 4 (Delta - Yellow)">4</button>
-            <button class="p-toggle" data-id="5" title="Toggle Playhead 5 (Epsilon - Purple)">5</button>
-            <button class="p-toggle" data-id="6" title="Toggle Playhead 6 (Zeta - Orange)">6</button>
-          </div>
         </div>
 
         <!-- STATUS -->
         <div class="status-bar">
-          <span id="selected-cell-info" class="status-chip">Cell: (0, 0) • KICK • PASS</span>
+          <span id="selected-cell-info" class="status-chip">Cell: (1, 0) • ENABLED • NONE</span>
           <div class="status-right">
+            <button id="btn-reset-heads-bottom" class="btn-status-reset" title="Reset all playheads back to starting positions">⏮ Reset Heads</button>
             <span id="step-indicator" class="status-chip">Step: 0</span>
             <a href="https://github.com/khodin/hexabeat" target="_blank" rel="noopener noreferrer" class="status-link" title="Open GitHub Repository">GitHub ↗</a>
           </div>
