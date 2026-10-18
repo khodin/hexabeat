@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag to attach APK to (e.g. v1.0.0)'
+        description: 'Release tag to attach APK to (e.g. v0.1.0-dev)'
         required: false
-        default: 'v1.0.0'
+        default: 'v0.1.0-dev'
   push:
     tags:
       - 'v*'
@@ -67,6 +67,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="${{ github.event.release.tag_name || github.event.inputs.tag_name || 'v1.0.0' }}"
+          TAG="${{ github.event.release.tag_name || github.event.inputs.tag_name || 'v0.1.0-dev' }}"
           echo "Uploading HexaBeat.apk to release: $TAG"
           gh release upload "$TAG" HexaBeat.apk --clobber

@@ -1,6 +1,6 @@
 {
   "name": "hexabeat",
-  "version": "1.0.0",
+  "version": "0.1.0-dev",
   "description": "Generative hexagonal rhythm sequencer inspired by JR Hexatone Pro, built with procedural Web Audio synthesis and TypeScript",
   "type": "module",
   "homepage": "https://khodin.github.io/hexabeat",
