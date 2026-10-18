@@ -100,6 +100,10 @@ export class HexCanvas {
     this.initEvents();
     this.resize();
     window.addEventListener('resize', () => this.resize());
+    if (typeof ResizeObserver !== 'undefined' && this.canvas.parentElement) {
+      const ro = new ResizeObserver(() => this.resize());
+      ro.observe(this.canvas.parentElement);
+    }
     this.startRenderLoop();
   }
 
@@ -118,6 +122,7 @@ export class HexCanvas {
   public resize() {
     const dpr = window.devicePixelRatio || 1;
     const rect = this.canvas.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
 
     this.canvas.width = rect.width * dpr;
     this.canvas.height = rect.height * dpr;
@@ -127,10 +132,20 @@ export class HexCanvas {
     this.originX = rect.width / 2;
     this.originY = rect.height / 2;
 
-    // Calculate optimal hex size to fit 37 cells comfortably with margin
-    const minDim = Math.min(rect.width, rect.height);
-    // Across 7 hexes in pointy-topped, width is ~ 7 * sqrt(3) * size ~ 12.1 * size
-    this.hexSize = Math.max(24, Math.min(48, minDim / 8.5));
+    // The 37-cell hexagonal grid (radius 3) in pointy-topped orientation spans:
+    // Total horizontal span = 7 * sqrt(3) * hexSize ≈ 12.12436 * hexSize
+    // Total vertical span = 11 * hexSize
+    // Safe margins: padX = 16px, padY = 16px to ensure all outer rings fit comfortably on mobile
+    const padX = 16;
+    const padY = 16;
+    const maxAvailableWidth = Math.max(10, rect.width - padX);
+    const maxAvailableHeight = Math.max(10, rect.height - padY);
+
+    const maxSizeX = maxAvailableWidth / (7 * Math.sqrt(3));
+    const maxSizeY = maxAvailableHeight / 11;
+
+    // Choose the dimension that guarantees both horizontal and vertical fitting
+    this.hexSize = Math.max(14, Math.min(48, Math.min(maxSizeX, maxSizeY)));
   }
 
   private initEvents() {
@@ -416,26 +431,30 @@ export class HexCanvas {
 
     this.ctx.save();
 
+    const haloRadius = Math.max(7, Math.min(13, this.hexSize * 0.36));
+    const coreRadius = Math.max(4.5, Math.min(8, haloRadius * 0.62));
+    const fontSize = Math.max(7, Math.round(coreRadius * 1.15));
+
     // Outer Neon Glow
     this.ctx.shadowColor = p.glowColor;
-    this.ctx.shadowBlur = 18;
+    this.ctx.shadowBlur = Math.min(18, haloRadius * 1.4);
 
     // Glowing halo
     this.ctx.beginPath();
-    this.ctx.arc(x, y, 13, 0, Math.PI * 2);
+    this.ctx.arc(x, y, haloRadius, 0, Math.PI * 2);
     this.ctx.fillStyle = p.color;
     this.ctx.fill();
 
     // Inner bright core
     this.ctx.shadowBlur = 0;
     this.ctx.beginPath();
-    this.ctx.arc(x, y, 8, 0, Math.PI * 2);
+    this.ctx.arc(x, y, coreRadius, 0, Math.PI * 2);
     this.ctx.fillStyle = '#ffffff';
     this.ctx.fill();
 
     // Playhead ID text
     this.ctx.fillStyle = '#0a0a14';
-    this.ctx.font = 'bold 9px sans-serif';
+    this.ctx.font = `bold ${fontSize}px sans-serif`;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
     this.ctx.fillText(`${p.id}`, x, y);
@@ -443,4 +462,5 @@ export class HexCanvas {
     this.ctx.restore();
   }
 }
+
 
