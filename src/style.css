@@ -370,7 +370,7 @@ html, body {
   background: rgba(255, 107, 43, 0.15);
 }
 
-/* STATUS CHIP */
+/* STATUS CHIP & LINKS */
 .status-bar {
   display: flex;
   align-items: center;
@@ -384,3 +384,39 @@ html, body {
   font-family: monospace;
   color: var(--text-muted);
 }
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.status-link:hover {
+  color: #00ffff;
+  text-decoration: underline;
+}
+
+.github-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  padding: 5px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.github-btn:hover {
+  color: #00ffff;
+  background: var(--bg-surface-elevated);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.25);
+}
+
