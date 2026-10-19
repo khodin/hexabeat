@@ -1,5 +1,5 @@
 import { Cell, Playhead, Preset, SoundType, ModifierType, ProjectData } from '../grid/HexTypes';
-import { generateGrid, cellKey, calculateBounce, getAccessibleDirections, COMPASS_DIR_MAP, HEX_RADIUS } from '../grid/HexMath';
+import { generateGrid, cellKey, calculateBounce, getAccessibleDirections, COMPASS_DIR_MAP, HEX_RADIUS, getHexDistance } from '../grid/HexMath';
 import { AudioEngine } from '../audio/AudioEngine';
 import { PRESETS } from './Presets';
 
@@ -50,6 +50,14 @@ export class Sequencer {
     return this.grid.get(cellKey(q, r));
   }
 
+  public isDepartureCell(q: number, r: number): boolean {
+    return getHexDistance(q, r) === 1;
+  }
+
+  public getDeparturePlayhead(q: number, r: number): Playhead | undefined {
+    return this.playheads.find(p => p.startQ === q && p.startR === r);
+  }
+
   public setCell(
     q: number,
     r: number,
@@ -65,6 +73,12 @@ export class Sequencer {
         cell.isDead = true;
         cell.enabled = false;
         cell.sound = 'DEAD';
+        cell.modifier = 'NONE';
+      } else if (this.isDepartureCell(q, r)) {
+        // Radius 1 cells are reserved launch bays and contain NO sound
+        cell.enabled = false;
+        cell.isDead = false;
+        cell.sound = 'NONE';
         cell.modifier = 'NONE';
       } else {
         cell.enabled = enabled;
@@ -102,6 +116,12 @@ export class Sequencer {
     this.currentStepIndex = 0;
   }
 
+  public stop() {
+    this.audioEngine.stop();
+    this.resetPlayheadsToCenter();
+    this.onStepListeners.forEach(listener => listener(0, []));
+  }
+
   public getPlayheads(): Playhead[] {
     return this.playheads;
   }
@@ -137,20 +157,32 @@ export class Sequencer {
     for (const item of preset.cells) {
       const cell = this.grid.get(cellKey(item.q, item.r));
       if (cell) {
-        if (item.isDead || item.sound === 'DEAD') {
+        if (item.q === 0 && item.r === 0) {
           cell.isDead = true;
           cell.enabled = false;
           cell.sound = 'DEAD';
+          cell.modifier = 'NONE';
+        } else if (this.isDepartureCell(item.q, item.r)) {
+          cell.enabled = false;
+          cell.isDead = false;
+          cell.sound = 'NONE';
+          cell.modifier = 'NONE';
+        } else if (item.isDead || item.sound === 'DEAD') {
+          cell.isDead = true;
+          cell.enabled = false;
+          cell.sound = 'DEAD';
+          cell.modifier = item.modifier || 'NONE';
         } else if (item.enabled || (item.sound !== undefined && item.sound !== 'NONE')) {
           cell.enabled = true;
           cell.isDead = false;
           cell.sound = 'KICK';
+          cell.modifier = item.modifier || 'NONE';
         } else {
           cell.enabled = false;
           cell.isDead = false;
           cell.sound = 'NONE';
+          cell.modifier = item.modifier || 'NONE';
         }
-        cell.modifier = item.modifier || 'NONE';
       }
     }
 
@@ -187,14 +219,17 @@ export class Sequencer {
   public createProjectData(name: string, bpm: number): ProjectData {
     const cells: ProjectData['cells'] = [];
     this.grid.forEach(cell => {
-      if (cell.enabled || cell.isDead || cell.modifier !== 'NONE') {
-        cells.push({
-          q: cell.q,
-          r: cell.r,
-          enabled: cell.enabled,
-          isDead: cell.isDead,
-          modifier: cell.modifier
-        });
+      // Omit center core and radius 1 departure bays from project cells (they are fixed)
+      if (getHexDistance(cell.q, cell.r) > 1) {
+        if (cell.enabled || cell.isDead || cell.modifier !== 'NONE') {
+          cells.push({
+            q: cell.q,
+            r: cell.r,
+            enabled: cell.enabled,
+            isDead: cell.isDead,
+            modifier: cell.modifier
+          });
+        }
       }
     });
 
@@ -229,20 +264,28 @@ export class Sequencer {
           cell.isDead = true;
           cell.enabled = false;
           cell.sound = 'DEAD';
+          cell.modifier = 'NONE';
+        } else if (this.isDepartureCell(item.q, item.r)) {
+          cell.enabled = false;
+          cell.isDead = false;
+          cell.sound = 'NONE';
+          cell.modifier = 'NONE';
         } else if (item.isDead) {
           cell.isDead = true;
           cell.enabled = false;
           cell.sound = 'DEAD';
+          cell.modifier = item.modifier || 'NONE';
         } else if (item.enabled) {
           cell.enabled = true;
           cell.isDead = false;
           cell.sound = 'KICK';
+          cell.modifier = item.modifier || 'NONE';
         } else {
           cell.enabled = false;
           cell.isDead = false;
           cell.sound = 'NONE';
+          cell.modifier = item.modifier || 'NONE';
         }
-        cell.modifier = item.modifier || 'NONE';
       }
     }
 
@@ -287,7 +330,10 @@ export class Sequencer {
       if (!playhead.active) continue;
 
       const cell = this.grid.get(cellKey(playhead.q, playhead.r));
-      const isEnabled = cell && (cell.enabled || (cell.sound !== 'NONE' && cell.sound !== 'DEAD'));
+      const dist = getHexDistance(playhead.q, playhead.r);
+      // Departure cells (dist 1) and center (dist 0) contain NO sound
+      const isDeparture = dist <= 1;
+      const isEnabled = !isDeparture && cell && (cell.enabled || (cell.sound !== 'NONE' && cell.sound !== 'DEAD'));
 
       if (isEnabled && cell) {
         const noteSeed = playhead.q * 3 + playhead.r * 5;

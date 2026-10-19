@@ -46,11 +46,14 @@
           <button id="btn-step" class="btn" title="Step one 16th note">
             ⏭
           </button>
-          <button id="btn-reset" class="btn" title="Reset all playheads to starting positions">
-            ⏮ RESET
+          <button id="btn-stop" class="btn btn-stop" title="Stop playback and return playheads to departure bays">
+            ⏹ STOP
           </button>
           <button id="btn-clear" class="btn" title="Clear Grid">
             CLEAR
+          </button>
+          <button id="btn-share-project" class="btn btn-share" title="Share Project via Link / URL">
+            🔗 SHARE
           </button>
           <button id="btn-save-project" class="btn btn-save" title="Save Project (Grid & Tempo)">
             💾 SAVE
@@ -91,7 +94,7 @@
             <button class="p-toggle" data-id="4" title="Head 4: OPEN HAT (Yellow)"><span class="p-num">4</span> <span class="p-sound">OPH</span></button>
             <button class="p-toggle" data-id="5" title="Head 5: CLAP (Purple)"><span class="p-num">5</span> <span class="p-sound">CLP</span></button>
             <button class="p-toggle" data-id="6" title="Head 6: SYNTH (Orange)"><span class="p-num">6</span> <span class="p-sound">SYN</span></button>
-            <button id="btn-reset-heads-dock" class="btn-reset-dock" title="Reset all playheads back to starting positions on circle 1">⏮ RESET</button>
+            <button id="btn-stop-dock" class="btn-stop-dock" title="Stop playback and return all playheads to departure bays on circle 1">⏹ STOP</button>
           </div>
         </div>
 
@@ -127,7 +130,7 @@
         <div class="status-bar">
           <span id="selected-cell-info" class="status-chip">Cell: (1, 0) • ENABLED • NONE</span>
           <div class="status-right">
-            <button id="btn-reset-heads-bottom" class="btn-status-reset" title="Reset all playheads back to starting positions">⏮ Reset Heads</button>
+            <button id="btn-stop-bottom" class="btn-status-stop" title="Stop playback and return playheads to departure bays">⏹ Stop</button>
             <span id="step-indicator" class="status-chip">Step: 0</span>
             <a href="https://github.com/khodin/hexabeat" target="_blank" rel="noopener noreferrer" class="status-link" title="Open GitHub Repository">GitHub ↗</a>
         </div>
@@ -150,6 +153,7 @@
           </div>
         </div>
         <div class="modal-footer">
+          <button id="btn-share-modal" class="btn" title="Share project via URL">🔗 Share Link</button>
           <button id="btn-export-json" class="btn" title="Download project as a .json file">⬇ Export File</button>
           <button id="btn-confirm-save" class="btn btn-primary">Save Project</button>
         </div>
@@ -180,6 +184,9 @@
         </div>
       </div>
     </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
     <script type="module" src="./src/main.ts"></script>
   </body>

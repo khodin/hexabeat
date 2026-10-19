@@ -410,8 +410,20 @@ html, body {
   background: rgba(255, 107, 43, 0.15);
 }
 
-/* RESET BUTTONS */
-.btn-reset-dock {
+/* STOP & RESET BUTTONS */
+.btn-stop {
+  background: rgba(255, 60, 60, 0.15);
+  border-color: rgba(255, 60, 60, 0.5);
+  color: #ff5566;
+}
+
+.btn-stop:hover {
+  background: rgba(255, 60, 60, 0.35);
+  box-shadow: 0 0 10px rgba(255, 60, 60, 0.4);
+  color: #ffffff;
+}
+
+.btn-stop-dock, .btn-reset-dock {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -419,9 +431,9 @@ html, body {
   padding: 4px 10px;
   height: 30px;
   border-radius: 15px;
-  border: 1px solid rgba(255, 0, 127, 0.5);
-  background: rgba(255, 0, 127, 0.15);
-  color: #ff3399;
+  border: 1px solid rgba(255, 60, 60, 0.5);
+  background: rgba(255, 60, 60, 0.15);
+  color: #ff5566;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.5px;
@@ -432,23 +444,23 @@ html, body {
   margin-left: 4px;
 }
 
-.btn-reset-dock:hover {
-  background: rgba(255, 0, 127, 0.35);
-  box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
+.btn-stop-dock:hover, .btn-reset-dock:hover {
+  background: rgba(255, 60, 60, 0.35);
+  box-shadow: 0 0 10px rgba(255, 60, 60, 0.5);
   color: #ffffff;
 }
 
-.btn-reset-dock:active {
+.btn-stop-dock:active, .btn-reset-dock:active {
   transform: scale(0.96);
 }
 
-.btn-status-reset {
+.btn-status-stop, .btn-status-reset {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: rgba(0, 255, 255, 0.1);
-  border: 1px solid rgba(0, 255, 255, 0.35);
-  color: #00ffff;
+  background: rgba(255, 60, 60, 0.12);
+  border: 1px solid rgba(255, 60, 60, 0.4);
+  color: #ff6677;
   font-size: 0.7rem;
   font-weight: 700;
   border-radius: 6px;
@@ -458,14 +470,38 @@ html, body {
   white-space: nowrap;
 }
 
-.btn-status-reset:hover {
-  background: rgba(0, 255, 255, 0.25);
-  box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+.btn-status-stop:hover, .btn-status-reset:hover {
+  background: rgba(255, 60, 60, 0.3);
+  box-shadow: 0 0 8px rgba(255, 60, 60, 0.4);
   color: #ffffff;
 }
 
-.btn-status-reset:active {
+.btn-status-stop:active, .btn-status-reset:active {
   transform: scale(0.96);
+}
+
+/* SHARE BUTTONS */
+.btn-share {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: rgba(0, 229, 255, 0.5);
+  color: #00e5ff;
+}
+
+.btn-share:hover {
+  background: rgba(0, 229, 255, 0.28);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+  color: #ffffff;
+}
+
+.btn-item-share {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: rgba(0, 229, 255, 0.4);
+  color: #00e5ff;
+}
+
+.btn-item-share:hover {
+  background: #00e5ff;
+  color: #000;
 }
 
 /* STATUS CHIP & LINKS */
@@ -839,5 +875,48 @@ html, body {
   }
 }
 
+/* TOAST NOTIFICATION */
+.toast {
+  position: fixed;
+  top: 58px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: rgba(16, 20, 36, 0.95);
+  border: 1px solid #00ffff;
+  box-shadow: 0 4px 22px rgba(0, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  z-index: 1000;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  max-width: 90vw;
+  text-align: center;
+}
 
+.toast.hidden {
+  display: none;
+  opacity: 0;
+}
 
+.toast.visible {
+  display: block;
+  opacity: 1;
+  animation: toastFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

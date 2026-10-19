@@ -276,8 +276,10 @@ export class HexCanvas {
   private drawCell(cell: Cell, now: number) {
     const { x, y } = hexToPixel(cell.q, cell.r, this.hexSize, this.originX, this.originY);
     const isCenter = cell.q === 0 && cell.r === 0;
+    const isDeparture = this.sequencer.isDepartureCell(cell.q, cell.r);
+    const departureHead = isDeparture ? this.sequencer.getDeparturePlayhead(cell.q, cell.r) : undefined;
     const isDead = isCenter || cell.isDead || cell.sound === 'DEAD';
-    const isEnabled = !isDead && (cell.enabled || (cell.sound !== 'NONE' && cell.sound !== 'DEAD'));
+    const isEnabled = !isDeparture && !isDead && (cell.enabled || (cell.sound !== 'NONE' && cell.sound !== 'DEAD'));
     const key = `${cell.q},${cell.r}`;
     const isSelected = this.selectedCellKey === key;
 
@@ -308,6 +310,20 @@ export class HexCanvas {
       this.ctx.lineWidth = isSelected ? 3 : 1.5;
       this.ctx.shadowColor = SOUND_STYLES.DEAD.glow;
       this.ctx.shadowBlur = 8;
+    } else if (isDeparture && departureHead) {
+      // Dedicated Departure Launch Bay for Playhead 1..6
+      if (departureHead.active) {
+        this.ctx.fillStyle = 'rgba(16, 20, 32, 0.9)';
+        this.ctx.strokeStyle = isSelected ? '#ffffff' : departureHead.color;
+        this.ctx.shadowColor = departureHead.glowColor;
+        this.ctx.shadowBlur = 12;
+        this.ctx.lineWidth = isSelected ? 3 : 2;
+      } else {
+        this.ctx.fillStyle = 'rgba(12, 13, 20, 0.85)';
+        this.ctx.strokeStyle = isSelected ? '#ffffff' : 'rgba(55, 60, 80, 0.7)';
+        this.ctx.lineWidth = isSelected ? 2.5 : 1.2;
+        this.ctx.shadowBlur = 0;
+      }
     } else if (isEnabled) {
       if (triggerFactor > 0) {
         const trigColor = cell.lastTriggerColor || '#ffffff';
@@ -354,13 +370,47 @@ export class HexCanvas {
       this.ctx.restore();
     }
 
-    // Inner Labels & Modifier Glyphs
-    this.drawCellContent(x, y, cell, isDead, isEnabled);
+    // Inner Labels & Modifier Glyphs / Departure Pad Badge
+    this.drawCellContent(x, y, cell, isDead, isEnabled, departureHead);
   }
 
-  private drawCellContent(x: number, y: number, cell: Cell, isDead: boolean, isEnabled: boolean) {
+  private drawCellContent(x: number, y: number, cell: Cell, isDead: boolean, isEnabled: boolean, departureHead?: Playhead) {
     if (isDead) {
       // Color alone represents dead cells; no cross or DEAD wording
+      return;
+    }
+
+    if (departureHead) {
+      // Draw Departure Bay launch pad marker & Head ID
+      this.ctx.save();
+      const padRadius = Math.max(7, Math.min(14, this.hexSize * 0.44));
+
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, padRadius, 0, Math.PI * 2);
+      if (departureHead.active) {
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        this.ctx.strokeStyle = departureHead.color;
+        this.ctx.lineWidth = 1.6;
+        this.ctx.shadowColor = departureHead.glowColor;
+        this.ctx.shadowBlur = 6;
+      } else {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        this.ctx.strokeStyle = 'rgba(70, 75, 100, 0.5)';
+        this.ctx.lineWidth = 1;
+        this.ctx.shadowBlur = 0;
+      }
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      // Launch Pad ID Number
+      const fontSize = Math.max(8, Math.round(padRadius * 0.95));
+      this.ctx.font = `bold ${fontSize}px sans-serif`;
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillStyle = departureHead.active ? departureHead.color : '#555b75';
+      this.ctx.fillText(`${departureHead.id}`, x, y);
+
+      this.ctx.restore();
       return;
     }
 

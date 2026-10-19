@@ -15,9 +15,11 @@ export class UIController {
   // DOM Elements
   private btnPlay = document.getElementById('btn-play') as HTMLButtonElement;
   private btnStep = document.getElementById('btn-step') as HTMLButtonElement;
-  private btnReset = document.getElementById('btn-reset') as HTMLButtonElement;
-  private btnResetHeadsDock = document.getElementById('btn-reset-heads-dock') as HTMLButtonElement | null;
-  private btnResetHeadsBottom = document.getElementById('btn-reset-heads-bottom') as HTMLButtonElement | null;
+  private btnStop = document.getElementById('btn-stop') as HTMLButtonElement | null;
+  private btnStopDock = document.getElementById('btn-stop-dock') as HTMLButtonElement | null;
+  private btnStopBottom = document.getElementById('btn-stop-bottom') as HTMLButtonElement | null;
+  private btnShareProject = document.getElementById('btn-share-project') as HTMLButtonElement | null;
+  private btnShareModal = document.getElementById('btn-share-modal') as HTMLButtonElement | null;
   private btnClear = document.getElementById('btn-clear') as HTMLButtonElement;
   private bpmSlider = document.getElementById('bpm-slider') as HTMLInputElement;
   private bpmValue = document.getElementById('bpm-value') as HTMLSpanElement;
@@ -25,6 +27,8 @@ export class UIController {
   private optgroupSaved = document.getElementById('optgroup-saved') as HTMLOptGroupElement | null;
   private cellInfo = document.getElementById('selected-cell-info') as HTMLSpanElement;
   private stepIndicator = document.getElementById('step-indicator') as HTMLSpanElement;
+  private toast = document.getElementById('toast') as HTMLDivElement | null;
+  private toastTimeout: any = null;
 
   // Project Save & Load Elements
   private btnSaveProject = document.getElementById('btn-save-project') as HTMLButtonElement | null;
@@ -54,6 +58,7 @@ export class UIController {
     this.initElements();
     this.initEvents();
     this.initProjectControls();
+    this.initUrlShare();
     this.updatePlayheadButtonStates();
     this.updatePresetSelectDropdown();
   }
@@ -83,19 +88,24 @@ export class UIController {
       this.sequencer.stepManual();
     });
 
-    // 3. Reset Heads to Circle 1 Starting Positions
-    const handleReset = () => {
-      this.sequencer.resetPlayheadsToCenter();
+    // 3. Stop Playback & Put Playheads back to Departure Positions on circle 1
+    const handleStop = () => {
+      this.sequencer.stop();
+      this.btnPlay.textContent = '▶ PLAY';
+      this.btnPlay.classList.remove('is-playing');
       this.stepIndicator.textContent = 'Step: 0';
       this.updatePlayheadButtonStates();
+      this.cellInfo.textContent = 'Stopped • Playheads at departure bays';
     };
-    if (this.btnReset) this.btnReset.addEventListener('click', handleReset);
-    if (this.btnResetHeadsDock) this.btnResetHeadsDock.addEventListener('click', handleReset);
-    if (this.btnResetHeadsBottom) this.btnResetHeadsBottom.addEventListener('click', handleReset);
+    if (this.btnStop) this.btnStop.addEventListener('click', handleStop);
+    if (this.btnStopDock) this.btnStopDock.addEventListener('click', handleStop);
+    if (this.btnStopBottom) this.btnStopBottom.addEventListener('click', handleStop);
 
     // 4. Clear Grid
     this.btnClear.addEventListener('click', () => {
       this.sequencer.clearGrid();
+      this.btnPlay.textContent = '▶ PLAY';
+      this.btnPlay.classList.remove('is-playing');
       this.stepIndicator.textContent = 'Step: 0';
       this.updatePlayheadButtonStates();
     });
@@ -167,6 +177,20 @@ export class UIController {
         return;
       }
 
+      // Radius 1 departure cells toggle base playheads
+      if (this.sequencer.isDepartureCell(q, r)) {
+        const head = this.sequencer.getDeparturePlayhead(q, r);
+        if (head) {
+          const isActive = this.sequencer.togglePlayhead(head.id);
+          this.updatePlayheadButtonStates();
+          if (isActive) {
+            this.audioEngine.previewSound(head.sound);
+          }
+          this.cellInfo.textContent = `Head ${head.id} (${head.name} - ${head.sound}): ${isActive ? 'ENABLED' : 'DISABLED'}`;
+        }
+        return;
+      }
+
       switch (this.activeTool) {
         case 'ENABLE': {
           if (cell.enabled && this.activeModifier === 'NONE') {
@@ -222,6 +246,13 @@ export class UIController {
   private updateCellInfo(q: number, r: number, enabled: boolean, isDead: boolean, modifier: ModifierType) {
     if (q === 0 && r === 0) {
       this.cellInfo.textContent = `Center Core (Obstacle)`;
+    } else if (this.sequencer.isDepartureCell(q, r)) {
+      const head = this.sequencer.getDeparturePlayhead(q, r);
+      if (head) {
+        this.cellInfo.textContent = `Launch Bay ${head.id} (${head.name} - ${head.sound}) • ${head.active ? 'ACTIVE' : 'INACTIVE'}`;
+      } else {
+        this.cellInfo.textContent = `Departure Bay (${q}, ${r})`;
+      }
     } else if (isDead) {
       this.cellInfo.textContent = `Cell: (${q}, ${r}) • DEAD WALL`;
     } else {
@@ -294,6 +325,17 @@ export class UIController {
       this.modalLoad?.classList.remove('hidden');
     });
 
+    // Share Project via URL (Header / Transport)
+    this.btnShareProject?.addEventListener('click', () => {
+      this.shareCurrentProject();
+    });
+
+    // Share Project via URL (Save Modal)
+    this.btnShareModal?.addEventListener('click', () => {
+      this.shareCurrentProject();
+      this.modalSave?.classList.add('hidden');
+    });
+
     // Close Load Modal
     const closeLoad = () => this.modalLoad?.classList.add('hidden');
     this.btnCloseLoadModal?.addEventListener('click', closeLoad);
@@ -331,6 +373,65 @@ export class UIController {
         if (this.fileImportProject) this.fileImportProject.value = '';
       }
     });
+  }
+
+  public async shareCurrentProject() {
+    const name = this.currentProjectName || this.projectNameInput?.value.trim() || 'Groove';
+    const bpm = this.audioEngine.getBpm();
+    const project = this.sequencer.createProjectData(name, bpm);
+    await this.shareProject(project);
+  }
+
+  public async shareProject(project: ProjectData) {
+    const shareUrl = ProjectStorage.encodeProjectToUrl(project);
+
+    // Try Web Share API (mobile native share sheet)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `HexaBeat • ${project.name}`,
+          text: `Check out my HexaBeat groove: ${project.name} (${project.bpm} BPM)!`,
+          url: shareUrl
+        });
+        this.showToast('Project shared successfully!');
+        return;
+      } catch (err: any) {
+        if (err.name === 'AbortError') return; // User simply closed the share sheet
+      }
+    }
+
+    // Fallback: Copy to Clipboard
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        this.showToast('🔗 Project link copied to clipboard!');
+        this.cellInfo.textContent = `Share link for "${project.name}" copied to clipboard!`;
+      } else {
+        prompt('Copy your HexaBeat project link:', shareUrl);
+      }
+    } catch {
+      prompt('Copy your HexaBeat project link:', shareUrl);
+    }
+  }
+
+  private initUrlShare() {
+    const sharedProject = ProjectStorage.decodeProjectFromUrl();
+    if (sharedProject) {
+      this.loadProject(sharedProject);
+      this.showToast(`🔗 Loaded shared project: "${sharedProject.name}"`);
+    }
+  }
+
+  private showToast(message: string) {
+    if (!this.toast) return;
+    this.toast.textContent = message;
+    this.toast.classList.remove('hidden');
+    this.toast.classList.add('visible');
+    if (this.toastTimeout) clearTimeout(this.toastTimeout);
+    this.toastTimeout = setTimeout(() => {
+      this.toast?.classList.remove('visible');
+      setTimeout(() => this.toast?.classList.add('hidden'), 300);
+    }, 2800);
   }
 
   private loadProject(project: ProjectData) {
@@ -375,6 +476,7 @@ export class UIController {
         </div>
         <div class="project-item-actions">
           <button class="btn btn-sm btn-item-load" title="Load this project">▶ Load</button>
+          <button class="btn btn-sm btn-item-share" title="Share via Link">🔗</button>
           <button class="btn btn-sm btn-item-export" title="Download as JSON file">⬇</button>
           <button class="btn btn-sm btn-item-delete" title="Delete project">🗑</button>
         </div>
@@ -382,6 +484,11 @@ export class UIController {
 
       item.querySelector('.btn-item-load')?.addEventListener('click', () => {
         this.loadProject(project);
+      });
+
+      item.querySelector('.btn-item-share')?.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await this.shareProject(project);
       });
 
       item.querySelector('.btn-item-export')?.addEventListener('click', (e) => {

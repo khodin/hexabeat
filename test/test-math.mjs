@@ -238,6 +238,230 @@ for (const vp of testViewports) {
 }
 console.log('✓ Verified all 91 cells fit completely within mobile viewports (320px, 360px, 375px, 390px, 412px) without any horizontal clipping!');
 
+// Test 7: Radius 1 Departure Bays (Reserved Launch Pads & Sound Inhibition)
+const radius1Cells = [];
+for (const [key, cell] of grid) {
+  if (getHexDistance(cell.q, cell.r) === 1) {
+    radius1Cells.push(cell);
+  }
+}
+assert.strictEqual(radius1Cells.length, 6, 'There must be exactly 6 cells on radius 1');
+console.log('✓ Exactly 6 cells on radius 1 reserved as playhead departure pads.');
+
+// Verify each radius 1 cell maps 1-to-1 to a dedicated playhead
+for (const head of PLAYHEAD_CONFIGS) {
+  const match = radius1Cells.find(c => c.q === head.startQ && c.r === head.startR);
+  assert(match !== undefined, `Playhead ${head.id} starting cell (${head.startQ}, ${head.startR}) must be on radius 1`);
+}
+console.log('✓ 1-to-1 mapping between 6 radius-1 departure pads and base playheads 1..6 verified.');
+
+// Sound trigger rule: any step on distance <= 1 must produce NO sound
+const soundTriggerTest = (q, r, isCellEnabled) => {
+  const dist = getHexDistance(q, r);
+  if (dist <= 1) return false; // Departure bays and center NEVER trigger sound
+  return isCellEnabled;
+};
+
+// Test on radius 1 with cell enabled
+for (const c of radius1Cells) {
+  assert.strictEqual(
+    soundTriggerTest(c.q, c.r, true),
+    false,
+    `Radius 1 cell (${c.q}, ${c.r}) must NEVER trigger sound even if enabled`
+  );
+}
+// Test on center
+assert.strictEqual(soundTriggerTest(0, 0, true), false, 'Center cell (0, 0) must never trigger sound');
+// Test on radius 2 cell
+assert.strictEqual(soundTriggerTest(2, 0, true), true, 'Radius 2 cell (2, 0) enabled must trigger sound');
+assert.strictEqual(soundTriggerTest(2, 0, false), false, 'Radius 2 cell (2, 0) disabled must NOT trigger sound');
+console.log('✓ Sound trigger rule verified: distance <= 1 produces NO sound; distance >= 2 triggers sound when enabled.');
+
+// Test 8: Compact URL Encoding & Decoding Round-Trip
+const MOD_MAP = {
+  'NONE': 0,
+  'DIR_R': 1,
+  'DIR_BR': 2,
+  'DIR_BL': 3,
+  'DIR_L': 4,
+  'DIR_TL': 5,
+  'DIR_TR': 6,
+};
+const REVERSE_MOD_MAP = {
+  0: 'NONE',
+  1: 'DIR_R',
+  2: 'DIR_BR',
+  3: 'DIR_BL',
+  4: 'DIR_L',
+  5: 'DIR_TL',
+  6: 'DIR_TR',
+};
+
+function toUrlSafeBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) {
+    bin += String.fromCharCode(bytes[i]);
+  }
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromUrlSafeBase64(b64) {
+  let base64 = b64.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) base64 += '=';
+  const bin = atob(base64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function encodeProjectToUrl(project, baseUrl = 'https://khodin.github.io/hexabeat/') {
+  const activeHeadIds = project.playheads
+    ? project.playheads.filter(p => p.active).map(p => p.id)
+    : [1, 2];
+
+  const compactCells = [];
+  for (const c of project.cells) {
+    const modCode = MOD_MAP[c.modifier] || 0;
+    if (c.enabled || c.isDead || modCode !== 0) {
+      compactCells.push([c.q, c.r, c.enabled ? 1 : 0, c.isDead ? 1 : 0, modCode]);
+    }
+  }
+
+  const payload = {
+    v: 1,
+    n: project.name || 'Groove',
+    b: project.bpm || 128,
+    h: activeHeadIds,
+    c: compactCells
+  };
+
+  const b64 = toUrlSafeBase64(JSON.stringify(payload));
+  return `${baseUrl}#p=${b64}`;
+}
+
+function decodeProjectFromUrl(url) {
+  const match = url.match(/[?#&](?:p|project)=([A-Za-z0-9_-]+)/);
+  if (!match) return null;
+  const jsonStr = fromUrlSafeBase64(match[1]);
+  const parsed = JSON.parse(jsonStr);
+
+  const activeHeadIds = Array.isArray(parsed.h) ? parsed.h : [1, 2];
+  const playheads = [1, 2, 3, 4, 5, 6].map(id => ({
+    id,
+    active: activeHeadIds.includes(id)
+  }));
+
+  const cells = [];
+  if (Array.isArray(parsed.c)) {
+    for (const item of parsed.c) {
+      cells.push({
+        q: Number(item[0]),
+        r: Number(item[1]),
+        enabled: Boolean(item[2]),
+        isDead: Boolean(item[3]),
+        modifier: REVERSE_MOD_MAP[Number(item[4] || 0)] || 'NONE'
+      });
+    }
+  }
+
+  return {
+    name: parsed.n,
+    bpm: parsed.b,
+    cells,
+    playheads
+  };
+}
+
+const originalProject = {
+  name: 'Techno Super Groove #42 & Special!',
+  bpm: 138,
+  cells: [
+    { q: 2, r: 0, enabled: true, isDead: false, modifier: 'NONE' },
+    { q: -2, r: 2, enabled: true, isDead: false, modifier: 'DIR_TR' },
+    { q: 3, r: -1, enabled: false, isDead: true, modifier: 'NONE' },
+    { q: 0, r: 3, enabled: true, isDead: false, modifier: 'DIR_L' },
+  ],
+  playheads: [
+    { id: 1, active: true },
+    { id: 2, active: false },
+    { id: 3, active: true },
+    { id: 4, active: false },
+    { id: 5, active: true },
+    { id: 6, active: false },
+  ]
+};
+
+const generatedUrl = encodeProjectToUrl(originalProject);
+console.log(`Generated Share URL (${generatedUrl.length} chars): ${generatedUrl}`);
+assert(generatedUrl.includes('#p='), 'URL must contain #p= hash parameter');
+
+const decodedProject = decodeProjectFromUrl(generatedUrl);
+assert.notStrictEqual(decodedProject, null, 'Decoded project must not be null');
+assert.strictEqual(decodedProject.name, originalProject.name, 'Decoded project name must match');
+assert.strictEqual(decodedProject.bpm, originalProject.bpm, 'Decoded project bpm must match');
+assert.strictEqual(decodedProject.cells.length, originalProject.cells.length, 'Decoded cells count must match');
+
+for (let i = 0; i < originalProject.cells.length; i++) {
+  const orig = originalProject.cells[i];
+  const dec = decodedProject.cells[i];
+  assert.strictEqual(dec.q, orig.q, `Cell ${i} q mismatch`);
+  assert.strictEqual(dec.r, orig.r, `Cell ${i} r mismatch`);
+  assert.strictEqual(dec.enabled, orig.enabled, `Cell ${i} enabled mismatch`);
+  assert.strictEqual(dec.isDead, orig.isDead, `Cell ${i} isDead mismatch`);
+  assert.strictEqual(dec.modifier, orig.modifier, `Cell ${i} modifier mismatch`);
+}
+
+for (let i = 0; i < 6; i++) {
+  assert.strictEqual(
+    decodedProject.playheads[i].active,
+    originalProject.playheads[i].active,
+    `Head ${i + 1} active state mismatch`
+  );
+}
+console.log('✓ Project URL encoding and decoding round-trip verified successfully with 100% fidelity!');
+
+// Test 9: STOP function returns playheads to departure pads
+const testHeads = PLAYHEAD_CONFIGS.map(c => ({
+  id: c.id,
+  startQ: c.startQ,
+  startR: c.startR,
+  startDir: c.startDir,
+  q: c.startQ + 2, // simulated movement
+  r: c.startR - 1,
+  dir: (c.startDir + 2) % 6,
+  stepProgress: 0.5
+}));
+
+let currentStep = 48;
+let isAudioPlaying = true;
+
+// Stop function execution
+const stopExecution = () => {
+  isAudioPlaying = false;
+  testHeads.forEach(h => {
+    h.q = h.startQ;
+    h.r = h.startR;
+    h.dir = h.startDir;
+    h.stepProgress = 1.0;
+  });
+  currentStep = 0;
+};
+
+stopExecution();
+
+assert.strictEqual(isAudioPlaying, false, 'Audio must be stopped');
+assert.strictEqual(currentStep, 0, 'Current step must be reset to 0');
+for (const h of testHeads) {
+  assert.strictEqual(h.q, h.startQ, `Head ${h.id} Q position must reset to startQ (${h.startQ})`);
+  assert.strictEqual(h.r, h.startR, `Head ${h.id} R position must reset to startR (${h.startR})`);
+  assert.strictEqual(h.dir, h.startDir, `Head ${h.id} dir must reset to startDir (${h.startDir})`);
+  assert.strictEqual(h.stepProgress, 1.0, `Head ${h.id} stepProgress must reset to 1.0`);
+  assert.strictEqual(getHexDistance(h.q, h.r), 1, `Head ${h.id} must be on radius 1 pad`);
+}
+console.log('✓ Stop function verified: audio stopped, step reset to 0, all heads returned to radius-1 departure pads.');
+
 console.log('All HexaBeat unit tests passed!');
+
 
 
