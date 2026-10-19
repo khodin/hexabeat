@@ -184,233 +184,70 @@ html, body {
   touch-action: none;
 }
 
-/* BOTTOM PALETTE DOCK */
-.bottom-dock {
+/* BOTTOM STREAMLINED CONTROL & STATUS BAR */
+.bottom-bar {
   background: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
   display: flex;
-  flex-direction: column;
-  padding: 8px 12px;
-  padding-bottom: max(22px, env(safe-area-inset-bottom, 22px));
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
+  gap: 12px;
   z-index: 10;
   flex-shrink: 0;
-}
-
-.palette-row {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 4px 2px;
-}
-.palette-row::-webkit-scrollbar {
-  display: none;
-}
-
-.palette-group {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-}
-
-.palette-tag {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  width: 58px;
-  min-width: 58px;
-  flex-shrink: 0;
-  text-align: left;
-}
-
-/* TOOL BUTTONS (CELL PALETTE) */
-.tool-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 11px;
-  border-radius: 8px;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-surface-elevated);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  min-width: 44px;
-  min-height: 34px;
+  min-height: 42px;
   box-sizing: border-box;
-  flex-shrink: 0;
-  font-family: inherit;
 }
 
-.tool-btn .btn-badge {
-  font-size: 0.74rem;
-  font-weight: 800;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  white-space: nowrap;
-}
-
-.tool-btn:hover {
-  background: #25283d;
-  color: #ffffff;
-}
-
-.tool-btn.active {
-  border-color: #ffffff;
-  color: #ffffff;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-}
-
-.tool-btn[data-tool="ENABLE"].active {
-  background: rgba(0, 255, 255, 0.22);
-  border-color: #00ffff;
-  color: #00ffff;
-  box-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
-}
-
-.tool-btn[data-tool="DISABLE"].active {
-  background: rgba(160, 174, 192, 0.2);
-  border-color: #cbd5e1;
-  color: #e2e8f0;
-  box-shadow: 0 0 10px rgba(203, 213, 225, 0.4);
-}
-
-.tool-btn[data-tool="DEAD"].active {
-  background: rgba(255, 51, 68, 0.3);
-  border-color: #ff3344;
-  color: #ff4d5e;
-  box-shadow: 0 0 12px rgba(255, 51, 68, 0.6);
-}
-
-/* MODIFIER BUTTONS */
-.mod-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 10px;
-  border-radius: 7px;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-surface-elevated);
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-height: 34px;
-}
-
-.mod-btn.active {
-  background: #2a3150;
-  border-color: #00ffff;
-  color: #00ffff;
-  box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
-}
-
-/* PLAYHEAD TOGGLES */
-.playhead-toggles {
+.status-left {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-left: 10px;
-  padding-left: 10px;
-  border-left: 1px solid var(--border-subtle);
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.status-chip {
+  font-family: monospace;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gesture-hints {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   flex-shrink: 0;
 }
 
-.heads-tag {
-  width: auto !important;
-  min-width: unset !important;
-  padding-right: 2px;
-}
-
-.p-toggle {
+.hint-item {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 4px;
-  padding: 4px 8px;
-  min-width: 48px;
-  height: 30px;
-  border-radius: 15px;
-  border: 1.5px solid var(--border-subtle);
-  background: var(--bg-surface-elevated);
-  cursor: pointer;
-  transition: all 0.15s ease;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: var(--text-dim);
+  letter-spacing: 0.3px;
+}
+
+.hint-icon {
+  font-size: 0.85rem;
+  filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.4));
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 
-.p-toggle .p-num {
-  font-size: 0.74rem;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.p-toggle .p-sound {
-  font-size: 0.63rem;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  line-height: 1;
-  opacity: 0.85;
-}
-
-.p-toggle:hover {
-  background: #25283d;
-  color: #fff;
-}
-
-.p-toggle[data-id="1"].active {
-  border-color: var(--p1-color);
-  color: var(--p1-color);
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-  background: rgba(0, 255, 255, 0.15);
-}
-
-.p-toggle[data-id="2"].active {
-  border-color: var(--p2-color);
-  color: var(--p2-color);
-  box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
-  background: rgba(255, 0, 127, 0.15);
-}
-
-.p-toggle[data-id="3"].active {
-  border-color: var(--p3-color);
-  color: var(--p3-color);
-  box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
-  background: rgba(57, 255, 20, 0.15);
-}
-
-.p-toggle[data-id="4"].active {
-  border-color: var(--p4-color);
-  color: var(--p4-color);
-  box-shadow: 0 0 10px rgba(255, 230, 0, 0.5);
-  background: rgba(255, 230, 0, 0.15);
-}
-
-.p-toggle[data-id="5"].active {
-  border-color: var(--p5-color);
-  color: var(--p5-color);
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
-  background: rgba(168, 85, 247, 0.15);
-}
-
-.p-toggle[data-id="6"].active {
-  border-color: var(--p6-color);
-  color: var(--p6-color);
-  box-shadow: 0 0 10px rgba(255, 107, 43, 0.5);
-  background: rgba(255, 107, 43, 0.15);
-}
-
-/* STOP & RESET BUTTONS */
+/* STOP BUTTON */
 .btn-stop {
   background: rgba(255, 60, 60, 0.15);
   border-color: rgba(255, 60, 60, 0.5);
@@ -421,63 +258,6 @@ html, body {
   background: rgba(255, 60, 60, 0.35);
   box-shadow: 0 0 10px rgba(255, 60, 60, 0.4);
   color: #ffffff;
-}
-
-.btn-stop-dock, .btn-reset-dock {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 4px 10px;
-  height: 30px;
-  border-radius: 15px;
-  border: 1px solid rgba(255, 60, 60, 0.5);
-  background: rgba(255, 60, 60, 0.15);
-  color: #ff5566;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
-  margin-left: 4px;
-}
-
-.btn-stop-dock:hover, .btn-reset-dock:hover {
-  background: rgba(255, 60, 60, 0.35);
-  box-shadow: 0 0 10px rgba(255, 60, 60, 0.5);
-  color: #ffffff;
-}
-
-.btn-stop-dock:active, .btn-reset-dock:active {
-  transform: scale(0.96);
-}
-
-.btn-status-stop, .btn-status-reset {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  background: rgba(255, 60, 60, 0.12);
-  border: 1px solid rgba(255, 60, 60, 0.4);
-  color: #ff6677;
-  font-size: 0.7rem;
-  font-weight: 700;
-  border-radius: 6px;
-  padding: 3px 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-}
-
-.btn-status-stop:hover, .btn-status-reset:hover {
-  background: rgba(255, 60, 60, 0.3);
-  box-shadow: 0 0 8px rgba(255, 60, 60, 0.4);
-  color: #ffffff;
-}
-
-.btn-status-stop:active, .btn-status-reset:active {
-  transform: scale(0.96);
 }
 
 /* SHARE BUTTONS */
@@ -504,39 +284,7 @@ html, body {
   color: #000;
 }
 
-/* STATUS CHIP & LINKS */
-.status-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 4px;
-  font-size: 0.72rem;
-  color: var(--text-dim);
-}
-
-.status-chip {
-  font-family: monospace;
-  color: var(--text-muted);
-}
-
-.status-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.status-link {
-  color: var(--text-dim);
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.15s ease;
-}
-
-.status-link:hover {
-  color: #00ffff;
-  text-decoration: underline;
-}
-
+/* GITHUB BUTTON */
 .github-btn {
   display: inline-flex;
   align-items: center;
@@ -554,19 +302,13 @@ html, body {
   box-shadow: 0 0 8px rgba(0, 255, 255, 0.25);
 }
 
-@media (max-width: 480px) {
-  .status-bar {
-    font-size: 0.68rem;
-    gap: 6px;
+@media (max-width: 620px) {
+  .gesture-hints {
+    display: none;
   }
-  .status-right {
-    gap: 6px;
-  }
-  .status-chip {
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .bottom-bar {
+    padding: 6px 12px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
   }
 }
 

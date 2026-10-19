@@ -1,22 +1,18 @@
 import { AudioEngine } from '../audio/AudioEngine';
 import { Sequencer } from '../sequencer/Sequencer';
 import { HexCanvas } from './HexCanvas';
-import { ModifierType, Cell, ProjectData } from '../grid/HexTypes';
+import { ModifierType, ProjectData } from '../grid/HexTypes';
 import { PRESETS } from '../sequencer/Presets';
 import { ProjectStorage } from '../sequencer/ProjectStorage';
 
 export type CellTool = 'ENABLE' | 'DISABLE' | 'DEAD';
 
 export class UIController {
-  private activeTool: CellTool = 'ENABLE';
-  private activeModifier: ModifierType = 'NONE';
   private currentProjectName: string = '';
 
   // DOM Elements
   private btnPlay = document.getElementById('btn-play') as HTMLButtonElement;
   private btnStop = document.getElementById('btn-stop') as HTMLButtonElement | null;
-  private btnStopDock = document.getElementById('btn-stop-dock') as HTMLButtonElement | null;
-  private btnStopBottom = document.getElementById('btn-stop-bottom') as HTMLButtonElement | null;
   private btnShareProject = document.getElementById('btn-share-project') as HTMLButtonElement | null;
   private btnShareModal = document.getElementById('btn-share-modal') as HTMLButtonElement | null;
   private btnClear = document.getElementById('btn-clear') as HTMLButtonElement;
@@ -45,27 +41,15 @@ export class UIController {
   private fileImportProject = document.getElementById('file-import-project') as HTMLInputElement | null;
   private savedProjectsList = document.getElementById('saved-projects-list') as HTMLDivElement | null;
 
-  private toolButtons: HTMLButtonElement[] = [];
-  private modifierButtons: HTMLButtonElement[] = [];
-  private playheadButtons: HTMLButtonElement[] = [];
-
   constructor(
     private audioEngine: AudioEngine,
     private sequencer: Sequencer,
     private hexCanvas: HexCanvas
   ) {
-    this.initElements();
     this.initEvents();
     this.initProjectControls();
     this.initUrlShare();
-    this.updatePlayheadButtonStates();
     this.updatePresetSelectDropdown();
-  }
-
-  private initElements() {
-    this.toolButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('#cell-palette .tool-btn'));
-    this.modifierButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('#modifier-palette .mod-btn'));
-    this.playheadButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.playhead-toggles .p-toggle'));
   }
 
   private initEvents() {
@@ -88,30 +72,27 @@ export class UIController {
       this.btnPlay.textContent = '▶ PLAY';
       this.btnPlay.classList.remove('is-playing');
       this.stepIndicator.textContent = 'Step: 0';
-      this.updatePlayheadButtonStates();
       this.cellInfo.textContent = 'Stopped • Playheads at departure bays';
     };
     if (this.btnStop) this.btnStop.addEventListener('click', handleStop);
-    if (this.btnStopDock) this.btnStopDock.addEventListener('click', handleStop);
-    if (this.btnStopBottom) this.btnStopBottom.addEventListener('click', handleStop);
 
-    // 4. Clear Grid
+    // 3. Clear Grid
     this.btnClear.addEventListener('click', () => {
       this.sequencer.clearGrid();
       this.btnPlay.textContent = '▶ PLAY';
       this.btnPlay.classList.remove('is-playing');
       this.stepIndicator.textContent = 'Step: 0';
-      this.updatePlayheadButtonStates();
+      this.cellInfo.textContent = 'Grid Cleared';
     });
 
-    // 5. BPM Slider
+    // 4. BPM Slider
     this.bpmSlider.addEventListener('input', () => {
       const bpm = parseInt(this.bpmSlider.value, 10);
       this.bpmValue.textContent = `${bpm}`;
       this.audioEngine.setBpm(bpm);
     });
 
-    // 6. Presets & Saved Projects
+    // 5. Presets & Saved Projects
     this.presetSelect.addEventListener('change', () => {
       const selectedId = this.presetSelect.value;
       if (selectedId.startsWith('proj_')) {
@@ -127,142 +108,83 @@ export class UIController {
         this.bpmSlider.value = `${preset.bpm}`;
         this.bpmValue.textContent = `${preset.bpm}`;
         this.currentProjectName = preset.name;
-        this.updatePlayheadButtonStates();
         this.cellInfo.textContent = `Preset loaded: ${preset.name}`;
       }
     });
 
-    // 7. Cell Tool Buttons (Enable / Disable / Dead / Clear)
-    this.toolButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tool = btn.dataset.tool as CellTool;
-        this.setActiveTool(tool);
-      });
-    });
+    // 6. Direct Touch Gestures on Hexagonal Canvas (Tap, Swipe Route, Hold Wall)
+    const DIR_MODIFIERS: ModifierType[] = ['DIR_R', 'DIR_BR', 'DIR_BL', 'DIR_L', 'DIR_TL', 'DIR_TR'];
 
-    // 8. Modifier Palette buttons
-    this.modifierButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const mod = btn.dataset.mod as ModifierType;
-        this.setActiveModifier(mod);
-      });
-    });
-
-    // 9. Playhead Toggles
-    this.playheadButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = parseInt(btn.dataset.id || '1', 10);
-        const isActive = this.sequencer.togglePlayhead(id);
-        btn.classList.toggle('active', isActive);
-        const playhead = this.sequencer.getPlayheads().find(p => p.id === id);
-        if (isActive && playhead) {
-          this.audioEngine.previewSound(playhead.sound);
-        }
-      });
-    });
-
-    // 10. Hex Canvas Cell Click / Touch
-    this.hexCanvas.setOnCellSelect((q: number, r: number, cell?: Cell) => {
+    this.hexCanvas.setOnCellAction((action, q, r, dirIndex, cell) => {
       if (!cell) return;
 
       const isCenter = q === 0 && r === 0;
       if (isCenter) {
-        this.updateCellInfo(0, 0, false, true, 'NONE');
+        this.cellInfo.textContent = 'Center Core (Impassable Obstacle)';
         return;
       }
 
-      // Radius 1 departure cells toggle base playheads
-      if (this.sequencer.isDepartureCell(q, r)) {
-        const head = this.sequencer.getDeparturePlayhead(q, r);
-        if (head) {
-          const isActive = this.sequencer.togglePlayhead(head.id);
-          this.updatePlayheadButtonStates();
-          if (isActive) {
-            this.audioEngine.previewSound(head.sound);
-          }
-          this.cellInfo.textContent = `Head ${head.id} (${head.name} - ${head.sound}): ${isActive ? 'ENABLED' : 'DISABLED'}`;
-        }
-        return;
-      }
+      const isDeparture = this.sequencer.isDepartureCell(q, r);
 
-      switch (this.activeTool) {
-        case 'ENABLE': {
-          if (cell.enabled && this.activeModifier === 'NONE') {
-            // Toggle off
-            this.sequencer.setCell(q, r, false, false, cell.modifier);
-            this.updateCellInfo(q, r, false, false, cell.modifier);
-          } else {
-            const mod = this.activeModifier !== 'NONE' ? this.activeModifier : cell.modifier;
-            this.sequencer.setCell(q, r, true, false, mod);
-            this.updateCellInfo(q, r, true, false, mod);
-            const activeHead = this.sequencer.getPlayheads().find(p => p.active);
-            if (activeHead) {
-              this.audioEngine.previewSound(activeHead.sound, q * 3 + r * 5);
+      if (action === 'TAP') {
+        if (isDeparture) {
+          const head = this.sequencer.getDeparturePlayhead(q, r);
+          if (head) {
+            const isActive = this.sequencer.togglePlayhead(head.id);
+            if (isActive) {
+              this.audioEngine.previewSound(head.sound);
             }
+            this.cellInfo.textContent = `Head ${head.id} (${head.name} - ${head.sound}): ${isActive ? 'ENABLED' : 'DISABLED'}`;
           }
-          break;
+          return;
         }
-        case 'DISABLE': {
-          const mod = this.activeModifier !== 'NONE' ? this.activeModifier : 'NONE';
-          this.sequencer.setCell(q, r, false, false, mod);
-          this.updateCellInfo(q, r, false, false, mod);
-          break;
+
+        // Tap cycles: Dead Wall -> Clear; Enabled -> Disabled; Disabled -> Enabled
+        if (cell.isDead) {
+          this.sequencer.setCell(q, r, false, false, 'NONE');
+          this.cellInfo.textContent = `Cell (${q}, ${r}) • Cleared Wall`;
+        } else if (cell.enabled) {
+          this.sequencer.setCell(q, r, false, false, cell.modifier);
+          this.cellInfo.textContent = `Cell (${q}, ${r}) • DISABLED`;
+        } else {
+          this.sequencer.setCell(q, r, true, false, cell.modifier);
+          this.cellInfo.textContent = `Cell (${q}, ${r}) • ENABLED • ${cell.modifier}`;
+          const activeHead = this.sequencer.getPlayheads().find(p => p.active);
+          if (activeHead) {
+            this.audioEngine.previewSound(activeHead.sound, q * 3 + r * 5);
+          }
         }
-        case 'DEAD': {
-          const isNowDead = !cell.isDead;
-          this.sequencer.setCell(q, r, false, isNowDead, 'NONE');
-          this.updateCellInfo(q, r, false, isNowDead, 'NONE');
-          break;
+      } else if (action === 'ROUTE' && dirIndex !== undefined) {
+        if (isDeparture) return;
+        const newMod = DIR_MODIFIERS[dirIndex];
+
+        // If swiping in the exact same direction, clear modifier
+        if (cell.modifier === newMod) {
+          this.sequencer.setCell(q, r, cell.enabled, false, 'NONE');
+          this.cellInfo.textContent = `Cell (${q}, ${r}) • Cleared Route`;
+        } else {
+          // Set direction & auto-enable sound if cell is not a dead wall
+          const enabled = cell.isDead ? false : true;
+          this.sequencer.setCell(q, r, enabled, false, newMod);
+          this.cellInfo.textContent = `Cell (${q}, ${r}) • Route: ${newMod}`;
+          const activeHead = this.sequencer.getPlayheads().find(p => p.active);
+          if (activeHead) {
+            this.audioEngine.previewSound(activeHead.sound, q * 3 + r * 5);
+          }
         }
+      } else if (action === 'WALL') {
+        if (isDeparture) return;
+        const isNowDead = !cell.isDead;
+        this.sequencer.setCell(q, r, false, isNowDead, 'NONE');
+        this.cellInfo.textContent = isNowDead
+          ? `Cell (${q}, ${r}) • DEAD WALL (Hold again to clear)`
+          : `Cell (${q}, ${r}) • Wall removed`;
       }
     });
 
-    // 11. Sequencer Step Listener
+    // 7. Sequencer Step Listener
     this.sequencer.addStepListener((stepIndex: number) => {
       this.stepIndicator.textContent = `Step: ${stepIndex}`;
-    });
-  }
-
-  private setActiveTool(tool: CellTool) {
-    this.activeTool = tool;
-    this.toolButtons.forEach(b => {
-      b.classList.toggle('active', b.dataset.tool === tool);
-    });
-  }
-
-  private setActiveModifier(mod: ModifierType) {
-    this.activeModifier = mod;
-    this.modifierButtons.forEach(b => {
-      b.classList.toggle('active', b.dataset.mod === mod);
-    });
-  }
-
-  private updateCellInfo(q: number, r: number, enabled: boolean, isDead: boolean, modifier: ModifierType) {
-    if (q === 0 && r === 0) {
-      this.cellInfo.textContent = `Center Core (Obstacle)`;
-    } else if (this.sequencer.isDepartureCell(q, r)) {
-      const head = this.sequencer.getDeparturePlayhead(q, r);
-      if (head) {
-        this.cellInfo.textContent = `Launch Bay ${head.id} (${head.name} - ${head.sound}) • ${head.active ? 'ACTIVE' : 'INACTIVE'}`;
-      } else {
-        this.cellInfo.textContent = `Departure Bay (${q}, ${r})`;
-      }
-    } else if (isDead) {
-      this.cellInfo.textContent = `Cell: (${q}, ${r}) • DEAD WALL`;
-    } else {
-      const stateStr = enabled ? 'ENABLED' : 'DISABLED';
-      this.cellInfo.textContent = `Cell: (${q}, ${r}) • ${stateStr} • ${modifier}`;
-    }
-  }
-
-  private updatePlayheadButtonStates() {
-    const playheads = this.sequencer.getPlayheads();
-    this.playheadButtons.forEach(btn => {
-      const id = parseInt(btn.dataset.id || '1', 10);
-      const playhead = playheads.find(p => p.id === id);
-      if (playhead) {
-        btn.classList.toggle('active', playhead.active);
-      }
     });
   }
 
@@ -433,7 +355,6 @@ export class UIController {
     this.bpmSlider.value = `${project.bpm}`;
     this.bpmValue.textContent = `${project.bpm}`;
     this.currentProjectName = project.name;
-    this.updatePlayheadButtonStates();
     this.updatePresetSelectDropdown(project.id);
     this.modalLoad?.classList.add('hidden');
     this.cellInfo.textContent = `Loaded project "${project.name}" • ${project.bpm} BPM`;

@@ -77,7 +77,15 @@ export const SOUND_STYLES: Record<SoundType, SoundStyle> = {
   }
 };
 
-export type CellSelectHandler = (q: number, r: number, cell?: Cell) => void;
+export type CellActionType = 'TAP' | 'ROUTE' | 'WALL';
+
+export type CellActionHandler = (
+  action: CellActionType,
+  q: number,
+  r: number,
+  dirIndex?: number,
+  cell?: Cell
+) => void;
 
 export class HexCanvas {
   private canvas: HTMLCanvasElement;
@@ -88,9 +96,20 @@ export class HexCanvas {
   private selectedCellKey: string | null = null;
   private animationFrameId: number | null = null;
 
-  private onCellSelect: CellSelectHandler | null = null;
+  private onCellAction: CellActionHandler | null = null;
   private isPointerDown: boolean = false;
-  private lastTouchedKey: string | null = null;
+  private pointerDownX: number = 0;
+  private pointerDownY: number = 0;
+  private pointerDownHex: { q: number; r: number } | null = null;
+  private longPressTimer: any = null;
+  private isLongPressTriggered: boolean = false;
+  private activeDrag: {
+    q: number;
+    r: number;
+    currentX: number;
+    currentY: number;
+    dirIndex: number;
+  } | null = null;
 
   constructor(canvas: HTMLCanvasElement, private sequencer: Sequencer) {
     this.canvas = canvas;
@@ -108,8 +127,8 @@ export class HexCanvas {
     this.startRenderLoop();
   }
 
-  public setOnCellSelect(cb: CellSelectHandler) {
-    this.onCellSelect = cb;
+  public setOnCellAction(cb: CellActionHandler) {
+    this.onCellAction = cb;
   }
 
   public setSelectedCell(q: number, r: number) {
@@ -148,49 +167,122 @@ export class HexCanvas {
     const maxSizeY = maxAvailableHeight / rows;
 
     // Choose the dimension that guarantees both horizontal and vertical fitting
-    this.hexSize = Math.max(11, Math.min(48, Math.min(maxSizeX, maxSizeY)));
+    this.hexSize = Math.max(11, Math.min(52, Math.min(maxSizeX, maxSizeY)));
   }
 
   private initEvents() {
-    const handlePointerAction = (e: PointerEvent, isDrag: boolean) => {
+    this.canvas.addEventListener('pointerdown', (e: PointerEvent) => {
+      this.isPointerDown = true;
+      try {
+        this.canvas.setPointerCapture(e.pointerId);
+      } catch {}
+
       const rect = this.canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
       const { q, r } = pixelToHex(x, y, this.hexSize, this.originX, this.originY);
-      if (isInsideGrid(q, r)) {
-        const key = `${q},${r}`;
-        if (isDrag && this.lastTouchedKey === key) return;
-        this.lastTouchedKey = key;
-        this.selectedCellKey = key;
-
-        if (this.onCellSelect) {
-          const cell = this.sequencer.getCell(q, r);
-          this.onCellSelect(q, r, cell);
-        }
+      if (!isInsideGrid(q, r)) {
+        this.pointerDownHex = null;
+        return;
       }
-    };
 
-    this.canvas.addEventListener('pointerdown', (e) => {
-      this.isPointerDown = true;
-      this.canvas.setPointerCapture(e.pointerId);
-      handlePointerAction(e, false);
+      this.pointerDownX = x;
+      this.pointerDownY = y;
+      this.pointerDownHex = { q, r };
+      this.selectedCellKey = `${q},${r}`;
+      this.isLongPressTriggered = false;
+      this.activeDrag = null;
+
+      // Start long-press timer for Dead Wall toggle
+      const isDeparture = this.sequencer.isDepartureCell(q, r);
+      const isCenter = q === 0 && r === 0;
+
+      if (!isDeparture && !isCenter) {
+        this.longPressTimer = setTimeout(() => {
+          this.isLongPressTriggered = true;
+          this.activeDrag = null;
+          if (navigator.vibrate) {
+            try { navigator.vibrate(30); } catch {}
+          }
+          const cell = this.sequencer.getCell(q, r);
+          this.onCellAction?.('WALL', q, r, undefined, cell);
+        }, 420);
+      }
     });
 
-    this.canvas.addEventListener('pointermove', (e) => {
-      if (this.isPointerDown) {
-        handlePointerAction(e, true);
+    this.canvas.addEventListener('pointermove', (e: PointerEvent) => {
+      if (!this.isPointerDown || !this.pointerDownHex) return;
+
+      const rect = this.canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const dx = x - this.pointerDownX;
+      const dy = y - this.pointerDownY;
+      const dist = Math.hypot(dx, dy);
+
+      // If moved past threshold, cancel long-press and start route swipe
+      if (dist >= 14) {
+        if (this.longPressTimer) {
+          clearTimeout(this.longPressTimer);
+          this.longPressTimer = null;
+        }
+
+        if (this.isLongPressTriggered) return;
+
+        // Departure pads and center core cannot be routed
+        const { q, r } = this.pointerDownHex;
+        if (this.sequencer.isDepartureCell(q, r) || (q === 0 && r === 0)) return;
+
+        const angle = Math.atan2(dy, dx);
+        const normAngle = (angle + 2 * Math.PI) % (2 * Math.PI);
+        const dirIndex = Math.floor(((normAngle + Math.PI / 6) % (2 * Math.PI)) / (Math.PI / 3)) % 6;
+
+        this.activeDrag = {
+          q,
+          r,
+          currentX: x,
+          currentY: y,
+          dirIndex
+        };
       }
     });
 
     const pointerUp = (e: PointerEvent) => {
+      if (!this.isPointerDown) return;
       this.isPointerDown = false;
-      this.lastTouchedKey = null;
+
+      if (this.longPressTimer) {
+        clearTimeout(this.longPressTimer);
+        this.longPressTimer = null;
+      }
+
       try {
         this.canvas.releasePointerCapture(e.pointerId);
-      } catch {
-        // ignore
+      } catch {}
+
+      if (this.pointerDownHex) {
+        const { q, r } = this.pointerDownHex;
+        const cell = this.sequencer.getCell(q, r);
+
+        if (this.isLongPressTriggered) {
+          // Handled by long press timer
+        } else if (this.activeDrag && Math.hypot(this.activeDrag.currentX - this.pointerDownX, this.activeDrag.currentY - this.pointerDownY) >= 14) {
+          // Swipe to route!
+          if (navigator.vibrate) {
+            try { navigator.vibrate(15); } catch {}
+          }
+          this.onCellAction?.('ROUTE', q, r, this.activeDrag.dirIndex, cell);
+        } else {
+          // Quick tap!
+          this.onCellAction?.('TAP', q, r, undefined, cell);
+        }
       }
+
+      this.activeDrag = null;
+      this.pointerDownHex = null;
+      this.isLongPressTriggered = false;
     };
 
     this.canvas.addEventListener('pointerup', pointerUp);
@@ -233,7 +325,7 @@ export class HexCanvas {
     // 2. Draw subtle grid connection web
     this.drawHexWeb();
 
-    // 3. Render 37 Hexagonal Cells
+    // 3. Render Hexagonal Cells
     const grid = this.sequencer.getGrid();
     grid.forEach((cell) => {
       this.drawCell(cell, now);
@@ -246,6 +338,52 @@ export class HexCanvas {
         this.drawPlayhead(p);
       }
     });
+
+    // 5. Render Active Swipe Drag Vector Guide
+    if (this.activeDrag) {
+      this.drawDragVector(this.activeDrag);
+    }
+  }
+
+  private drawDragVector(drag: { q: number; r: number; currentX: number; currentY: number; dirIndex: number }) {
+    const origin = hexToPixel(drag.q, drag.r, this.hexSize, this.originX, this.originY);
+    const angle = HEX_DIRECTIONS[drag.dirIndex].angle;
+    const facetDist = (this.hexSize - 2) * (Math.sqrt(3) / 2);
+
+    this.ctx.save();
+
+    // Glowing trajectory beam from cell origin to touch point
+    this.ctx.beginPath();
+    this.ctx.moveTo(origin.x, origin.y);
+    this.ctx.lineTo(drag.currentX, drag.currentY);
+    this.ctx.strokeStyle = '#00ffff';
+    this.ctx.lineWidth = 2.5;
+    this.ctx.shadowColor = 'rgba(0, 255, 255, 0.85)';
+    this.ctx.shadowBlur = 12;
+    this.ctx.stroke();
+
+    // Touch pip indicator
+    this.ctx.beginPath();
+    this.ctx.arc(drag.currentX, drag.currentY, 6, 0, Math.PI * 2);
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.shadowBlur = 10;
+    this.ctx.shadowColor = '#00ffff';
+    this.ctx.fill();
+
+    // Live illuminated facet gate preview on target wall
+    this.ctx.translate(origin.x, origin.y);
+    this.ctx.rotate(angle);
+    const halfEdge = (this.hexSize - 2) * 0.5;
+    this.ctx.beginPath();
+    this.ctx.moveTo(facetDist, -halfEdge * 0.65);
+    this.ctx.lineTo(facetDist, halfEdge * 0.65);
+    this.ctx.strokeStyle = '#ffffff';
+    this.ctx.lineWidth = 4;
+    this.ctx.shadowColor = '#00ffff';
+    this.ctx.shadowBlur = 15;
+    this.ctx.stroke();
+
+    this.ctx.restore();
   }
 
   private drawHexWeb() {

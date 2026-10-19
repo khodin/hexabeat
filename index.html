@@ -66,70 +66,18 @@
         <canvas id="hex-canvas"></canvas>
       </main>
 
-      <!-- BOTTOM PALETTES & TOOLS -->
-      <footer class="bottom-dock">
-        <!-- CELL PALETTE -->
-        <div class="palette-row">
-          <span class="palette-tag">CELL</span>
-          <div class="palette-group" id="cell-palette">
-            <button class="tool-btn active" data-tool="ENABLE" title="Enable Cell (Plays reaching Playhead sound)">
-              <span class="btn-badge">ENABLE</span>
-            </button>
-            <button class="tool-btn" data-tool="DISABLE" title="Disable Cell (Silent Pass-Through, No Sound)">
-              <span class="btn-badge">DISABLE</span>
-            </button>
-            <button class="tool-btn" data-tool="DEAD" title="Dead Cell (Impassable Wall / Blocker)">
-              <span class="btn-badge">DEAD</span>
-            </button>
-          </div>
-
-          <div class="playhead-toggles">
-            <span class="palette-tag heads-tag">HEADS</span>
-            <button class="p-toggle active" data-id="1" title="Head 1: KICK (Cyan)"><span class="p-num">1</span> <span class="p-sound">KICK</span></button>
-            <button class="p-toggle active" data-id="2" title="Head 2: SNARE (Pink)"><span class="p-num">2</span> <span class="p-sound">SNR</span></button>
-            <button class="p-toggle" data-id="3" title="Head 3: CLOSED HAT (Green)"><span class="p-num">3</span> <span class="p-sound">HAT</span></button>
-            <button class="p-toggle" data-id="4" title="Head 4: OPEN HAT (Yellow)"><span class="p-num">4</span> <span class="p-sound">OPH</span></button>
-            <button class="p-toggle" data-id="5" title="Head 5: CLAP (Purple)"><span class="p-num">5</span> <span class="p-sound">CLP</span></button>
-            <button class="p-toggle" data-id="6" title="Head 6: SYNTH (Orange)"><span class="p-num">6</span> <span class="p-sound">SYN</span></button>
-            <button id="btn-stop-dock" class="btn-stop-dock" title="Stop playback and return all playheads to departure bays on circle 1">⏹ STOP</button>
-          </div>
+      <!-- BOTTOM STREAMLINED CONTROL & STATUS BAR -->
+      <footer class="bottom-bar">
+        <div class="status-left">
+          <span id="selected-cell-info" class="status-chip">Tap: Beat • Drag: Route • Hold: Wall</span>
         </div>
-
-        <!-- ROUTING PALETTE -->
-        <div class="palette-row">
-          <span class="palette-tag">ROUTING</span>
-          <div class="palette-group" id="modifier-palette">
-            <button class="mod-btn active" data-mod="NONE" title="No Routing (Default Random 6-direction movement)">
-              ✦ NO ROUTE
-            </button>
-            <button class="mod-btn" data-mod="DIR_TL" title="Route Top-Left (North-West: ↖)">
-              ↖ TOP-L
-            </button>
-            <button class="mod-btn" data-mod="DIR_TR" title="Route Top-Right (North-East: ↗)">
-              ↗ TOP-R
-            </button>
-            <button class="mod-btn" data-mod="DIR_L" title="Route Left (West: ←)">
-              ← LEFT
-            </button>
-            <button class="mod-btn" data-mod="DIR_R" title="Route Right (East: →)">
-              → RIGHT
-            </button>
-            <button class="mod-btn" data-mod="DIR_BL" title="Route Bottom-Left (South-West: ↙)">
-              ↙ BTM-L
-            </button>
-            <button class="mod-btn" data-mod="DIR_BR" title="Route Bottom-Right (South-East: ↘)">
-              ↘ BTM-R
-            </button>
-          </div>
+        <div class="gesture-hints">
+          <span class="hint-item"><span class="hint-icon">👆</span> Tap: Beat</span>
+          <span class="hint-item"><span class="hint-icon">↗</span> Drag: Route</span>
+          <span class="hint-item"><span class="hint-icon">⏱</span> Hold: Wall</span>
         </div>
-
-        <!-- STATUS -->
-        <div class="status-bar">
-          <span id="selected-cell-info" class="status-chip">Cell: (1, 0) • ENABLED • NONE</span>
-          <div class="status-right">
-            <button id="btn-stop-bottom" class="btn-status-stop" title="Stop playback and return playheads to departure bays">⏹ Stop</button>
-            <span id="step-indicator" class="status-chip">Step: 0</span>
-            <a href="https://github.com/khodin/hexabeat" target="_blank" rel="noopener noreferrer" class="status-link" title="Open GitHub Repository">GitHub ↗</a>
+        <div class="status-right">
+          <span id="step-indicator" class="status-chip">Step: 0</span>
         </div>
       </footer>
     </div>
