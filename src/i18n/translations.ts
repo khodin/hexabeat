@@ -1,0 +1,334 @@
+export type Locale = 'en' | 'fr';
+
+export interface Translations {
+  // Brand & Header
+  brandTitle: string;
+  githubTitle: string;
+  helpTitle: string;
+  langTitle: string;
+  play: string;
+  pause: string;
+  stop: string;
+  clear: string;
+  share: string;
+  save: string;
+  load: string;
+  bpm: string;
+
+  // Preset Select
+  optgroupPresets: string;
+  optgroupSaved: string;
+  presetTechno: string;
+  presetPolyrhythm: string;
+  presetHiphop: string;
+  presetTrap: string;
+  presetNexus: string;
+  presetAcid: string;
+  presetIdm: string;
+  presetBlank: string;
+
+  // Bottom Status & HUD
+  tapCellHint: string;
+  btnWall: string;
+  btnUnblock: string;
+  btnRoute: string;
+  btnRouteWithDir: string;
+  btnClearRoute: string;
+  stepPrefix: string;
+
+  // Dynamic Status Messages
+  cellPrefix: string;
+  beatEnabled: string;
+  beatDisabled: string;
+  impassableWall: string;
+  wallPlaced: string;
+  wallRemoved: string;
+  routeCleared: string;
+  routeSet: string;
+  centerCore: string;
+  headPrefix: string;
+  headActive: string;
+  headMuted: string;
+  stoppedInfo: string;
+  gridCleared: string;
+  presetLoaded: string;
+  projectLoaded: string;
+
+  // Route Modal
+  routeModalTitle: string;
+  routeModalDesc: string;
+  dirTL: string;
+  dirTR: string;
+  dirL: string;
+  dirR: string;
+  dirBL: string;
+  dirBR: string;
+  removeRoute: string;
+  done: string;
+
+  // Save Modal
+  saveModalTitle: string;
+  projectNameLabel: string;
+  projectNamePlaceholder: string;
+  tempoLabel: string;
+  cellsLabel: string;
+  cellsConfigured: string;
+  shareLinkBtn: string;
+  exportFileBtn: string;
+  saveProjectBtn: string;
+
+  // Load Modal
+  loadModalTitle: string;
+  savedGrooves: string;
+  importFileBtn: string;
+  noProjectsMsg: string;
+  loadBtn: string;
+  shareBtnTitle: string;
+  exportBtnTitle: string;
+  deleteBtnTitle: string;
+  deleteConfirm: string;
+  closeBtn: string;
+
+  // Toast Notifications
+  shareCopiedToast: string;
+  routeRemovedToast: string;
+  sharedLoadedToast: string;
+
+  // Tutorial Modal
+  tutorialTitle: string;
+  tabConcept: string;
+  tabHeads: string;
+  tabCellsWalls: string;
+  tabRouting: string;
+  tabShare: string;
+  btnPrev: string;
+  btnNext: string;
+  btnStart: string;
+}
+
+export const TRANSLATIONS: Record<Locale, Translations> = {
+  en: {
+    brandTitle: 'HexaBeat',
+    githubTitle: 'View Source on GitHub',
+    helpTitle: 'Guide & Tutorial',
+    langTitle: 'Passer en Français',
+    play: '▶ PLAY',
+    pause: '⏸ PAUSE',
+    stop: '⏹ STOP',
+    clear: 'CLEAR',
+    share: '🔗 SHARE',
+    save: '💾 SAVE',
+    load: '📁 LOAD',
+    bpm: 'BPM',
+
+    optgroupPresets: 'Presets',
+    optgroupSaved: 'Saved Projects',
+    presetTechno: 'Techno Orbit',
+    presetPolyrhythm: 'Hex Polyrhythm',
+    presetHiphop: 'Boom Bap Hip Hop',
+    presetTrap: 'Trap 808',
+    presetNexus: 'Melodic Nexus',
+    presetAcid: 'Acid Honeycomb',
+    presetIdm: 'IDM Generative',
+    presetBlank: 'Empty Canvas',
+
+    tapCellHint: 'Tap cell to toggle beat',
+    btnWall: '🧱 Wall',
+    btnUnblock: '⬜ Unblock',
+    btnRoute: '↗ Route',
+    btnRouteWithDir: '↗ Route (%s)',
+    btnClearRoute: '✕ Clear',
+    stepPrefix: 'Step: %s',
+
+    cellPrefix: 'Cell',
+    beatEnabled: 'Beat Enabled',
+    beatDisabled: 'Beat Disabled',
+    impassableWall: 'Impassable Wall',
+    wallPlaced: 'Wall Placed',
+    wallRemoved: 'Wall Removed',
+    routeCleared: 'Route Cleared',
+    routeSet: 'Route: %s',
+    centerCore: 'Center Core (Impassable Barrier)',
+    headPrefix: 'Head',
+    headActive: 'ENABLED',
+    headMuted: 'MUTED',
+    stoppedInfo: 'Stopped • Playheads at departure bays',
+    gridCleared: 'Grid Cleared',
+    presetLoaded: 'Preset loaded: %s',
+    projectLoaded: 'Loaded project "%s" • %s BPM',
+
+    routeModalTitle: '🧭 Route Direction',
+    routeModalDesc: 'Direct playheads entering this cell along a compass path:',
+    dirTL: 'Top-Left',
+    dirTR: 'Top-Right',
+    dirL: 'Left',
+    dirR: 'Right',
+    dirBL: 'Bottom-Left',
+    dirBR: 'Bottom-Right',
+    removeRoute: '✕ Remove Route',
+    done: 'Done',
+
+    saveModalTitle: '💾 Save Project',
+    projectNameLabel: 'Project Name',
+    projectNamePlaceholder: 'e.g. Cyber Honeycomb',
+    tempoLabel: 'Tempo:',
+    cellsLabel: 'Cells:',
+    cellsConfigured: 'Configured',
+    shareLinkBtn: '🔗 Share Link',
+    exportFileBtn: '⬇ Export File',
+    saveProjectBtn: 'Save Project',
+
+    loadModalTitle: '📁 Project Manager',
+    savedGrooves: 'Saved Grooves',
+    importFileBtn: '⬆ Import File',
+    noProjectsMsg: 'No saved projects yet. Click "SAVE" to store your grooves!',
+    loadBtn: '▶ Load',
+    shareBtnTitle: 'Share via Link',
+    exportBtnTitle: 'Download as JSON file',
+    deleteBtnTitle: 'Delete project',
+    deleteConfirm: 'Delete project "%s"?',
+    closeBtn: 'Close',
+
+    shareCopiedToast: '🔗 Share link copied to clipboard!',
+    routeRemovedToast: 'Route removed from cell (%s, %s)',
+    sharedLoadedToast: '🔗 Loaded shared project: "%s"',
+
+    tutorialTitle: '🎓 HexaBeat Guide & Tutorial',
+    tabConcept: '1. Concept',
+    tabHeads: '2. Instruments',
+    tabCellsWalls: '3. Beats & Walls',
+    tabRouting: '4. Routing',
+    tabShare: '5. Sharing',
+    btnPrev: '← Previous',
+    btnNext: 'Next →',
+    btnStart: '🚀 Start Jamming!'
+  },
+  fr: {
+    brandTitle: 'HexaBeat',
+    githubTitle: 'Voir le code sur GitHub',
+    helpTitle: 'Guide & Tutoriel',
+    langTitle: 'Switch to English',
+    play: '▶ JOUER',
+    pause: '⏸ PAUSE',
+    stop: '⏹ ARRÊT',
+    clear: 'EFFACER',
+    share: '🔗 PARTAGER',
+    save: '💾 ENREGISTRER',
+    load: '📁 PROJETS',
+    bpm: 'BPM',
+
+    optgroupPresets: 'Préréglages',
+    optgroupSaved: 'Projets enregistrés',
+    presetTechno: 'Orbite Techno',
+    presetPolyrhythm: 'Polyrythmie Hexa',
+    presetHiphop: 'Boom Bap Hip-Hop',
+    presetTrap: 'Trap 808',
+    presetNexus: 'Nexus Mélodique',
+    presetAcid: 'Ruche Acid',
+    presetIdm: 'IDM Génératif',
+    presetBlank: 'Canevas Vide',
+
+    tapCellHint: 'Touchez une case pour activer le son',
+    btnWall: '🧱 Mur',
+    btnUnblock: '⬜ Débloquer',
+    btnRoute: '↗ Routage',
+    btnRouteWithDir: '↗ Routage (%s)',
+    btnClearRoute: '✕ Effacer',
+    stepPrefix: 'Pas : %s',
+
+    cellPrefix: 'Case',
+    beatEnabled: 'Son activé',
+    beatDisabled: 'Son désactivé',
+    impassableWall: 'Mur infranchissable',
+    wallPlaced: 'Mur placé',
+    wallRemoved: 'Mur retiré',
+    routeCleared: 'Routage effacé',
+    routeSet: 'Routage : %s',
+    centerCore: 'Cœur Central (Infranchissable)',
+    headPrefix: 'Tête',
+    headActive: 'ACTIVÉE',
+    headMuted: 'COUPÉE',
+    stoppedInfo: 'Arrêté • Têtes aux bases de départ',
+    gridCleared: 'Grille effacée',
+    presetLoaded: 'Préréglage chargé : %s',
+    projectLoaded: 'Projet chargé "%s" • %s BPM',
+
+    routeModalTitle: '🧭 Direction du Routage',
+    routeModalDesc: 'Orientez les têtes traversant cette case selon une direction :',
+    dirTL: 'Haut-Gauche',
+    dirTR: 'Haut-Droite',
+    dirL: 'Gauche',
+    dirR: 'Droite',
+    dirBL: 'Bas-Gauche',
+    dirBR: 'Bas-Droite',
+    removeRoute: '✕ Supprimer le routage',
+    done: 'Terminé',
+
+    saveModalTitle: '💾 Sauvegarder le projet',
+    projectNameLabel: 'Nom du projet',
+    projectNamePlaceholder: 'ex. Ruche Cybernétique',
+    tempoLabel: 'Tempo :',
+    cellsLabel: 'Cases :',
+    cellsConfigured: 'configurées',
+    shareLinkBtn: '🔗 Lien de partage',
+    exportFileBtn: '⬇ Exporter fichier',
+    saveProjectBtn: 'Enregistrer',
+
+    loadModalTitle: '📁 Gestionnaire de projets',
+    savedGrooves: 'Rythmes enregistrés',
+    importFileBtn: '⬆ Importer fichier',
+    noProjectsMsg: 'Aucun projet enregistré. Cliquez sur "ENREGISTRER" pour sauvegarder vos rythmes !',
+    loadBtn: '▶ Charger',
+    shareBtnTitle: 'Partager par lien',
+    exportBtnTitle: 'Télécharger en fichier JSON',
+    deleteBtnTitle: 'Supprimer le projet',
+    deleteConfirm: 'Supprimer le projet "%s" ?',
+    closeBtn: 'Fermer',
+
+    shareCopiedToast: '🔗 Lien copié dans le presse-papiers !',
+    routeRemovedToast: 'Routage supprimé de la case (%s, %s)',
+    sharedLoadedToast: '🔗 Projet partagé chargé : "%s"',
+
+    tutorialTitle: '🎓 Guide & Tutoriel HexaBeat',
+    tabConcept: '1. Concept',
+    tabHeads: '2. Instruments',
+    tabCellsWalls: '3. Sons & Murs',
+    tabRouting: '4. Routage',
+    tabShare: '5. Partage',
+    btnPrev: '← Précédent',
+    btnNext: 'Suivant →',
+    btnStart: '🚀 Commencer à jouer !'
+  }
+};
+
+let currentLocale: Locale = (() => {
+  try {
+    const saved = localStorage.getItem('hexabeat_lang') as Locale | null;
+    if (saved === 'en' || saved === 'fr') return saved;
+    if (navigator.language && navigator.language.toLowerCase().startsWith('fr')) {
+      return 'fr';
+    }
+  } catch {}
+  return 'en';
+})();
+
+export function getLocale(): Locale {
+  return currentLocale;
+}
+
+export function setLocale(locale: Locale): void {
+  currentLocale = locale;
+  try {
+    localStorage.setItem('hexabeat_lang', locale);
+  } catch {}
+}
+
+export function t<K extends keyof Translations>(key: K): string {
+  const dict = TRANSLATIONS[currentLocale] || TRANSLATIONS.en;
+  return dict[key] || TRANSLATIONS.en[key] || (key as string);
+}
+
+export function formatString(template: string, ...args: any[]): string {
+  let idx = 0;
+  return template.replace(/%s/g, () => (args[idx++] !== undefined ? `${args[idx - 1]}` : ''));
+}

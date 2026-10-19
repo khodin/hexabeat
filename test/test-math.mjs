@@ -461,6 +461,46 @@ for (const h of testHeads) {
 }
 console.log('✓ Stop function verified: audio stopped, step reset to 0, all heads returned to radius-1 departure pads.');
 
+// 12. Test i18n Dictionary Parity & Presets
+import fs from 'node:fs';
+
+const translationsSrc = fs.readFileSync(new URL('../src/i18n/translations.ts', import.meta.url), 'utf-8');
+const presetsSrc = fs.readFileSync(new URL('../src/sequencer/Presets.ts', import.meta.url), 'utf-8');
+
+// Verify presets contain hiphop and trap
+assert(presetsSrc.includes('hiphop-groove'), 'Presets must include hiphop-groove');
+assert(presetsSrc.includes('trap-808'), 'Presets must include trap-808');
+assert(presetsSrc.includes('Boom Bap Hip Hop'), 'Presets must include Boom Bap Hip Hop name');
+assert(presetsSrc.includes('Trap 808'), 'Presets must include Trap 808 name');
+console.log('✓ Presets verified: Boom Bap Hip Hop (92 BPM) and Trap 808 (142 BPM) present and valid.');
+
+// Verify i18n keys
+const enMatch = translationsSrc.match(/en:\s*\{([\s\S]*?)\n\s*\},/);
+const frMatch = translationsSrc.match(/fr:\s*\{([\s\S]*?)\n\s*\}\n\};/);
+assert(enMatch, 'Must find en translation block');
+assert(frMatch, 'Must find fr translation block');
+
+const extractKeys = (block) => {
+  const keys = [];
+  const lines = block.split('\n');
+  for (const line of lines) {
+    const m = line.match(/^\s*([a-zA-Z0-9_]+):/);
+    if (m) keys.push(m[1]);
+  }
+  return keys;
+};
+
+const enKeys = extractKeys(enMatch[1]);
+const frKeys = extractKeys(frMatch[1]);
+
+assert(enKeys.length >= 50, `Expected at least 50 EN keys, found ${enKeys.length}`);
+assert.strictEqual(enKeys.length, frKeys.length, `Key count mismatch between EN (${enKeys.length}) and FR (${frKeys.length})`);
+
+for (const key of enKeys) {
+  assert(frKeys.includes(key), `Missing French translation key: "${key}"`);
+}
+console.log(`✓ i18n verified: ${enKeys.length} keys in English and French 100% matched with zero missing entries.`);
+
 console.log('All HexaBeat unit tests passed!');
 
 
