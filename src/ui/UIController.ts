@@ -118,6 +118,15 @@ export class UIController {
 
     // 5. Presets & Saved Projects
     this.presetSelect.addEventListener('change', () => {
+      // Stop playback, return playheads to departure bays, and reset step counter
+      this.sequencer.stop();
+      this.btnPlay.textContent = '▶ PLAY';
+      this.btnPlay.classList.remove('is-playing');
+      this.stepIndicator.textContent = 'Step: 0';
+      this.selectedCoords = null;
+      this.hexCanvas.setSelectedCell(0, null);
+      this.updateSelectedCellHud();
+
       const selectedId = this.presetSelect.value;
       if (selectedId.startsWith('proj_')) {
         const project = ProjectStorage.getProject(selectedId);
@@ -131,6 +140,7 @@ export class UIController {
         this.sequencer.loadPreset(preset);
         this.bpmSlider.value = `${preset.bpm}`;
         this.bpmValue.textContent = `${preset.bpm}`;
+        this.audioEngine.setBpm(preset.bpm);
         this.currentProjectName = preset.name;
         this.cellInfo.textContent = `Preset loaded: ${preset.name}`;
       }
@@ -435,9 +445,18 @@ export class UIController {
   }
 
   private loadProject(project: ProjectData) {
+    this.sequencer.stop();
+    this.btnPlay.textContent = '▶ PLAY';
+    this.btnPlay.classList.remove('is-playing');
+    this.stepIndicator.textContent = 'Step: 0';
+    this.selectedCoords = null;
+    this.hexCanvas.setSelectedCell(0, null);
+    this.updateSelectedCellHud();
+
     this.sequencer.loadProject(project);
     this.bpmSlider.value = `${project.bpm}`;
     this.bpmValue.textContent = `${project.bpm}`;
+    this.audioEngine.setBpm(project.bpm);
     this.currentProjectName = project.name;
     this.updatePresetSelectDropdown(project.id);
     this.modalLoad?.classList.add('hidden');

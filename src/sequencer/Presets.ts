@@ -268,6 +268,122 @@ export const PRESETS: Preset[] = [
     ]
   },
   {
+    id: 'hiphop-groove',
+    name: 'Boom Bap Hip Hop',
+    bpm: 92,
+    playheads: [
+      { id: 1, active: true }, // Kick
+      { id: 2, active: true }, // Snare
+      { id: 3, active: true }, // Closed Hat
+      { id: 4, active: false },
+      { id: 5, active: true }, // Clap
+      { id: 6, active: true }  // Synth Sample Loop
+    ],
+    cells: [
+      // Kick Loop (6 steps)
+      { q: 2, r: 0, enabled: true, modifier: 'DIR_R' },
+      { q: 3, r: 0, enabled: false, modifier: 'DIR_BR' },
+      { q: 3, r: 1, enabled: true, modifier: 'DIR_BL' },
+      { q: 2, r: 2, enabled: false, modifier: 'DIR_L' },
+      { q: 1, r: 2, enabled: false, modifier: 'DIR_TL' },
+      { q: 1, r: 1, enabled: true, modifier: 'DIR_TR' },
+
+      // Snare (4 steps)
+      { q: 0, r: 2, enabled: false, modifier: 'DIR_BR' },
+      { q: 0, r: 3, enabled: true, modifier: 'DIR_BL' },
+      { q: -1, r: 4, enabled: false, modifier: 'DIR_TL' },
+      { q: -1, r: 3, enabled: false, modifier: 'DIR_TR' },
+
+      // Clap Layer (4 steps)
+      { q: 0, r: -2, enabled: false, modifier: 'DIR_TL' },
+      { q: 0, r: -3, enabled: true, modifier: 'DIR_TR' },
+      { q: 1, r: -4, enabled: false, modifier: 'DIR_BR' },
+      { q: 1, r: -3, enabled: false, modifier: 'DIR_BL' },
+
+      // Hat Shuffle (5 steps)
+      { q: -2, r: 2, enabled: true, modifier: 'DIR_L' },
+      { q: -3, r: 2, enabled: true, modifier: 'DIR_TL' },
+      { q: -3, r: 1, enabled: true, modifier: 'DIR_TR' },
+      { q: -2, r: 0, enabled: false, modifier: 'DIR_BR' },
+      { q: -2, r: 1, enabled: true, modifier: 'DIR_BL' },
+
+      // Synth Melody (6 steps)
+      { q: 2, r: -2, enabled: true, modifier: 'DIR_TR' },
+      { q: 3, r: -3, enabled: true, modifier: 'DIR_R' },
+      { q: 4, r: -3, enabled: false, modifier: 'DIR_BR' },
+      { q: 4, r: -2, enabled: true, modifier: 'DIR_BL' },
+      { q: 3, r: -1, enabled: true, modifier: 'DIR_L' },
+      { q: 2, r: -1, enabled: false, modifier: 'DIR_TL' },
+
+      // Walls
+      { q: 4, r: 1, isDead: true, modifier: 'NONE' },
+      { q: -2, r: 3, isDead: true, modifier: 'NONE' },
+      { q: -4, r: 2, isDead: true, modifier: 'NONE' },
+      { q: 2, r: -5, isDead: true, modifier: 'NONE' },
+      { q: 0, r: 5, isDead: true, modifier: 'NONE' },
+      { q: 0, r: -5, isDead: true, modifier: 'NONE' },
+    ]
+  },
+  {
+    id: 'trap-808',
+    name: 'Trap 808',
+    bpm: 142,
+    playheads: [
+      { id: 1, active: true }, // 808 Kick
+      { id: 2, active: true }, // Snare
+      { id: 3, active: true }, // Fast Hat
+      { id: 4, active: true }, // Open Hat
+      { id: 5, active: false },
+      { id: 6, active: true }  // Dark Synth
+    ],
+    cells: [
+      // 808 Kick Pattern (Double kicks + syncopations)
+      { q: 2, r: 0, enabled: true, modifier: 'DIR_R' },
+      { q: 3, r: 0, enabled: true, modifier: 'DIR_R' },
+      { q: 4, r: 0, enabled: false, modifier: 'DIR_BL' },
+      { q: 3, r: 1, enabled: false, modifier: 'DIR_L' },
+      { q: 2, r: 1, enabled: true, modifier: 'DIR_TL' },
+
+      // Half-time Snare
+      { q: 0, r: 2, enabled: false, modifier: 'DIR_BR' },
+      { q: 0, r: 3, enabled: false, modifier: 'DIR_BR' },
+      { q: 0, r: 4, enabled: true, modifier: 'DIR_TR' },
+      { q: 1, r: 3, enabled: false, modifier: 'DIR_TL' },
+      { q: 1, r: 2, enabled: false, modifier: 'DIR_BL' },
+
+      // Rolling Trap Hats (All enabled for machine-gun 16ths!)
+      { q: -2, r: 2, enabled: true, modifier: 'DIR_BL' },
+      { q: -3, r: 3, enabled: true, modifier: 'DIR_L' },
+      { q: -4, r: 3, enabled: true, modifier: 'DIR_TL' },
+      { q: -4, r: 2, enabled: true, modifier: 'DIR_TR' },
+      { q: -3, r: 1, enabled: true, modifier: 'DIR_BR' },
+      { q: -2, r: 1, enabled: true, modifier: 'DIR_BL' },
+
+      // Open Hat Offbeat Accent
+      { q: -2, r: 0, enabled: false, modifier: 'DIR_L' },
+      { q: -3, r: 0, enabled: false, modifier: 'DIR_BL' },
+      { q: -4, r: 1, enabled: true, modifier: 'DIR_TR' },
+      { q: -3, r: -1, enabled: false, modifier: 'DIR_BR' },
+      { q: -2, r: -1, enabled: false, modifier: 'DIR_R' },
+
+      // Dark Minor Trap Synth Arpeggio
+      { q: 2, r: -2, enabled: true, modifier: 'DIR_TR' },
+      { q: 3, r: -3, enabled: true, modifier: 'DIR_TL' },
+      { q: 3, r: -4, enabled: true, modifier: 'DIR_L' },
+      { q: 2, r: -4, enabled: true, modifier: 'DIR_BL' },
+      { q: 1, r: -3, enabled: false, modifier: 'DIR_BR' },
+      { q: 1, r: -2, enabled: true, modifier: 'DIR_R' },
+
+      // Trap Walls
+      { q: 5, r: 0, isDead: true, modifier: 'NONE' },
+      { q: -5, r: 4, isDead: true, modifier: 'NONE' },
+      { q: 0, r: 5, isDead: true, modifier: 'NONE' },
+      { q: -1, r: 5, isDead: true, modifier: 'NONE' },
+      { q: 4, r: -5, isDead: true, modifier: 'NONE' },
+      { q: -4, r: -1, isDead: true, modifier: 'NONE' },
+    ]
+  },
+  {
     id: 'blank',
     name: 'Empty Canvas',
     bpm: 120,
