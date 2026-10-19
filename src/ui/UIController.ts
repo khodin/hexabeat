@@ -61,6 +61,13 @@ export class UIController {
     this.initUrlShare();
     this.updatePresetSelectDropdown();
     this.updateSelectedCellHud();
+
+    const initialPreset = PRESETS[0];
+    if (initialPreset) {
+      this.bpmSlider.value = `${initialPreset.bpm}`;
+      this.bpmValue.textContent = `${initialPreset.bpm}`;
+      this.audioEngine.setBpm(initialPreset.bpm);
+    }
   }
 
   private initEvents() {
