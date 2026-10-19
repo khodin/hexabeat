@@ -101,15 +101,6 @@ export class HexCanvas {
   private pointerDownX: number = 0;
   private pointerDownY: number = 0;
   private pointerDownHex: { q: number; r: number } | null = null;
-  private longPressTimer: any = null;
-  private isLongPressTriggered: boolean = false;
-  private activeDrag: {
-    q: number;
-    r: number;
-    currentX: number;
-    currentY: number;
-    dirIndex: number;
-  } | null = null;
 
   constructor(canvas: HTMLCanvasElement, private sequencer: Sequencer) {
     this.canvas = canvas;
@@ -131,8 +122,12 @@ export class HexCanvas {
     this.onCellAction = cb;
   }
 
-  public setSelectedCell(q: number, r: number) {
-    this.selectedCellKey = `${q},${r}`;
+  public setSelectedCell(q: number, r: number | null) {
+    if (r === null) {
+      this.selectedCellKey = null;
+    } else {
+      this.selectedCellKey = `${q},${r}`;
+    }
   }
 
   public getSelectedCellKey(): string | null {
@@ -190,29 +185,17 @@ export class HexCanvas {
       this.pointerDownX = x;
       this.pointerDownY = y;
       this.pointerDownHex = { q, r };
-      this.selectedCellKey = `${q},${r}`;
-      this.isLongPressTriggered = false;
-      this.activeDrag = null;
-
-      // Start long-press timer for Dead Wall toggle
-      const isDeparture = this.sequencer.isDepartureCell(q, r);
-      const isCenter = q === 0 && r === 0;
-
-      if (!isDeparture && !isCenter) {
-        this.longPressTimer = setTimeout(() => {
-          this.isLongPressTriggered = true;
-          this.activeDrag = null;
-          if (navigator.vibrate) {
-            try { navigator.vibrate(30); } catch {}
-          }
-          const cell = this.sequencer.getCell(q, r);
-          this.onCellAction?.('WALL', q, r, undefined, cell);
-        }, 420);
-      }
     });
 
-    this.canvas.addEventListener('pointermove', (e: PointerEvent) => {
-      if (!this.isPointerDown || !this.pointerDownHex) return;
+    const pointerUp = (e: PointerEvent) => {
+      if (!this.isPointerDown) return;
+      this.isPointerDown = false;
+
+      try {
+        this.canvas.releasePointerCapture(e.pointerId);
+      } catch {}
+
+      if (!this.pointerDownHex) return;
 
       const rect = this.canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -220,69 +203,16 @@ export class HexCanvas {
 
       const dx = x - this.pointerDownX;
       const dy = y - this.pointerDownY;
-      const dist = Math.hypot(dx, dy);
 
-      // If moved past threshold, cancel long-press and start route swipe
-      if (dist >= 14) {
-        if (this.longPressTimer) {
-          clearTimeout(this.longPressTimer);
-          this.longPressTimer = null;
-        }
-
-        if (this.isLongPressTriggered) return;
-
-        // Departure pads and center core cannot be routed
+      // Small threshold (12px) to detect clean tap without drag/scroll drift
+      if (Math.hypot(dx, dy) < 12) {
         const { q, r } = this.pointerDownHex;
-        if (this.sequencer.isDepartureCell(q, r) || (q === 0 && r === 0)) return;
-
-        const angle = Math.atan2(dy, dx);
-        const normAngle = (angle + 2 * Math.PI) % (2 * Math.PI);
-        const dirIndex = Math.floor(((normAngle + Math.PI / 6) % (2 * Math.PI)) / (Math.PI / 3)) % 6;
-
-        this.activeDrag = {
-          q,
-          r,
-          currentX: x,
-          currentY: y,
-          dirIndex
-        };
-      }
-    });
-
-    const pointerUp = (e: PointerEvent) => {
-      if (!this.isPointerDown) return;
-      this.isPointerDown = false;
-
-      if (this.longPressTimer) {
-        clearTimeout(this.longPressTimer);
-        this.longPressTimer = null;
-      }
-
-      try {
-        this.canvas.releasePointerCapture(e.pointerId);
-      } catch {}
-
-      if (this.pointerDownHex) {
-        const { q, r } = this.pointerDownHex;
+        this.selectedCellKey = `${q},${r}`;
         const cell = this.sequencer.getCell(q, r);
-
-        if (this.isLongPressTriggered) {
-          // Handled by long press timer
-        } else if (this.activeDrag && Math.hypot(this.activeDrag.currentX - this.pointerDownX, this.activeDrag.currentY - this.pointerDownY) >= 14) {
-          // Swipe to route!
-          if (navigator.vibrate) {
-            try { navigator.vibrate(15); } catch {}
-          }
-          this.onCellAction?.('ROUTE', q, r, this.activeDrag.dirIndex, cell);
-        } else {
-          // Quick tap!
-          this.onCellAction?.('TAP', q, r, undefined, cell);
-        }
+        this.onCellAction?.('TAP', q, r, undefined, cell);
       }
 
-      this.activeDrag = null;
       this.pointerDownHex = null;
-      this.isLongPressTriggered = false;
     };
 
     this.canvas.addEventListener('pointerup', pointerUp);
@@ -338,52 +268,6 @@ export class HexCanvas {
         this.drawPlayhead(p);
       }
     });
-
-    // 5. Render Active Swipe Drag Vector Guide
-    if (this.activeDrag) {
-      this.drawDragVector(this.activeDrag);
-    }
-  }
-
-  private drawDragVector(drag: { q: number; r: number; currentX: number; currentY: number; dirIndex: number }) {
-    const origin = hexToPixel(drag.q, drag.r, this.hexSize, this.originX, this.originY);
-    const angle = HEX_DIRECTIONS[drag.dirIndex].angle;
-    const facetDist = (this.hexSize - 2) * (Math.sqrt(3) / 2);
-
-    this.ctx.save();
-
-    // Glowing trajectory beam from cell origin to touch point
-    this.ctx.beginPath();
-    this.ctx.moveTo(origin.x, origin.y);
-    this.ctx.lineTo(drag.currentX, drag.currentY);
-    this.ctx.strokeStyle = '#00ffff';
-    this.ctx.lineWidth = 2.5;
-    this.ctx.shadowColor = 'rgba(0, 255, 255, 0.85)';
-    this.ctx.shadowBlur = 12;
-    this.ctx.stroke();
-
-    // Touch pip indicator
-    this.ctx.beginPath();
-    this.ctx.arc(drag.currentX, drag.currentY, 6, 0, Math.PI * 2);
-    this.ctx.fillStyle = '#ffffff';
-    this.ctx.shadowBlur = 10;
-    this.ctx.shadowColor = '#00ffff';
-    this.ctx.fill();
-
-    // Live illuminated facet gate preview on target wall
-    this.ctx.translate(origin.x, origin.y);
-    this.ctx.rotate(angle);
-    const halfEdge = (this.hexSize - 2) * 0.5;
-    this.ctx.beginPath();
-    this.ctx.moveTo(facetDist, -halfEdge * 0.65);
-    this.ctx.lineTo(facetDist, halfEdge * 0.65);
-    this.ctx.strokeStyle = '#ffffff';
-    this.ctx.lineWidth = 4;
-    this.ctx.shadowColor = '#00ffff';
-    this.ctx.shadowBlur = 15;
-    this.ctx.stroke();
-
-    this.ctx.restore();
   }
 
   private drawHexWeb() {
@@ -510,6 +394,24 @@ export class HexCanvas {
 
     // Inner Labels & Modifier Glyphs / Departure Pad Badge
     this.drawCellContent(x, y, cell, isDead, isEnabled, departureHead);
+
+    // Glowing selection halo for the currently selected cell
+    if (isSelected) {
+      this.ctx.save();
+      const selVertices = getHexVertices(x, y, this.hexSize + 1);
+      this.ctx.beginPath();
+      selVertices.forEach((pt, idx) => {
+        if (idx === 0) this.ctx.moveTo(pt.x, pt.y);
+        else this.ctx.lineTo(pt.x, pt.y);
+      });
+      this.ctx.closePath();
+      this.ctx.strokeStyle = '#ffffff';
+      this.ctx.lineWidth = 2.5;
+      this.ctx.shadowColor = '#00ffff';
+      this.ctx.shadowBlur = 12;
+      this.ctx.stroke();
+      this.ctx.restore();
+    }
   }
 
   private drawCellContent(x: number, y: number, cell: Cell, isDead: boolean, isEnabled: boolean, departureHead?: Playhead) {

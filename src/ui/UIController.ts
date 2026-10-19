@@ -41,6 +41,16 @@ export class UIController {
   private fileImportProject = document.getElementById('file-import-project') as HTMLInputElement | null;
   private savedProjectsList = document.getElementById('saved-projects-list') as HTMLDivElement | null;
 
+  // Selected Cell & Routing Elements
+  private btnToggleWall = document.getElementById('btn-toggle-wall') as HTMLButtonElement | null;
+  private btnOpenRoute = document.getElementById('btn-open-route') as HTMLButtonElement | null;
+  private btnClearRoute = document.getElementById('btn-clear-route') as HTMLButtonElement | null;
+  private modalRoute = document.getElementById('modal-route') as HTMLDivElement | null;
+  private btnCloseRouteModal = document.getElementById('btn-close-route-modal') as HTMLButtonElement | null;
+  private btnCloseRoute = document.getElementById('btn-close-route') as HTMLButtonElement | null;
+  private btnModalClearRoute = document.getElementById('btn-modal-clear-route') as HTMLButtonElement | null;
+  private selectedCoords: { q: number; r: number } | null = null;
+
   constructor(
     private audioEngine: AudioEngine,
     private sequencer: Sequencer,
@@ -50,6 +60,7 @@ export class UIController {
     this.initProjectControls();
     this.initUrlShare();
     this.updatePresetSelectDropdown();
+    this.updateSelectedCellHud();
   }
 
   private initEvents() {
@@ -73,6 +84,9 @@ export class UIController {
       this.btnPlay.classList.remove('is-playing');
       this.stepIndicator.textContent = 'Step: 0';
       this.cellInfo.textContent = 'Stopped • Playheads at departure bays';
+      this.selectedCoords = null;
+      this.hexCanvas.setSelectedCell(0, null);
+      this.updateSelectedCellHud();
     };
     if (this.btnStop) this.btnStop.addEventListener('click', handleStop);
 
@@ -83,6 +97,9 @@ export class UIController {
       this.btnPlay.classList.remove('is-playing');
       this.stepIndicator.textContent = 'Step: 0';
       this.cellInfo.textContent = 'Grid Cleared';
+      this.selectedCoords = null;
+      this.hexCanvas.setSelectedCell(0, null);
+      this.updateSelectedCellHud();
     });
 
     // 4. BPM Slider
@@ -112,74 +129,134 @@ export class UIController {
       }
     });
 
-    // 6. Direct Touch Gestures on Hexagonal Canvas (Tap, Swipe Route, Hold Wall)
-    const DIR_MODIFIERS: ModifierType[] = ['DIR_R', 'DIR_BR', 'DIR_BL', 'DIR_L', 'DIR_TL', 'DIR_TR'];
-
-    this.hexCanvas.setOnCellAction((action, q, r, dirIndex, cell) => {
+    // 6. Direct Cell Selection & Editing
+    this.hexCanvas.setOnCellAction((_action, q, r, _dirIndex, cell) => {
       if (!cell) return;
 
       const isCenter = q === 0 && r === 0;
       if (isCenter) {
-        this.cellInfo.textContent = 'Center Core (Impassable Obstacle)';
+        this.selectedCoords = null;
+        this.hexCanvas.setSelectedCell(0, null);
+        this.cellInfo.textContent = 'Center Core (Impassable Barrier)';
+        this.updateSelectedCellHud();
         return;
       }
 
       const isDeparture = this.sequencer.isDepartureCell(q, r);
-
-      if (action === 'TAP') {
-        if (isDeparture) {
-          const head = this.sequencer.getDeparturePlayhead(q, r);
-          if (head) {
-            const isActive = this.sequencer.togglePlayhead(head.id);
-            if (isActive) {
-              this.audioEngine.previewSound(head.sound);
-            }
-            this.cellInfo.textContent = `Head ${head.id} (${head.name} - ${head.sound}): ${isActive ? 'ENABLED' : 'DISABLED'}`;
+      if (isDeparture) {
+        this.selectedCoords = null;
+        this.hexCanvas.setSelectedCell(q, r);
+        const head = this.sequencer.getDeparturePlayhead(q, r);
+        if (head) {
+          const isActive = this.sequencer.togglePlayhead(head.id);
+          if (isActive) {
+            this.audioEngine.previewSound(head.sound);
           }
-          return;
+          this.cellInfo.textContent = `Head ${head.id} (${head.name}): ${isActive ? 'ENABLED' : 'MUTED'}`;
         }
-
-        // Tap cycles: Dead Wall -> Clear; Enabled -> Disabled; Disabled -> Enabled
-        if (cell.isDead) {
-          this.sequencer.setCell(q, r, false, false, 'NONE');
-          this.cellInfo.textContent = `Cell (${q}, ${r}) • Cleared Wall`;
-        } else if (cell.enabled) {
-          this.sequencer.setCell(q, r, false, false, cell.modifier);
-          this.cellInfo.textContent = `Cell (${q}, ${r}) • DISABLED`;
-        } else {
-          this.sequencer.setCell(q, r, true, false, cell.modifier);
-          this.cellInfo.textContent = `Cell (${q}, ${r}) • ENABLED • ${cell.modifier}`;
-          const activeHead = this.sequencer.getPlayheads().find(p => p.active);
-          if (activeHead) {
-            this.audioEngine.previewSound(activeHead.sound, q * 3 + r * 5);
-          }
-        }
-      } else if (action === 'ROUTE' && dirIndex !== undefined) {
-        if (isDeparture) return;
-        const newMod = DIR_MODIFIERS[dirIndex];
-
-        // If swiping in the exact same direction, clear modifier
-        if (cell.modifier === newMod) {
-          this.sequencer.setCell(q, r, cell.enabled, false, 'NONE');
-          this.cellInfo.textContent = `Cell (${q}, ${r}) • Cleared Route`;
-        } else {
-          // Set direction & auto-enable sound if cell is not a dead wall
-          const enabled = cell.isDead ? false : true;
-          this.sequencer.setCell(q, r, enabled, false, newMod);
-          this.cellInfo.textContent = `Cell (${q}, ${r}) • Route: ${newMod}`;
-          const activeHead = this.sequencer.getPlayheads().find(p => p.active);
-          if (activeHead) {
-            this.audioEngine.previewSound(activeHead.sound, q * 3 + r * 5);
-          }
-        }
-      } else if (action === 'WALL') {
-        if (isDeparture) return;
-        const isNowDead = !cell.isDead;
-        this.sequencer.setCell(q, r, false, isNowDead, 'NONE');
-        this.cellInfo.textContent = isNowDead
-          ? `Cell (${q}, ${r}) • DEAD WALL (Hold again to clear)`
-          : `Cell (${q}, ${r}) • Wall removed`;
+        this.updateSelectedCellHud();
+        return;
       }
+
+      // Normal cell (r >= 2):
+      this.selectedCoords = { q, r };
+      this.hexCanvas.setSelectedCell(q, r);
+
+      // Tapping cell toggles Beat (Enable <-> Disable)
+      if (cell.isDead) {
+        // If it's a dead wall, tapping selects it so user can click [Unblock]
+        this.cellInfo.textContent = `Cell (${q}, ${r}) • Impassable Wall`;
+      } else if (cell.enabled) {
+        this.sequencer.setCell(q, r, false, false, cell.modifier);
+        this.cellInfo.textContent = `Cell (${q}, ${r}) • Beat Disabled`;
+      } else {
+        this.sequencer.setCell(q, r, true, false, cell.modifier);
+        this.cellInfo.textContent = `Cell (${q}, ${r}) • Beat Enabled`;
+        const activeHead = this.sequencer.getPlayheads().find(p => p.active);
+        if (activeHead) {
+          this.audioEngine.previewSound(activeHead.sound, q * 3 + r * 5);
+        }
+      }
+
+      this.updateSelectedCellHud();
+    });
+
+    // Wall Toggle Button in bottom bar
+    this.btnToggleWall?.addEventListener('click', () => {
+      if (!this.selectedCoords) return;
+      const { q, r } = this.selectedCoords;
+      const cell = this.sequencer.getCell(q, r);
+      if (!cell) return;
+
+      const isNowDead = !cell.isDead;
+      if (isNowDead) {
+        this.sequencer.setCell(q, r, false, true, 'NONE');
+        this.cellInfo.textContent = `Cell (${q}, ${r}) • Wall Placed`;
+      } else {
+        this.sequencer.setCell(q, r, false, false, 'NONE');
+        this.cellInfo.textContent = `Cell (${q}, ${r}) • Wall Removed`;
+      }
+      this.updateSelectedCellHud();
+    });
+
+    // Open Route Modal Button
+    this.btnOpenRoute?.addEventListener('click', () => {
+      if (!this.selectedCoords) return;
+      this.openRouteModal();
+    });
+
+    // Quick Clear Route Button in Bottom Bar
+    this.btnClearRoute?.addEventListener('click', () => {
+      if (!this.selectedCoords) return;
+      const { q, r } = this.selectedCoords;
+      const cell = this.sequencer.getCell(q, r);
+      if (!cell) return;
+
+      this.sequencer.setCell(q, r, cell.enabled, false, 'NONE');
+      this.showToast(`Route removed from cell (${q}, ${r})`);
+      this.cellInfo.textContent = `Cell (${q}, ${r}) • Route Cleared`;
+      this.updateSelectedCellHud();
+    });
+
+    // Close Route Modal Handlers
+    this.btnCloseRouteModal?.addEventListener('click', () => {
+      this.modalRoute?.classList.add('hidden');
+    });
+    this.btnCloseRoute?.addEventListener('click', () => {
+      this.modalRoute?.classList.add('hidden');
+    });
+
+    // Route Options in Modal
+    const routeOptButtons = document.querySelectorAll('.btn-route-opt');
+    routeOptButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (!this.selectedCoords) return;
+        const dir = btn.getAttribute('data-dir') as ModifierType;
+        const { q, r } = this.selectedCoords;
+        const cell = this.sequencer.getCell(q, r);
+        if (!cell) return;
+
+        // Set route modifier (and auto-enable sound if not dead wall)
+        const enabled = cell.isDead ? false : true;
+        this.sequencer.setCell(q, r, enabled, false, dir);
+        this.cellInfo.textContent = `Cell (${q}, ${r}) • Route: ${dir}`;
+        this.modalRoute?.classList.add('hidden');
+        this.updateSelectedCellHud();
+      });
+    });
+
+    // Clear Route Button in Modal
+    this.btnModalClearRoute?.addEventListener('click', () => {
+      if (!this.selectedCoords) return;
+      const { q, r } = this.selectedCoords;
+      const cell = this.sequencer.getCell(q, r);
+      if (!cell) return;
+
+      this.sequencer.setCell(q, r, cell.enabled, false, 'NONE');
+      this.showToast(`Route removed from cell (${q}, ${r})`);
+      this.cellInfo.textContent = `Cell (${q}, ${r}) • Route Cleared`;
+      this.modalRoute?.classList.add('hidden');
+      this.updateSelectedCellHud();
     });
 
     // 7. Sequencer Step Listener
@@ -439,6 +516,72 @@ export class UIController {
     if (selectedId) {
       this.presetSelect.value = selectedId;
     }
+  }
+
+  private updateSelectedCellHud() {
+    if (!this.selectedCoords) {
+      if (this.btnToggleWall) this.btnToggleWall.disabled = true;
+      if (this.btnOpenRoute) this.btnOpenRoute.disabled = true;
+      if (this.btnClearRoute) this.btnClearRoute.classList.add('hidden');
+      return;
+    }
+
+    const { q, r } = this.selectedCoords;
+    const cell = this.sequencer.getCell(q, r);
+    if (!cell) return;
+
+    if (this.btnToggleWall) {
+      this.btnToggleWall.disabled = false;
+      if (cell.isDead) {
+        this.btnToggleWall.textContent = '⬜ Unblock';
+        this.btnToggleWall.classList.add('is-wall');
+      } else {
+        this.btnToggleWall.textContent = '🧱 Wall';
+        this.btnToggleWall.classList.remove('is-wall');
+      }
+    }
+
+    const hasRoute = cell.modifier && cell.modifier !== 'NONE';
+
+    if (this.btnOpenRoute) {
+      this.btnOpenRoute.disabled = cell.isDead;
+      if (hasRoute) {
+        const shortDir = cell.modifier.replace('DIR_', '');
+        this.btnOpenRoute.textContent = `↗ Route (${shortDir})`;
+        this.btnOpenRoute.classList.add('is-routed');
+      } else {
+        this.btnOpenRoute.textContent = '↗ Route';
+        this.btnOpenRoute.classList.remove('is-routed');
+      }
+    }
+
+    if (this.btnClearRoute) {
+      if (hasRoute && !cell.isDead) {
+        this.btnClearRoute.classList.remove('hidden');
+      } else {
+        this.btnClearRoute.classList.add('hidden');
+      }
+    }
+  }
+
+  private openRouteModal() {
+    if (!this.selectedCoords || !this.modalRoute) return;
+    const { q, r } = this.selectedCoords;
+    const cell = this.sequencer.getCell(q, r);
+    if (!cell) return;
+
+    // Highlight active modifier button in modal
+    const routeOptButtons = document.querySelectorAll('.btn-route-opt');
+    routeOptButtons.forEach((btn) => {
+      const dir = btn.getAttribute('data-dir');
+      if (dir === cell.modifier) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    this.modalRoute.classList.remove('hidden');
   }
 
   private escapeHtml(str: string): string {

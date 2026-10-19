@@ -218,26 +218,73 @@ html, body {
   text-overflow: ellipsis;
 }
 
-.gesture-hints {
+/* CELL HUD (INLINE BOTTOM BAR ACTIONS) */
+.cell-hud {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
-.hint-item {
+.btn-hud {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  font-size: 0.72rem;
+  padding: 4px 10px;
+  font-size: 0.74rem;
   font-weight: 700;
-  color: var(--text-dim);
-  letter-spacing: 0.3px;
+  min-height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
-.hint-icon {
-  font-size: 0.85rem;
-  filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.4));
+.btn-hud:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background: #25283d;
+}
+
+.btn-hud:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-hud.is-wall {
+  background: rgba(255, 51, 68, 0.22);
+  border-color: #ff3344;
+  color: #ff5566;
+  box-shadow: 0 0 8px rgba(255, 51, 68, 0.4);
+}
+
+.btn-hud-route {
+  border-color: rgba(0, 229, 255, 0.35);
+  color: #00e5ff;
+}
+
+.btn-hud-route.is-routed {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00e5ff;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.35);
+}
+
+.btn-hud-clear {
+  background: rgba(255, 60, 60, 0.15);
+  border-color: rgba(255, 60, 60, 0.5);
+  color: #ff5566;
+  font-size: 0.72rem;
+  padding: 4px 8px;
+}
+
+.btn-hud-clear:hover {
+  background: rgba(255, 60, 60, 0.35);
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 60, 60, 0.5);
 }
 
 .status-right {
@@ -302,13 +349,18 @@ html, body {
   box-shadow: 0 0 8px rgba(0, 255, 255, 0.25);
 }
 
-@media (max-width: 620px) {
-  .gesture-hints {
-    display: none;
-  }
+@media (max-width: 520px) {
   .bottom-bar {
-    padding: 6px 12px;
-    padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .btn-hud {
+    padding: 3px 8px;
+    font-size: 0.7rem;
+    min-height: 28px;
+  }
+  .status-chip {
+    max-width: 120px;
   }
 }
 
@@ -369,6 +421,10 @@ html, body {
 
 .modal-card-lg {
   max-width: 450px;
+}
+
+.modal-card-sm {
+  max-width: 360px;
 }
 
 .modal-header {
@@ -585,6 +641,88 @@ html, body {
   font-size: 0.78rem;
   padding: 24px 10px;
   font-style: italic;
+}
+
+/* ROUTE MODAL STYLES */
+.modal-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.route-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.btn-route-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.btn-route-opt:hover {
+  background: #25283d;
+  border-color: #00ffff;
+  color: #00ffff;
+}
+
+.btn-route-opt.active {
+  background: rgba(0, 229, 255, 0.22);
+  border-color: #00ffff;
+  color: #00ffff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+.route-arrow {
+  font-size: 1.15rem;
+  line-height: 1;
+  color: #00ffff;
+}
+
+.btn-route-opt.active .route-arrow {
+  color: #ffffff;
+  filter: drop-shadow(0 0 6px #00ffff);
+}
+
+.route-clear-container {
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.btn-remove-route {
+  width: 100%;
+  background: rgba(255, 51, 68, 0.15);
+  border-color: rgba(255, 51, 68, 0.5);
+  color: #ff5566;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 9px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+  justify-content: center;
+}
+
+.btn-remove-route:hover {
+  background: #ff3344;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(255, 51, 68, 0.5);
 }
 
 @keyframes modalPop {

@@ -69,12 +69,18 @@
       <!-- BOTTOM STREAMLINED CONTROL & STATUS BAR -->
       <footer class="bottom-bar">
         <div class="status-left">
-          <span id="selected-cell-info" class="status-chip">Tap: Beat • Drag: Route • Hold: Wall</span>
+          <span id="selected-cell-info" class="status-chip">Tap cell to toggle beat</span>
         </div>
-        <div class="gesture-hints">
-          <span class="hint-item"><span class="hint-icon">👆</span> Tap: Beat</span>
-          <span class="hint-item"><span class="hint-icon">↗</span> Drag: Route</span>
-          <span class="hint-item"><span class="hint-icon">⏱</span> Hold: Wall</span>
+        <div id="cell-hud" class="cell-hud">
+          <button id="btn-toggle-wall" class="btn btn-hud" title="Toggle impassable Wall Obstacle">
+            🧱 Wall
+          </button>
+          <button id="btn-open-route" class="btn btn-hud btn-hud-route" title="Set Directional Routing">
+            ↗ Route
+          </button>
+          <button id="btn-clear-route" class="btn btn-hud btn-hud-clear hidden" title="Remove routing arrow from cell">
+            ✕ Clear
+          </button>
         </div>
         <div class="status-right">
           <span id="step-indicator" class="status-chip">Step: 0</span>
@@ -126,6 +132,47 @@
         </div>
         <div class="modal-footer">
           <button id="btn-close-load" class="btn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADVANCED ROUTING MODAL -->
+    <div id="modal-route" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-card modal-card-sm">
+        <div class="modal-header">
+          <h3 class="modal-title">🧭 Route Direction</h3>
+          <button class="modal-close" id="btn-close-route-modal" title="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Direct playheads entering this cell along a compass path:</p>
+          <div class="route-grid">
+            <button class="btn-route-opt" data-dir="DIR_TL" title="Top-Left (NW)">
+              <span class="route-arrow">↖</span> Top-Left
+            </button>
+            <button class="btn-route-opt" data-dir="DIR_TR" title="Top-Right (NE)">
+              <span class="route-arrow">↗</span> Top-Right
+            </button>
+            <button class="btn-route-opt" data-dir="DIR_L" title="Left (W)">
+              <span class="route-arrow">←</span> Left
+            </button>
+            <button class="btn-route-opt" data-dir="DIR_R" title="Right (E)">
+              <span class="route-arrow">→</span> Right
+            </button>
+            <button class="btn-route-opt" data-dir="DIR_BL" title="Bottom-Left (SW)">
+              <span class="route-arrow">↙</span> Bottom-Left
+            </button>
+            <button class="btn-route-opt" data-dir="DIR_BR" title="Bottom-Right (SE)">
+              <span class="route-arrow">↘</span> Bottom-Right
+            </button>
+          </div>
+          <div class="route-clear-container">
+            <button id="btn-modal-clear-route" class="btn btn-remove-route" title="Remove routing arrow from cell">
+              ✕ Remove Route
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-close-route" class="btn">Done</button>
         </div>
       </div>
     </div>
