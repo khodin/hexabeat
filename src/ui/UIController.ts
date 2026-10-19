@@ -1,14 +1,16 @@
 import { AudioEngine } from '../audio/AudioEngine';
 import { Sequencer } from '../sequencer/Sequencer';
 import { HexCanvas } from './HexCanvas';
-import { ModifierType, Cell } from '../grid/HexTypes';
+import { ModifierType, Cell, ProjectData } from '../grid/HexTypes';
 import { PRESETS } from '../sequencer/Presets';
+import { ProjectStorage } from '../sequencer/ProjectStorage';
 
 export type CellTool = 'ENABLE' | 'DISABLE' | 'DEAD';
 
 export class UIController {
   private activeTool: CellTool = 'ENABLE';
   private activeModifier: ModifierType = 'NONE';
+  private currentProjectName: string = '';
 
   // DOM Elements
   private btnPlay = document.getElementById('btn-play') as HTMLButtonElement;
@@ -20,8 +22,25 @@ export class UIController {
   private bpmSlider = document.getElementById('bpm-slider') as HTMLInputElement;
   private bpmValue = document.getElementById('bpm-value') as HTMLSpanElement;
   private presetSelect = document.getElementById('preset-select') as HTMLSelectElement;
+  private optgroupSaved = document.getElementById('optgroup-saved') as HTMLOptGroupElement | null;
   private cellInfo = document.getElementById('selected-cell-info') as HTMLSpanElement;
   private stepIndicator = document.getElementById('step-indicator') as HTMLSpanElement;
+
+  // Project Save & Load Elements
+  private btnSaveProject = document.getElementById('btn-save-project') as HTMLButtonElement | null;
+  private btnLoadProject = document.getElementById('btn-load-project') as HTMLButtonElement | null;
+  private modalSave = document.getElementById('modal-save') as HTMLDivElement | null;
+  private modalLoad = document.getElementById('modal-load') as HTMLDivElement | null;
+  private projectNameInput = document.getElementById('project-name-input') as HTMLInputElement | null;
+  private saveSummaryBpm = document.getElementById('save-summary-bpm') as HTMLElement | null;
+  private saveSummaryCells = document.getElementById('save-summary-cells') as HTMLElement | null;
+  private btnConfirmSave = document.getElementById('btn-confirm-save') as HTMLButtonElement | null;
+  private btnExportJson = document.getElementById('btn-export-json') as HTMLButtonElement | null;
+  private btnCloseSaveModal = document.getElementById('btn-close-save-modal') as HTMLButtonElement | null;
+  private btnCloseLoadModal = document.getElementById('btn-close-load-modal') as HTMLButtonElement | null;
+  private btnCloseLoad = document.getElementById('btn-close-load') as HTMLButtonElement | null;
+  private fileImportProject = document.getElementById('file-import-project') as HTMLInputElement | null;
+  private savedProjectsList = document.getElementById('saved-projects-list') as HTMLDivElement | null;
 
   private toolButtons: HTMLButtonElement[] = [];
   private modifierButtons: HTMLButtonElement[] = [];
@@ -34,7 +53,9 @@ export class UIController {
   ) {
     this.initElements();
     this.initEvents();
+    this.initProjectControls();
     this.updatePlayheadButtonStates();
+    this.updatePresetSelectDropdown();
   }
 
   private initElements() {
@@ -86,15 +107,24 @@ export class UIController {
       this.audioEngine.setBpm(bpm);
     });
 
-    // 6. Presets
+    // 6. Presets & Saved Projects
     this.presetSelect.addEventListener('change', () => {
-      const presetId = this.presetSelect.value;
-      const preset = PRESETS.find(p => p.id === presetId);
+      const selectedId = this.presetSelect.value;
+      if (selectedId.startsWith('proj_')) {
+        const project = ProjectStorage.getProject(selectedId);
+        if (project) {
+          this.loadProject(project);
+        }
+        return;
+      }
+      const preset = PRESETS.find(p => p.id === selectedId);
       if (preset) {
         this.sequencer.loadPreset(preset);
         this.bpmSlider.value = `${preset.bpm}`;
         this.bpmValue.textContent = `${preset.bpm}`;
+        this.currentProjectName = preset.name;
         this.updatePlayheadButtonStates();
+        this.cellInfo.textContent = `Preset loaded: ${preset.name}`;
       }
     });
 
@@ -209,5 +239,189 @@ export class UIController {
         btn.classList.toggle('active', playhead.active);
       }
     });
+  }
+
+  private initProjectControls() {
+    // Open Save Modal
+    this.btnSaveProject?.addEventListener('click', () => {
+      if (!this.modalSave) return;
+      const bpm = this.audioEngine.getBpm();
+      let configuredCells = 0;
+      this.sequencer.getGrid().forEach(c => {
+        if (c.enabled || c.isDead || c.modifier !== 'NONE') configuredCells++;
+      });
+
+      if (this.projectNameInput) {
+        this.projectNameInput.value = this.currentProjectName || `Groove ${ProjectStorage.listProjects().length + 1}`;
+      }
+      if (this.saveSummaryBpm) this.saveSummaryBpm.textContent = `${bpm} BPM`;
+      if (this.saveSummaryCells) this.saveSummaryCells.textContent = `${configuredCells} Configured`;
+
+      this.modalSave.classList.remove('hidden');
+      setTimeout(() => this.projectNameInput?.focus(), 60);
+    });
+
+    // Close Save Modal
+    this.btnCloseSaveModal?.addEventListener('click', () => {
+      this.modalSave?.classList.add('hidden');
+    });
+
+    // Confirm Save to Storage
+    this.btnConfirmSave?.addEventListener('click', () => {
+      const name = this.projectNameInput?.value.trim() || 'Untitled Project';
+      const bpm = this.audioEngine.getBpm();
+      const project = this.sequencer.createProjectData(name, bpm);
+      const saved = ProjectStorage.saveProject(project);
+      this.currentProjectName = saved.name;
+      this.updatePresetSelectDropdown(saved.id);
+      this.modalSave?.classList.add('hidden');
+      this.cellInfo.textContent = `Saved project "${saved.name}"`;
+    });
+
+    // Export JSON File
+    this.btnExportJson?.addEventListener('click', () => {
+      const name = this.projectNameInput?.value.trim() || 'Untitled Project';
+      const bpm = this.audioEngine.getBpm();
+      const project = this.sequencer.createProjectData(name, bpm);
+      ProjectStorage.exportToFile(project);
+      this.modalSave?.classList.add('hidden');
+      this.cellInfo.textContent = `Exported "${project.name}.json"`;
+    });
+
+    // Open Load Modal
+    this.btnLoadProject?.addEventListener('click', () => {
+      this.renderSavedProjectsList();
+      this.modalLoad?.classList.remove('hidden');
+    });
+
+    // Close Load Modal
+    const closeLoad = () => this.modalLoad?.classList.add('hidden');
+    this.btnCloseLoadModal?.addEventListener('click', closeLoad);
+    this.btnCloseLoad?.addEventListener('click', closeLoad);
+
+    // Close on backdrop click
+    [this.modalSave, this.modalLoad].forEach(modal => {
+      modal?.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.add('hidden');
+      });
+    });
+
+    // Close on Escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.modalSave?.classList.add('hidden');
+        this.modalLoad?.classList.add('hidden');
+      }
+    });
+
+    // Import project from JSON file
+    this.fileImportProject?.addEventListener('change', async () => {
+      const file = this.fileImportProject?.files?.[0];
+      if (!file) return;
+      try {
+        const imported = await ProjectStorage.importFromFile(file);
+        const saved = ProjectStorage.saveProject(imported);
+        this.loadProject(saved);
+        this.renderSavedProjectsList();
+        this.modalLoad?.classList.add('hidden');
+        this.cellInfo.textContent = `Imported & loaded "${saved.name}"`;
+      } catch (err: any) {
+        alert(`Failed to import project: ${err.message || 'Invalid format'}`);
+      } finally {
+        if (this.fileImportProject) this.fileImportProject.value = '';
+      }
+    });
+  }
+
+  private loadProject(project: ProjectData) {
+    this.sequencer.loadProject(project);
+    this.bpmSlider.value = `${project.bpm}`;
+    this.bpmValue.textContent = `${project.bpm}`;
+    this.currentProjectName = project.name;
+    this.updatePlayheadButtonStates();
+    this.updatePresetSelectDropdown(project.id);
+    this.modalLoad?.classList.add('hidden');
+    this.cellInfo.textContent = `Loaded project "${project.name}" • ${project.bpm} BPM`;
+  }
+
+  private renderSavedProjectsList() {
+    if (!this.savedProjectsList) return;
+    const projects = ProjectStorage.listProjects();
+    this.savedProjectsList.innerHTML = '';
+
+    if (projects.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'empty-projects-msg';
+      emptyMsg.textContent = 'No saved projects yet. Click "SAVE" to store your grooves!';
+      this.savedProjectsList.appendChild(emptyMsg);
+      return;
+    }
+
+    projects.forEach(project => {
+      const item = document.createElement('div');
+      item.className = 'saved-project-item';
+
+      const dateStr = new Date(project.updatedAt).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      item.innerHTML = `
+        <div class="project-item-info">
+          <span class="project-item-name">${this.escapeHtml(project.name)}</span>
+          <span class="project-item-meta">${project.bpm} BPM • ${project.cells.length} cells • ${dateStr}</span>
+        </div>
+        <div class="project-item-actions">
+          <button class="btn btn-sm btn-item-load" title="Load this project">▶ Load</button>
+          <button class="btn btn-sm btn-item-export" title="Download as JSON file">⬇</button>
+          <button class="btn btn-sm btn-item-delete" title="Delete project">🗑</button>
+        </div>
+      `;
+
+      item.querySelector('.btn-item-load')?.addEventListener('click', () => {
+        this.loadProject(project);
+      });
+
+      item.querySelector('.btn-item-export')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        ProjectStorage.exportToFile(project);
+      });
+
+      item.querySelector('.btn-item-delete')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm(`Delete project "${project.name}"?`)) {
+          ProjectStorage.deleteProject(project.id);
+          this.renderSavedProjectsList();
+          this.updatePresetSelectDropdown();
+        }
+      });
+
+      this.savedProjectsList?.appendChild(item);
+    });
+  }
+
+  private updatePresetSelectDropdown(selectedId?: string) {
+    if (!this.optgroupSaved) return;
+    this.optgroupSaved.innerHTML = '';
+    const projects = ProjectStorage.listProjects();
+
+    projects.forEach(project => {
+      const opt = document.createElement('option');
+      opt.value = project.id;
+      opt.textContent = `★ ${project.name}`;
+      this.optgroupSaved?.appendChild(opt);
+    });
+
+    if (selectedId) {
+      this.presetSelect.value = selectedId;
+    }
+  }
+
+  private escapeHtml(str: string): string {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
   }
 }

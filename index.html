@@ -25,10 +25,13 @@
 
         <div class="transport-controls">
           <select id="preset-select" class="preset-select">
-            <option value="techno-drive">Techno Drive</option>
-            <option value="polyrhythm-orbit">Hex Polyrhythm</option>
-            <option value="idm-glitch">IDM Generative</option>
-            <option value="blank">Empty Canvas</option>
+            <optgroup label="Presets">
+              <option value="techno-drive">Techno Drive</option>
+              <option value="polyrhythm-orbit">Hex Polyrhythm</option>
+              <option value="idm-glitch">IDM Generative</option>
+              <option value="blank">Empty Canvas</option>
+            </optgroup>
+            <optgroup id="optgroup-saved" label="Saved Projects"></optgroup>
           </select>
 
           <div class="tempo-box">
@@ -43,11 +46,17 @@
           <button id="btn-step" class="btn" title="Step one 16th note">
             ⏭
           </button>
-          <button id="btn-reset" class="btn" title="Reset all playheads to center hub">
+          <button id="btn-reset" class="btn" title="Reset all playheads to starting positions">
             ⏮ RESET
           </button>
           <button id="btn-clear" class="btn" title="Clear Grid">
             CLEAR
+          </button>
+          <button id="btn-save-project" class="btn btn-save" title="Save Project (Grid & Tempo)">
+            💾 SAVE
+          </button>
+          <button id="btn-load-project" class="btn btn-load" title="Load / Manage Projects">
+            📁 LOAD
           </button>
         </div>
       </header>
@@ -121,9 +130,55 @@
             <button id="btn-reset-heads-bottom" class="btn-status-reset" title="Reset all playheads back to starting positions">⏮ Reset Heads</button>
             <span id="step-indicator" class="status-chip">Step: 0</span>
             <a href="https://github.com/khodin/hexabeat" target="_blank" rel="noopener noreferrer" class="status-link" title="Open GitHub Repository">GitHub ↗</a>
-          </div>
         </div>
       </footer>
+    </div>
+
+    <!-- SAVE PROJECT MODAL -->
+    <div id="modal-save" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">💾 Save Project</h3>
+          <button class="modal-close" id="btn-close-save-modal" title="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <label for="project-name-input" class="modal-label">Project Name</label>
+          <input type="text" id="project-name-input" class="modal-input" placeholder="e.g. Cyber Honeycomb" maxlength="32" autocomplete="off" />
+          <div class="project-summary-box">
+            <span>Tempo: <strong id="save-summary-bpm">128 BPM</strong></span>
+            <span>Cells: <strong id="save-summary-cells">0 Configured</strong></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-export-json" class="btn" title="Download project as a .json file">⬇ Export File</button>
+          <button id="btn-confirm-save" class="btn btn-primary">Save Project</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOAD / MANAGE PROJECTS MODAL -->
+    <div id="modal-load" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-card modal-card-lg">
+        <div class="modal-header">
+          <h3 class="modal-title">📁 Project Manager</h3>
+          <button class="modal-close" id="btn-close-load-modal" title="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="load-modal-toolbar">
+            <span class="load-subtitle">Saved Grooves</span>
+            <label class="btn btn-import" title="Import a project from a .json file">
+              ⬆ Import File
+              <input type="file" id="file-import-project" accept=".json,application/json" style="display: none;" />
+            </label>
+          </div>
+          <div id="saved-projects-list" class="saved-projects-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-close-load" class="btn">Close</button>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="./src/main.ts"></script>

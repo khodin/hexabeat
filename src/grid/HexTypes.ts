@@ -82,3 +82,25 @@ export interface Preset {
     active: boolean;
   }>;
 }
+
+export interface ProjectData {
+  id: string;
+  name: string;
+  bpm: number;
+  updatedAt: number;
+  gridRadius?: number;
+  cells: Array<{
+    q: number;
+    r: number;
+    enabled?: boolean;
+    isDead?: boolean;
+    modifier: ModifierType;
+  }>;
+  playheads?: Array<{
+    id: number;
+    q?: number;
+    r?: number;
+    dir?: number;
+    active: boolean;
+  }>;
+}

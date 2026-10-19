@@ -1,4 +1,4 @@
-import { Cell, Playhead, Preset, SoundType, ModifierType } from '../grid/HexTypes';
+import { Cell, Playhead, Preset, SoundType, ModifierType, ProjectData } from '../grid/HexTypes';
 import { generateGrid, cellKey, calculateBounce, getAccessibleDirections, COMPASS_DIR_MAP, HEX_RADIUS } from '../grid/HexMath';
 import { AudioEngine } from '../audio/AudioEngine';
 import { PRESETS } from './Presets';
@@ -181,6 +181,94 @@ export class Sequencer {
         playhead.active = pConfig.active;
         playhead.stepProgress = 1.0;
       }
+    }
+  }
+
+  public createProjectData(name: string, bpm: number): ProjectData {
+    const cells: ProjectData['cells'] = [];
+    this.grid.forEach(cell => {
+      if (cell.enabled || cell.isDead || cell.modifier !== 'NONE') {
+        cells.push({
+          q: cell.q,
+          r: cell.r,
+          enabled: cell.enabled,
+          isDead: cell.isDead,
+          modifier: cell.modifier
+        });
+      }
+    });
+
+    const playheads = this.playheads.map(p => ({
+      id: p.id,
+      active: p.active,
+      q: p.q,
+      r: p.r,
+      dir: p.dir
+    }));
+
+    return {
+      id: `proj_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      name: name.trim() || 'Untitled Project',
+      bpm,
+      updatedAt: Date.now(),
+      gridRadius: HEX_RADIUS,
+      cells,
+      playheads
+    };
+  }
+
+  public loadProject(project: ProjectData) {
+    this.clearGrid();
+    this.audioEngine.setBpm(project.bpm);
+
+    // Apply cells
+    for (const item of project.cells) {
+      const cell = this.grid.get(cellKey(item.q, item.r));
+      if (cell) {
+        if (item.q === 0 && item.r === 0) {
+          cell.isDead = true;
+          cell.enabled = false;
+          cell.sound = 'DEAD';
+        } else if (item.isDead) {
+          cell.isDead = true;
+          cell.enabled = false;
+          cell.sound = 'DEAD';
+        } else if (item.enabled) {
+          cell.enabled = true;
+          cell.isDead = false;
+          cell.sound = 'KICK';
+        } else {
+          cell.enabled = false;
+          cell.isDead = false;
+          cell.sound = 'NONE';
+        }
+        cell.modifier = item.modifier || 'NONE';
+      }
+    }
+
+    // Reset playheads to circle 1
+    this.playheads.forEach((p) => {
+      p.q = p.startQ;
+      p.r = p.startR;
+      p.prevQ = p.startQ;
+      p.prevR = p.startR;
+      p.dir = p.startDir;
+      p.active = false;
+      p.stepProgress = 1.0;
+    });
+
+    // Apply playheads active states
+    if (project.playheads && project.playheads.length > 0) {
+      for (const pConfig of project.playheads) {
+        const playhead = this.playheads.find(p => p.id === pConfig.id);
+        if (playhead) {
+          playhead.active = !!pConfig.active;
+        }
+      }
+    } else {
+      // Default: Head 1 and Head 2 active
+      if (this.playheads[0]) this.playheads[0].active = true;
+      if (this.playheads[1]) this.playheads[1].active = true;
     }
   }
 
