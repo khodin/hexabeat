@@ -346,10 +346,9 @@ export class Sequencer {
         triggeredCells.push(cell);
       }
 
-      // Obstacle / Dead Cell predicate
+      // Obstacle / Dead Cell predicate (Center core and Radius 1 departure pads are impassable)
       const isBlocked = (testQ: number, testR: number) => {
-        // Center cell (0, 0) is an impassable core
-        if (testQ === 0 && testR === 0) return true;
+        if (getHexDistance(testQ, testR) <= 1) return true;
         const target = this.grid.get(cellKey(testQ, testR));
         return target ? (target.isDead || target.sound === 'DEAD') : false;
       };

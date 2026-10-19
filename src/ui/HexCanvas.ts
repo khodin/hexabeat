@@ -381,34 +381,66 @@ export class HexCanvas {
     }
 
     if (departureHead) {
-      // Draw Departure Bay launch pad marker & Head ID
+      // Draw Departure Bay tactile console button
       this.ctx.save();
-      const padRadius = Math.max(7, Math.min(14, this.hexSize * 0.44));
+      const padRadius = Math.max(7, Math.min(15, this.hexSize * 0.48));
+      const soundAbbrMap: Record<number, string> = {
+        1: 'BD',
+        2: 'SD',
+        3: 'CH',
+        4: 'OH',
+        5: 'CP',
+        6: 'SY'
+      };
+      const soundLabel = soundAbbrMap[departureHead.id] || '';
 
+      // Outer Bezel / Button Ring
       this.ctx.beginPath();
       this.ctx.arc(x, y, padRadius, 0, Math.PI * 2);
       if (departureHead.active) {
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        this.ctx.fillStyle = 'rgba(18, 24, 40, 0.95)';
         this.ctx.strokeStyle = departureHead.color;
-        this.ctx.lineWidth = 1.6;
+        this.ctx.lineWidth = Math.max(1.8, this.hexSize * 0.08);
         this.ctx.shadowColor = departureHead.glowColor;
-        this.ctx.shadowBlur = 6;
+        this.ctx.shadowBlur = 8;
       } else {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-        this.ctx.strokeStyle = 'rgba(70, 75, 100, 0.5)';
-        this.ctx.lineWidth = 1;
+        this.ctx.fillStyle = 'rgba(12, 13, 20, 0.9)';
+        this.ctx.strokeStyle = 'rgba(65, 70, 95, 0.55)';
+        this.ctx.lineWidth = 1.2;
         this.ctx.shadowBlur = 0;
       }
       this.ctx.fill();
       this.ctx.stroke();
 
-      // Launch Pad ID Number
-      const fontSize = Math.max(8, Math.round(padRadius * 0.95));
+      // Power status LED indicator dot on active button
+      if (departureHead.active) {
+        this.ctx.beginPath();
+        this.ctx.arc(x, y - padRadius * 0.56, Math.max(1.4, padRadius * 0.16), 0, Math.PI * 2);
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.shadowColor = departureHead.color;
+        this.ctx.shadowBlur = 6;
+        this.ctx.fill();
+      }
+
+      // Head number in center
+      const fontSize = Math.max(8, Math.round(padRadius * (this.hexSize >= 22 ? 0.72 : 0.9)));
       this.ctx.font = `bold ${fontSize}px sans-serif`;
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
-      this.ctx.fillStyle = departureHead.active ? departureHead.color : '#555b75';
-      this.ctx.fillText(`${departureHead.id}`, x, y);
+      this.ctx.fillStyle = departureHead.active ? '#ffffff' : '#555b75';
+      this.ctx.shadowBlur = departureHead.active ? 4 : 0;
+      this.ctx.shadowColor = departureHead.color;
+      const numY = (this.hexSize >= 22 && departureHead.active) ? y - 1 : y;
+      this.ctx.fillText(`${departureHead.id}`, x, numY);
+
+      // Sound abbreviation (BD, SD, CH, OH, CP, SY) below number on medium/large screens
+      if (this.hexSize >= 22 && soundLabel) {
+        const lblSize = Math.max(6, Math.round(padRadius * 0.42));
+        this.ctx.font = `700 ${lblSize}px sans-serif`;
+        this.ctx.fillStyle = departureHead.active ? departureHead.color : '#4d536d';
+        this.ctx.shadowBlur = 0;
+        this.ctx.fillText(soundLabel, x, y + padRadius * 0.54);
+      }
 
       this.ctx.restore();
       return;
@@ -420,50 +452,55 @@ export class HexCanvas {
     }
   }
 
-  private drawArrowHead(tipX: number, tipY: number, angle: number, size: number) {
-    const headLen = size;
-    const backAngle1 = angle + Math.PI - 0.45;
-    const backAngle2 = angle + Math.PI + 0.45;
-    this.ctx.beginPath();
-    this.ctx.moveTo(tipX, tipY);
-    this.ctx.lineTo(tipX + headLen * Math.cos(backAngle1), tipY + headLen * Math.sin(backAngle1));
-    this.ctx.lineTo(tipX + (headLen * 0.6) * Math.cos(angle + Math.PI), tipY + (headLen * 0.6) * Math.sin(angle + Math.PI));
-    this.ctx.lineTo(tipX + headLen * Math.cos(backAngle2), tipY + headLen * Math.sin(backAngle2));
-    this.ctx.closePath();
-    this.ctx.fill();
-  }
-
   private drawModifierGlyph(x: number, y: number, modifier: ModifierType, hasSound: boolean) {
     if (modifier === 'NONE') return;
-
-    const scale = Math.max(0.7, Math.min(1.3, this.hexSize / 36));
-    const strokeColor = hasSound ? '#ffffff' : '#00ffff';
-    const fillColor = hasSound ? '#ffffff' : '#00ffff';
 
     if (modifier in COMPASS_DIR_MAP) {
       const dirIndex = COMPASS_DIR_MAP[modifier];
       const angle = HEX_DIRECTIONS[dirIndex].angle;
 
-      this.ctx.save();
-      this.ctx.strokeStyle = strokeColor;
-      this.ctx.fillStyle = fillColor;
-      this.ctx.lineWidth = 2.2 * scale;
-      this.ctx.lineCap = 'round';
-      this.ctx.lineJoin = 'round';
+      // Distance from hex center to the facet midpoint
+      const facetDist = (this.hexSize - 2) * (Math.sqrt(3) / 2);
+      const color = hasSound ? '#ffffff' : '#00ffff';
+      const glowColor = hasSound ? 'rgba(255, 255, 255, 0.75)' : 'rgba(0, 255, 255, 0.75)';
 
+      this.ctx.save();
       this.ctx.translate(x, y);
       this.ctx.rotate(angle);
 
-      // Shaft pointing along positive X axis toward facet
-      const shaftLen = 8.5 * scale;
-      const backOffset = 5.5 * scale;
+      // 1. Prominent sci-fi stealth chevron / dart
+      // Reaches 78% out toward the target facet
+      const tipX = facetDist * 0.78;
+      const tailX = -facetDist * 0.42;
+      const wingY = facetDist * 0.52;
+      const notchX = tailX + facetDist * 0.28;
+
       this.ctx.beginPath();
-      this.ctx.moveTo(-backOffset, 0);
-      this.ctx.lineTo(shaftLen - 2.5 * scale, 0);
+      this.ctx.moveTo(tipX, 0);
+      this.ctx.lineTo(tailX, -wingY);
+      this.ctx.lineTo(notchX, 0);
+      this.ctx.lineTo(tailX, wingY);
+      this.ctx.closePath();
+
+      this.ctx.fillStyle = hasSound ? 'rgba(255, 255, 255, 0.88)' : 'rgba(0, 229, 255, 0.85)';
+      this.ctx.strokeStyle = '#ffffff';
+      this.ctx.lineWidth = Math.max(1.2, this.hexSize * 0.055);
+      this.ctx.shadowColor = glowColor;
+      this.ctx.shadowBlur = Math.min(10, this.hexSize * 0.45);
+      this.ctx.fill();
       this.ctx.stroke();
 
-      // Sharp filled arrowhead
-      this.drawArrowHead(shaftLen, 0, 0, 5.5 * scale);
+      // 2. Glowing Exit Gate Accent on the target perimeter facet
+      // Target facet in rotated frame is vertical line at x = facetDist
+      const halfEdge = (this.hexSize - 2) * 0.5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(facetDist, -halfEdge * 0.55);
+      this.ctx.lineTo(facetDist, halfEdge * 0.55);
+      this.ctx.strokeStyle = color;
+      this.ctx.lineWidth = Math.max(2.5, this.hexSize * 0.12);
+      this.ctx.shadowColor = glowColor;
+      this.ctx.shadowBlur = Math.min(12, this.hexSize * 0.5);
+      this.ctx.stroke();
 
       this.ctx.restore();
     }

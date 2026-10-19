@@ -172,8 +172,8 @@ const activeHeads = PLAYHEAD_CONFIGS.map(c => ({
 }));
 
 const obstacleBlock = (q, r) => {
-  // Center is permanently dead / impassable
-  if (q === 0 && r === 0) return true;
+  // Center and radius-1 departure pads are permanently impassable
+  if (getHexDistance(q, r) <= 1) return true;
   // Extra dead cells in ring 2
   return q === 2 && r === -1;
 };
@@ -186,11 +186,11 @@ for (let step = 1; step <= 1000; step++) {
     head.dir = next.nextDir;
 
     assert(isInsideGrid(head.q, head.r), `Head ${head.id} escaped grid on step ${step}`);
-    assert(head.q !== 0 || head.r !== 0, `Head ${head.id} entered center on step ${step}`);
+    assert(getHexDistance(head.q, head.r) >= 2, `Head ${head.id} must NEVER re-enter radius <= 1 on step ${step}`);
     assert(!(head.q === 2 && head.r === -1), `Head ${head.id} entered dead cell on step ${step}`);
   }
 }
-console.log('✓ Concurrently simulated 6 playheads across 1000 steps - all remained within grid boundaries and avoided center & dead cells!');
+console.log('✓ Concurrently simulated 6 playheads across 1000 steps - all remained within grid boundaries and NEVER re-entered radius <= 1!');
 
 // Test 6: Mobile Grid Fitting (320px, 360px, 375px, 390px, 412px)
 const testViewports = [
