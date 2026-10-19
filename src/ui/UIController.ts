@@ -14,7 +14,6 @@ export class UIController {
 
   // DOM Elements
   private btnPlay = document.getElementById('btn-play') as HTMLButtonElement;
-  private btnStep = document.getElementById('btn-step') as HTMLButtonElement;
   private btnStop = document.getElementById('btn-stop') as HTMLButtonElement | null;
   private btnStopDock = document.getElementById('btn-stop-dock') as HTMLButtonElement | null;
   private btnStopBottom = document.getElementById('btn-stop-bottom') as HTMLButtonElement | null;
@@ -83,12 +82,7 @@ export class UIController {
       }
     });
 
-    // 2. Step forward manually
-    this.btnStep.addEventListener('click', () => {
-      this.sequencer.stepManual();
-    });
-
-    // 3. Stop Playback & Put Playheads back to Departure Positions on circle 1
+    // 2. Stop Playback & Put Playheads back to Departure Positions on circle 1
     const handleStop = () => {
       this.sequencer.stop();
       this.btnPlay.textContent = '▶ PLAY';
