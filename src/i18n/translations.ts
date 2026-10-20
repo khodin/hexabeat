@@ -346,7 +346,7 @@ export function t<K extends keyof Translations>(key: K): string {
   return dict[key] || TRANSLATIONS.en[key] || (key as string);
 }
 
-export function formatString(template: string, ...args: any[]): string {
+export function formatString(template: string, ...args: unknown[]): string {
   let idx = 0;
-  return template.replace(/%s/g, () => (args[idx++] !== undefined ? `${args[idx - 1]}` : ''));
+  return template.replace(/%s/g, () => (args[idx++] !== undefined ? String(args[idx - 1]) : ''));
 }
