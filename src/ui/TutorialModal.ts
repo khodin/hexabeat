@@ -90,6 +90,7 @@ export class TutorialModal {
     // Update buttons
     if (btnPrev) {
       btnPrev.disabled = this.currentSlide === 0;
+      btnPrev.style.display = this.currentSlide === 0 ? 'none' : '';
       btnPrev.textContent = isFr ? '← Précédent' : '← Previous';
     }
 
