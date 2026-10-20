@@ -96,7 +96,7 @@ export class TutorialModal {
 
     if (btnNext) {
       if (this.currentSlide === this.totalSlides - 1) {
-        btnNext.textContent = isFr ? '🚀 Commencer !' : '🚀 Start Jamming!';
+        btnNext.textContent = isFr ? '🚀 C\'est parti !' : '🚀 Start Jamming!';
         btnNext.classList.add('btn-primary');
       } else {
         btnNext.textContent = isFr ? 'Suivant →' : 'Next →';
@@ -117,21 +117,21 @@ export class TutorialModal {
             <div class="tut-icon-hero">⬡</div>
             <h4 class="tut-title">Le Séquenceur Hexagonal</h4>
             <p class="tut-p">
-              Inspiré du célèbre <strong>JR Hexatone Pro</strong>, HexaBeat transforme une ruche géométrique de <strong>91 cases</strong> en boîte à rythmes et instrument génératif.
+              Inspiré de <strong>JR Hexatone Pro</strong>, HexaBeat est un séquenceur rythmique sur une grille hexagonale de <strong>91 cases</strong>.
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🎯</span>
                 <div>
-                  <strong>6 Directions</strong>
-                  <p>Les impulsions rythmiques se déplacent dans 6 angles (60°) et rebondissent sur les parois.</p>
+                  <strong>6 directions</strong>
+                  <p>Les têtes de lecture avancent dans 6 directions et rebondissent sur les bords.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">⏱</span>
                 <div>
-                  <strong>Synchronisation au Tempo</strong>
-                  <p>À chaque battement d'horloge (BPM), chaque tête active avance d'une case dans sa direction.</p>
+                  <strong>Au tempo (BPM)</strong>
+                  <p>À chaque battement, les têtes actives avancent d'une case.</p>
                 </div>
               </div>
             </div>
@@ -167,44 +167,44 @@ export class TutorialModal {
         // Slide 2: The 6 Playheads & Instruments
         bodyEl.innerHTML = isFr ? `
           <div class="tut-slide">
-            <h4 class="tut-title">Les 6 Têtes & Instruments</h4>
+            <h4 class="tut-title">Les 6 têtes & instruments</h4>
             <p class="tut-p">
-              Chaque tête de lecture part de son propre socle sur le premier cercle autour du centre et possède un son exclusif :
+              Les 6 têtes partent du premier cercle autour du centre, chacune avec son son :
             </p>
             <div class="tut-heads-list">
               <div class="tut-head-row" style="--hcolor: #00ffff">
                 <span class="tut-head-num">1</span>
-                <span class="tut-head-name">Grosse Caisse (Kick)</span>
-                <span class="tut-head-desc">Sub basse percutante</span>
+                <span class="tut-head-name">Kick</span>
+                <span class="tut-head-desc">Grosse caisse</span>
               </div>
               <div class="tut-head-row" style="--hcolor: #ff007f">
                 <span class="tut-head-num">2</span>
-                <span class="tut-head-name">Caisse Claire (Snare)</span>
-                <span class="tut-head-desc">Impact sec et claquant</span>
+                <span class="tut-head-name">Snare</span>
+                <span class="tut-head-desc">Caisse claire</span>
               </div>
               <div class="tut-head-row" style="--hcolor: #39ff14">
                 <span class="tut-head-num">3</span>
-                <span class="tut-head-name">Charleston Fermé (Closed Hat)</span>
-                <span class="tut-head-desc">Tic-tac précis à haute fréquence</span>
+                <span class="tut-head-name">Closed Hat</span>
+                <span class="tut-head-desc">Charleston fermé</span>
               </div>
               <div class="tut-head-row" style="--hcolor: #ffe600">
                 <span class="tut-head-num">4</span>
-                <span class="tut-head-name">Charleston Ouvert (Open Hat)</span>
-                <span class="tut-head-desc">Sifflement brillant de cymbale</span>
+                <span class="tut-head-name">Open Hat</span>
+                <span class="tut-head-desc">Charleston ouvert</span>
               </div>
               <div class="tut-head-row" style="--hcolor: #a855f7">
                 <span class="tut-head-num">5</span>
-                <span class="tut-head-name">Clap (Clappement)</span>
-                <span class="tut-head-desc">Claque électro texturée</span>
+                <span class="tut-head-name">Clap</span>
+                <span class="tut-head-desc">Battement de mains</span>
               </div>
               <div class="tut-head-row" style="--hcolor: #ff6b2b">
                 <span class="tut-head-num">6</span>
-                <span class="tut-head-name">Synthétiseur (Synth)</span>
-                <span class="tut-head-desc">Notes mélodiques selon les coordonnées</span>
+                <span class="tut-head-name">Synth</span>
+                <span class="tut-head-desc">Synthétiseur mélodique</span>
               </div>
             </div>
             <p class="tut-tip">
-              💡 <strong>Astuce :</strong> Touchez les cercles numérotés 1 à 6 autour du centre pour allumer ou couper chaque tête !
+              💡 <strong>Astuce :</strong> Touchez les cases 1 à 6 au centre pour activer ou couper une tête.
             </p>
           </div>
         ` : `
@@ -256,26 +256,26 @@ export class TutorialModal {
         // Slide 3: Beats & Walls
         bodyEl.innerHTML = isFr ? `
           <div class="tut-slide">
-            <h4 class="tut-title">Activer les Sons & Placer des Murs</h4>
+            <h4 class="tut-title">Activer les sons & murs</h4>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">👆</span>
                 <div>
-                  <strong>Toucher une case : Son On / Off</strong>
-                  <p>Touchez n'importe quelle case de la ruche pour l'activer en <strong>cyan néon</strong>. Dès qu'une tête la traverse, son instrument retentit !</p>
+                  <strong>Toucher une case</strong>
+                  <p>Touchez une case pour l'allumer. Quand une tête passe dessus, elle joue son son.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🧱</span>
                 <div>
-                  <strong>Bouton [Mur] : Obstacle Physique</strong>
-                  <p>Sélectionnez une case puis touchez le bouton <strong>[🧱 Mur]</strong> dans la barre du bas. La case devient un mur infranchissable rouge cramoisi.</p>
+                  <strong>Bouton [🧱 Mur]</strong>
+                  <p>Transforme la case sélectionnée en mur. Les têtes rebondissent dessus.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
-              <strong>Sculptez le Rythme :</strong>
-              <p>Les têtes rebondissent physiquement contre les murs ! Placez des murs stratégiques pour créer des allers-retours réguliers et des cadences hypnotiques.</p>
+              <strong>Créer des rythmes :</strong>
+              <p>Placez des murs pour créer des boucles et des allers-retours réguliers.</p>
             </div>
           </div>
         ` : `
@@ -309,29 +309,29 @@ export class TutorialModal {
         // Slide 4: Directional Routing
         bodyEl.innerHTML = isFr ? `
           <div class="tut-slide">
-            <h4 class="tut-title">Routage Directionnel (Chevrons)</h4>
+            <h4 class="tut-title">Changer la direction</h4>
             <p class="tut-p">
-              Par défaut, une case non routée diffuse les têtes selon les angles libres. Vous pouvez imposer une direction stricte :
+              Par défaut, les têtes continuent tout droit ou rebondissent. Vous pouvez forcer la direction d'une case :
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">↗</span>
                 <div>
-                  <strong>Bouton [↗ Routage]</strong>
-                  <p>Sélectionnez une case et cliquez sur <strong>[↗ Routage]</strong> pour choisir l'une des 6 directions de la boussole (Haut-Gauche, Droite, etc.).</p>
+                  <strong>Bouton [↗ Direction]</strong>
+                  <p>Sélectionnez une case puis choisissez l'une des 6 directions.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
-                <span class="tut-badge-icon">🚀</span>
+                <span class="tut-badge-icon">🧭</span>
                 <div>
-                  <strong>Chevrons Furtifs & Portes Néon</strong>
-                  <p>Un grand chevron et une porte de sortie néon apparaissent sur la case pour indiquer la trajectoire exacte.</p>
+                  <strong>Flèche sur la case</strong>
+                  <p>Une flèche indique la direction prise par les têtes qui entrent dans la case.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout tut-callout-red">
-              <strong>Suppression instantanée :</strong>
-              <p>Dès qu'une case routée est sélectionnée, un bouton rouge <strong>[✕ Effacer]</strong> apparaît dans la barre du bas. Une seule touche suffit pour retirer le routage !</p>
+              <strong>Enlever la direction :</strong>
+              <p>Sélectionnez la case et appuyez sur <strong>[✕ Effacer]</strong> dans la barre du bas.</p>
             </div>
           </div>
         ` : `
@@ -368,29 +368,29 @@ export class TutorialModal {
         // Slide 5: Saving & URL Sharing
         bodyEl.innerHTML = isFr ? `
           <div class="tut-slide">
-            <h4 class="tut-title">Partage Instantané par URL</h4>
+            <h4 class="tut-title">Partager & sauvegarder</h4>
             <p class="tut-p">
-              HexaBeat encode l'intégralité de vos créations directement dans l'adresse URL :
+              Vos morceaux peuvent être partagés par simple lien URL :
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🔗</span>
                 <div>
-                  <strong>Bouton [🔗 PARTAGER]</strong>
-                  <p>Sur smartphone, ouvre la feuille de partage native (WhatsApp, SMS, Telegram). Sur ordinateur, copie le lien direct dans le presse-papiers.</p>
+                  <strong>[🔗 PARTAGER]</strong>
+                  <p>Copie le lien du morceau ou ouvre le menu de partage sur mobile.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">💾</span>
                 <div>
-                  <strong>Boutons [💾 SAUVEGARDER] & [📁 PROJETS]</strong>
-                  <p>Enregistrez vos grooves dans le navigateur, ou exportez/importez des fichiers <code>.json</code> sans limite.</p>
+                  <strong>[💾 ENREGISTRER] & [📁 PROJETS]</strong>
+                  <p>Enregistrez vos morceaux dans le navigateur ou exportez-les en fichier <code>.json</code>.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
-              <strong>Prêt à créer ?</strong>
-              <p>Explorez les préréglages (Techno, Hip-Hop, Trap, Polyrythmie, Ambient) ou démarrez un canevas vide pour composer votre propre rythme !</p>
+              <strong>À vous de jouer :</strong>
+              <p>Testez les préréglages (Techno, Hip-Hop, Trap...) ou partez d'un projet vide pour composer votre rythme.</p>
             </div>
           </div>
         ` : `
