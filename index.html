@@ -27,6 +27,15 @@
               </optgroup>
               <optgroup id="optgroup-saved" label="Saved Projects"></optgroup>
             </select>
+            <button id="btn-share-project" class="btn btn-icon btn-share" title="Share via Link" aria-label="Share via Link">
+              🔗
+            </button>
+            <button id="btn-save-project" class="btn btn-icon btn-save" title="Save Project" aria-label="Save Project">
+              💾
+            </button>
+            <button id="btn-load-project" class="btn btn-icon btn-load" title="Projects Manager" aria-label="Projects Manager">
+              📁
+            </button>
             <button id="btn-help" class="btn-help" title="Guide & Tutorial" aria-label="Tutorial">❓</button>
             <button id="btn-lang" class="btn-lang" title="Passer en Français" aria-label="Language Toggle">FR</button>
             <a href="https://github.com/khodin/hexabeat" target="_blank" rel="noopener noreferrer" class="github-btn" title="View Source on GitHub">
@@ -44,24 +53,15 @@
             <span id="bpm-value" class="tempo-value">120</span>
           </div>
 
-          <div class="transport-buttons">
-            <button id="btn-play" class="btn btn-icon btn-primary" title="Play / Pause" aria-label="Play / Pause">
+          <div class="playback-controls">
+            <button id="btn-play" class="btn btn-transport-play btn-primary" title="Play / Pause" aria-label="Play / Pause">
               ▶
             </button>
-            <button id="btn-stop" class="btn btn-icon btn-stop" title="Stop & Reset" aria-label="Stop & Reset">
+            <button id="btn-stop" class="btn btn-transport-stop btn-stop" title="Stop & Reset" aria-label="Stop & Reset">
               ⏹
             </button>
-            <button id="btn-clear" class="btn btn-icon" title="Clear Grid" aria-label="Clear Grid">
+            <button id="btn-clear" class="btn btn-transport-clear" title="Clear Grid" aria-label="Clear Grid">
               🗑
-            </button>
-            <button id="btn-share-project" class="btn btn-icon btn-share" title="Share via Link" aria-label="Share via Link">
-              🔗
-            </button>
-            <button id="btn-save-project" class="btn btn-icon btn-save" title="Save Project" aria-label="Save Project">
-              💾
-            </button>
-            <button id="btn-load-project" class="btn btn-icon btn-load" title="Projects Manager" aria-label="Projects Manager">
-              📁
             </button>
           </div>
         </div>
@@ -74,22 +74,27 @@
 
       <!-- BOTTOM STREAMLINED CONTROL & STATUS BAR -->
       <footer class="bottom-bar">
-        <div class="status-left">
-          <span id="selected-cell-info" class="status-chip">Tap cell to toggle beat</span>
+        <div class="bottom-status-row">
+          <div class="status-left">
+            <span id="selected-cell-info" class="status-chip">Tap cell to toggle beat</span>
+          </div>
+          <div class="status-right">
+            <span id="step-indicator" class="status-chip">Step: 0</span>
+          </div>
         </div>
         <div id="cell-hud" class="cell-hud">
           <button id="btn-toggle-wall" class="btn btn-hud" title="Wall" aria-label="Wall">
-            🧱
+            <span class="btn-hud-icon">🧱</span>
+            <span class="btn-hud-text">Wall</span>
           </button>
           <button id="btn-open-route" class="btn btn-hud btn-hud-route" title="Direction" aria-label="Direction">
-            ↗
+            <span class="btn-hud-icon">↗</span>
+            <span class="btn-hud-text">Route</span>
           </button>
           <button id="btn-clear-route" class="btn btn-hud btn-hud-clear hidden" title="Clear Direction" aria-label="Clear Direction">
-            ✕
+            <span class="btn-hud-icon">✕</span>
+            <span class="btn-hud-text">Clear</span>
           </button>
-        </div>
-        <div class="status-right">
-          <span id="step-indicator" class="status-chip">Step: 0</span>
         </div>
       </footer>
     </div>

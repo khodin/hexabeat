@@ -596,20 +596,20 @@ export class UIController {
     if (!this.selectedCoords) {
       if (this.btnToggleWall) {
         this.btnToggleWall.disabled = true;
-        this.btnToggleWall.textContent = '🧱';
+        this.btnToggleWall.innerHTML = `<span class="btn-hud-icon">🧱</span> <span class="btn-hud-text">${t('btnWall')}</span>`;
         this.btnToggleWall.title = t('btnWall');
         this.btnToggleWall.setAttribute('aria-label', t('btnWall'));
         this.btnToggleWall.classList.remove('is-wall');
       }
       if (this.btnOpenRoute) {
         this.btnOpenRoute.disabled = true;
-        this.btnOpenRoute.textContent = '↗';
+        this.btnOpenRoute.innerHTML = `<span class="btn-hud-icon">↗</span> <span class="btn-hud-text">${t('btnRoute')}</span>`;
         this.btnOpenRoute.title = t('btnRoute');
         this.btnOpenRoute.setAttribute('aria-label', t('btnRoute'));
         this.btnOpenRoute.classList.remove('is-routed');
       }
       if (this.btnClearRoute) {
-        this.btnClearRoute.textContent = '✕';
+        this.btnClearRoute.innerHTML = `<span class="btn-hud-icon">✕</span> <span class="btn-hud-text">${t('btnClearRoute')}</span>`;
         this.btnClearRoute.title = t('btnClearRoute');
         this.btnClearRoute.setAttribute('aria-label', t('btnClearRoute'));
         this.btnClearRoute.classList.add('hidden');
@@ -624,12 +624,12 @@ export class UIController {
     if (this.btnToggleWall) {
       this.btnToggleWall.disabled = false;
       if (cell.isDead) {
-        this.btnToggleWall.textContent = '⬜';
+        this.btnToggleWall.innerHTML = `<span class="btn-hud-icon">⬜</span> <span class="btn-hud-text">${t('btnUnblock')}</span>`;
         this.btnToggleWall.title = t('btnUnblock');
         this.btnToggleWall.setAttribute('aria-label', t('btnUnblock'));
         this.btnToggleWall.classList.add('is-wall');
       } else {
-        this.btnToggleWall.textContent = '🧱';
+        this.btnToggleWall.innerHTML = `<span class="btn-hud-icon">🧱</span> <span class="btn-hud-text">${t('btnWall')}</span>`;
         this.btnToggleWall.title = t('btnWall');
         this.btnToggleWall.setAttribute('aria-label', t('btnWall'));
         this.btnToggleWall.classList.remove('is-wall');
@@ -659,13 +659,13 @@ export class UIController {
       if (hasRoute) {
         const arrow = dirArrowMap[cell.modifier] || '↗';
         const shortDir = cell.modifier.replace('DIR_', '');
-        this.btnOpenRoute.textContent = arrow;
         const titleText = formatString(t('btnRouteWithDir'), shortDir);
+        this.btnOpenRoute.innerHTML = `<span class="btn-hud-icon">${arrow}</span> <span class="btn-hud-text">${shortDir}</span>`;
         this.btnOpenRoute.title = titleText;
         this.btnOpenRoute.setAttribute('aria-label', titleText);
         this.btnOpenRoute.classList.add('is-routed');
       } else {
-        this.btnOpenRoute.textContent = '↗';
+        this.btnOpenRoute.innerHTML = `<span class="btn-hud-icon">↗</span> <span class="btn-hud-text">${t('btnRoute')}</span>`;
         this.btnOpenRoute.title = t('btnRoute');
         this.btnOpenRoute.setAttribute('aria-label', t('btnRoute'));
         this.btnOpenRoute.classList.remove('is-routed');
@@ -673,7 +673,7 @@ export class UIController {
     }
 
     if (this.btnClearRoute) {
-      this.btnClearRoute.textContent = '✕';
+      this.btnClearRoute.innerHTML = `<span class="btn-hud-icon">✕</span> <span class="btn-hud-text">${t('btnClearRoute')}</span>`;
       this.btnClearRoute.title = t('btnClearRoute');
       this.btnClearRoute.setAttribute('aria-label', t('btnClearRoute'));
       if (hasRoute && !cell.isDead) {
