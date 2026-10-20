@@ -50,7 +50,6 @@ export class UIController {
   // Selected Cell & Routing Elements
   private btnToggleWall = document.getElementById('btn-toggle-wall') as HTMLButtonElement | null;
   private btnOpenRoute = document.getElementById('btn-open-route') as HTMLButtonElement | null;
-  private btnClearRoute = document.getElementById('btn-clear-route') as HTMLButtonElement | null;
   private modalRoute = document.getElementById('modal-route') as HTMLDivElement | null;
   private btnCloseRouteModal = document.getElementById('btn-close-route-modal') as HTMLButtonElement | null;
   private btnCloseRoute = document.getElementById('btn-close-route') as HTMLButtonElement | null;
@@ -267,19 +266,6 @@ export class UIController {
       this.openRouteModal();
     });
 
-    // Quick Clear Route Button in Bottom Bar
-    this.btnClearRoute?.addEventListener('click', () => {
-      if (!this.selectedCoords) return;
-      const { q, r } = this.selectedCoords;
-      const cell = this.sequencer.getCell(q, r);
-      if (!cell) return;
-
-      this.sequencer.setCell(q, r, cell.enabled, false, 'NONE');
-      this.showToast(formatString(t('routeRemovedToast'), q, r));
-      this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('routeCleared')}`;
-      this.updateSelectedCellHud();
-    });
-
     // Close Route Modal Handlers
     this.btnCloseRouteModal?.addEventListener('click', () => {
       this.modalRoute?.classList.add('hidden');
@@ -298,10 +284,17 @@ export class UIController {
         const cell = this.sequencer.getCell(q, r);
         if (!cell) return;
 
-        // Set route modifier (and auto-enable sound if not dead wall)
-        const enabled = cell.isDead ? false : true;
-        this.sequencer.setCell(q, r, enabled, false, dir);
-        this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${formatString(t('routeSet'), dir)}`;
+        // If user tapped the currently active direction, toggle it OFF (set to NONE)
+        if (cell.modifier === dir) {
+          this.sequencer.setCell(q, r, cell.enabled, false, 'NONE');
+          this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('routeCleared')}`;
+          this.showToast(formatString(t('routeRemovedToast'), q, r));
+        } else {
+          // Set route modifier (and auto-enable sound if not dead wall)
+          const enabled = cell.isDead ? false : true;
+          this.sequencer.setCell(q, r, enabled, false, dir);
+          this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${formatString(t('routeSet'), dir)}`;
+        }
         this.modalRoute?.classList.add('hidden');
         this.updateSelectedCellHud();
       });
@@ -608,12 +601,6 @@ export class UIController {
         this.btnOpenRoute.setAttribute('aria-label', t('btnRoute'));
         this.btnOpenRoute.classList.remove('is-routed');
       }
-      if (this.btnClearRoute) {
-        this.btnClearRoute.innerHTML = `<span class="btn-hud-icon">✕</span> <span class="btn-hud-text">${t('btnClearRoute')}</span>`;
-        this.btnClearRoute.title = t('btnClearRoute');
-        this.btnClearRoute.setAttribute('aria-label', t('btnClearRoute'));
-        this.btnClearRoute.classList.add('hidden');
-      }
       return;
     }
 
@@ -669,17 +656,6 @@ export class UIController {
         this.btnOpenRoute.title = t('btnRoute');
         this.btnOpenRoute.setAttribute('aria-label', t('btnRoute'));
         this.btnOpenRoute.classList.remove('is-routed');
-      }
-    }
-
-    if (this.btnClearRoute) {
-      this.btnClearRoute.innerHTML = `<span class="btn-hud-icon">✕</span> <span class="btn-hud-text">${t('btnClearRoute')}</span>`;
-      this.btnClearRoute.title = t('btnClearRoute');
-      this.btnClearRoute.setAttribute('aria-label', t('btnClearRoute'));
-      if (hasRoute && !cell.isDead) {
-        this.btnClearRoute.classList.remove('hidden');
-      } else {
-        this.btnClearRoute.classList.add('hidden');
       }
     }
   }

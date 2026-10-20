@@ -346,9 +346,9 @@ export class TutorialModal {
                 </div>
               </div>
             </div>
-            <div class="tut-callout tut-callout-red">
-              <strong>Enlever la direction :</strong>
-              <p>Sélectionnez la case et appuyez sur <strong>[✕]</strong> dans la barre du bas.</p>
+            <div class="tut-callout">
+              <strong>Modifier ou retirer :</strong>
+              <p>Appuyez sur le bouton de direction pour changer d'orientation ou la retirer en recliquant dessus.</p>
             </div>
           </div>
         ` : `
@@ -362,7 +362,7 @@ export class TutorialModal {
                 <span class="tut-badge-icon">↗</span>
                 <div>
                   <strong>[↗] Button</strong>
-                  <p>Select a cell and tap <strong>[↗]</strong> in the bottom bar to pick one of 6 compass directions (Top-Right, Left, etc.).</p>
+                  <p>Select a cell and tap <strong>[↗]</strong> in the bottom bar to pick one of 6 compass directions.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
@@ -373,9 +373,9 @@ export class TutorialModal {
                 </div>
               </div>
             </div>
-            <div class="tut-callout tut-callout-red">
-              <strong>Instant Removal:</strong>
-              <p>Whenever a routed cell is selected, a red <strong>[✕]</strong> button appears right in the bottom bar. 1 tap removes routing instantly!</p>
+            <div class="tut-callout">
+              <strong>Change or Remove:</strong>
+              <p>Tap the direction button anytime to change directions, or re-tap the active direction to remove it.</p>
             </div>
           </div>
         `;
