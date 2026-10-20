@@ -13,19 +13,20 @@ export interface Translations {
   share: string;
   save: string;
   load: string;
+  playTitle: string;
+  pauseTitle: string;
+  stopTitle: string;
+  clearTitle: string;
+  shareTitle: string;
+  saveTitle: string;
+  loadTitle: string;
   bpm: string;
 
   // Preset Select
   optgroupPresets: string;
   optgroupSaved: string;
-  presetTechno: string;
   presetPolyrhythm: string;
-  presetHiphop: string;
-  presetTrap: string;
-  presetNexus: string;
-  presetAcid: string;
   presetIdm: string;
-  presetBlank: string;
 
   // Bottom Status & HUD
   tapCellHint: string;
@@ -112,25 +113,26 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     githubTitle: 'View Source on GitHub',
     helpTitle: 'Guide & Tutorial',
     langTitle: 'Passer en Français',
-    play: '▶ PLAY',
-    pause: '⏸ PAUSE',
-    stop: '⏹ STOP',
-    clear: 'CLEAR',
-    share: '🔗 SHARE',
-    save: '💾 SAVE',
-    load: '📁 LOAD',
+    play: '▶',
+    pause: '⏸',
+    stop: '⏹',
+    clear: '🗑',
+    share: '🔗',
+    save: '💾',
+    load: '📁',
+    playTitle: 'Play',
+    pauseTitle: 'Pause',
+    stopTitle: 'Stop & Reset',
+    clearTitle: 'Clear Grid',
+    shareTitle: 'Share via Link',
+    saveTitle: 'Save Project',
+    loadTitle: 'Projects Manager',
     bpm: 'BPM',
 
     optgroupPresets: 'Presets',
     optgroupSaved: 'Saved Projects',
-    presetTechno: 'Techno Orbit',
     presetPolyrhythm: 'Hex Polyrhythm',
-    presetHiphop: 'Boom Bap Hip Hop',
-    presetTrap: 'Trap 808',
-    presetNexus: 'Melodic Nexus',
-    presetAcid: 'Acid Honeycomb',
     presetIdm: 'IDM Generative',
-    presetBlank: 'Empty Canvas',
 
     tapCellHint: 'Tap cell to toggle beat',
     btnWall: '🧱 Wall',
@@ -143,18 +145,18 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     cellPrefix: 'Cell',
     beatEnabled: 'Beat Enabled',
     beatDisabled: 'Beat Disabled',
-    impassableWall: 'Impassable Wall',
+    impassableWall: 'Wall',
     wallPlaced: 'Wall Placed',
     wallRemoved: 'Wall Removed',
     routeCleared: 'Route Cleared',
     routeSet: 'Route: %s',
-    centerCore: 'Center Core (Impassable Barrier)',
+    centerCore: 'Center Core (Blocked)',
     headPrefix: 'Head',
     headActive: 'ENABLED',
     headMuted: 'MUTED',
     stoppedInfo: 'Stopped • Playheads at departure bays',
     gridCleared: 'Grid Cleared',
-    presetLoaded: 'Preset loaded: %s',
+    presetLoaded: 'Preset: %s',
     projectLoaded: 'Loaded project "%s" • %s BPM',
 
     routeModalTitle: '🧭 Route Direction',
@@ -170,10 +172,10 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
 
     saveModalTitle: '💾 Save Project',
     projectNameLabel: 'Project Name',
-    projectNamePlaceholder: 'e.g. Cyber Honeycomb',
+    projectNamePlaceholder: 'e.g. My Track',
     tempoLabel: 'Tempo:',
     cellsLabel: 'Cells:',
-    cellsConfigured: 'Configured',
+    cellsConfigured: 'active',
     shareLinkBtn: '🔗 Share Link',
     exportFileBtn: '⬇ Export File',
     saveProjectBtn: 'Save Project',
@@ -182,14 +184,14 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     savedGrooves: 'Saved Grooves',
     importFileBtn: '⬆ Import File',
     noProjectsMsg: 'No saved projects yet. Click "SAVE" to store your grooves!',
-    loadBtn: '▶ Load',
+    loadBtn: '▶ Open',
     shareBtnTitle: 'Share via Link',
     exportBtnTitle: 'Download as JSON file',
-    deleteBtnTitle: 'Delete project',
+    deleteBtnTitle: 'Delete',
     deleteConfirm: 'Delete project "%s"?',
     closeBtn: 'Close',
 
-    shareCopiedToast: '🔗 Share link copied to clipboard!',
+    shareCopiedToast: '🔗 Link copied to clipboard!',
     routeRemovedToast: 'Route removed from cell (%s, %s)',
     sharedLoadedToast: '🔗 Loaded shared project: "%s"',
 
@@ -208,25 +210,26 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     githubTitle: 'Code source sur GitHub',
     helpTitle: 'Guide & Aide',
     langTitle: 'Switch to English',
-    play: '▶ JOUER',
-    pause: '⏸ PAUSE',
-    stop: '⏹ ARRÊT',
-    clear: 'EFFACER',
-    share: '🔗 PARTAGER',
-    save: '💾 ENREGISTRER',
-    load: '📁 PROJETS',
+    play: '▶',
+    pause: '⏸',
+    stop: '⏹',
+    clear: '🗑',
+    share: '🔗',
+    save: '💾',
+    load: '📁',
+    playTitle: 'Lecture',
+    pauseTitle: 'Pause',
+    stopTitle: 'Arrêt & Réinitialiser',
+    clearTitle: 'Effacer la grille',
+    shareTitle: 'Partager par lien',
+    saveTitle: 'Enregistrer le projet',
+    loadTitle: 'Mes projets',
     bpm: 'BPM',
 
     optgroupPresets: 'Préréglages',
     optgroupSaved: 'Mes projets',
-    presetTechno: 'Techno',
     presetPolyrhythm: 'Polyrythmie',
-    presetHiphop: 'Hip-Hop Boom Bap',
-    presetTrap: 'Trap 808',
-    presetNexus: 'Ambient',
-    presetAcid: 'Acid',
     presetIdm: 'IDM',
-    presetBlank: 'Projet vide',
 
     tapCellHint: 'Touchez une case pour ajouter un son',
     btnWall: '🧱 Mur',

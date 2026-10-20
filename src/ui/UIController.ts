@@ -102,11 +102,13 @@ export class UIController {
     this.btnPlay.addEventListener('click', () => {
       if (this.audioEngine.getIsPlaying()) {
         this.audioEngine.stop();
-        this.btnPlay.textContent = t('play');
+        this.btnPlay.textContent = '▶';
+        this.btnPlay.title = t('playTitle');
         this.btnPlay.classList.remove('is-playing');
       } else {
         this.audioEngine.start();
-        this.btnPlay.textContent = t('pause');
+        this.btnPlay.textContent = '⏸';
+        this.btnPlay.title = t('pauseTitle');
         this.btnPlay.classList.add('is-playing');
       }
     });
@@ -114,7 +116,8 @@ export class UIController {
     // 2. Stop Playback & Put Playheads back to Departure Positions on circle 1
     const handleStop = () => {
       this.sequencer.stop();
-      this.btnPlay.textContent = t('play');
+      this.btnPlay.textContent = '▶';
+      this.btnPlay.title = t('playTitle');
       this.btnPlay.classList.remove('is-playing');
       this.currentStep = 0;
       this.stepIndicator.textContent = formatString(t('stepPrefix'), 0);
@@ -128,7 +131,8 @@ export class UIController {
     // 3. Clear Grid
     this.btnClear.addEventListener('click', () => {
       this.sequencer.clearGrid();
-      this.btnPlay.textContent = t('play');
+      this.btnPlay.textContent = '▶';
+      this.btnPlay.title = t('playTitle');
       this.btnPlay.classList.remove('is-playing');
       this.currentStep = 0;
       this.stepIndicator.textContent = formatString(t('stepPrefix'), 0);
@@ -150,6 +154,7 @@ export class UIController {
       // Stop playback, return playheads to departure bays, and reset step counter
       this.sequencer.stop();
       this.btnPlay.textContent = t('play');
+      this.btnPlay.title = t('playTitle');
       this.btnPlay.classList.remove('is-playing');
       this.currentStep = 0;
       this.stepIndicator.textContent = formatString(t('stepPrefix'), 0);
@@ -478,6 +483,7 @@ export class UIController {
   private loadProject(project: ProjectData) {
     this.sequencer.stop();
     this.btnPlay.textContent = t('play');
+    this.btnPlay.title = t('playTitle');
     this.btnPlay.classList.remove('is-playing');
     this.currentStep = 0;
     this.stepIndicator.textContent = formatString(t('stepPrefix'), 0);
@@ -627,12 +633,28 @@ export class UIController {
     const isPlaying = this.audioEngine.getIsPlaying();
     if (this.btnPlay) {
       this.btnPlay.textContent = isPlaying ? t('pause') : t('play');
+      this.btnPlay.title = isPlaying ? t('pauseTitle') : t('playTitle');
     }
-    if (this.btnStop) this.btnStop.textContent = t('stop');
-    if (this.btnClear) this.btnClear.textContent = t('clear');
-    if (this.btnShareProject) this.btnShareProject.textContent = t('share');
-    if (this.btnSaveProject) this.btnSaveProject.textContent = t('save');
-    if (this.btnLoadProject) this.btnLoadProject.textContent = t('load');
+    if (this.btnStop) {
+      this.btnStop.textContent = t('stop');
+      this.btnStop.title = t('stopTitle');
+    }
+    if (this.btnClear) {
+      this.btnClear.textContent = t('clear');
+      this.btnClear.title = t('clearTitle');
+    }
+    if (this.btnShareProject) {
+      this.btnShareProject.textContent = t('share');
+      this.btnShareProject.title = t('shareTitle');
+    }
+    if (this.btnSaveProject) {
+      this.btnSaveProject.textContent = t('save');
+      this.btnSaveProject.title = t('saveTitle');
+    }
+    if (this.btnLoadProject) {
+      this.btnLoadProject.textContent = t('load');
+      this.btnLoadProject.title = t('loadTitle');
+    }
 
     const tempoLabel = document.querySelector('.tempo-label');
     if (tempoLabel) tempoLabel.textContent = t('bpm');
@@ -658,14 +680,8 @@ export class UIController {
     if (this.optgroupSaved) this.optgroupSaved.label = t('optgroupSaved');
 
     const presetOptionMap: Record<string, string> = {
-      'techno-drive': t('presetTechno'),
       'polyrhythm-orbit': t('presetPolyrhythm'),
-      'hiphop-groove': t('presetHiphop'),
-      'trap-808': t('presetTrap'),
-      'ambient-nexus': t('presetNexus'),
-      'acid-honeycomb': t('presetAcid'),
       'idm-generative': t('presetIdm'),
-      'blank': t('presetBlank'),
     };
 
     const options = this.presetSelect.querySelectorAll('option');

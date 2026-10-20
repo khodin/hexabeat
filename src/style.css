@@ -108,6 +108,14 @@ html, body {
   outline: none;
 }
 
+.btn-icon {
+  min-width: 36px;
+  height: 34px;
+  padding: 0 8px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
 .btn:active {
   transform: scale(0.96);
 }
@@ -771,21 +779,42 @@ html, body {
 }
 
 @media (max-width: 600px) {
+  .header-bar {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  .brand-title {
+    font-size: 1rem;
+  }
   .transport-controls {
-    flex-wrap: wrap;
-    gap: 5px;
+    flex-wrap: nowrap;
+    gap: 4px;
   }
   .btn {
-    padding: 5px 9px;
+    padding: 5px 8px;
     font-size: 0.75rem;
+  }
+  .btn-icon {
+    min-width: 30px;
+    height: 30px;
+    padding: 0 4px;
+    font-size: 0.9rem;
   }
   .preset-select {
-    max-width: 125px;
+    max-width: 105px;
     font-size: 0.75rem;
-    padding: 5px 7px;
+    padding: 4px 6px;
   }
   .tempo-slider {
-    width: 60px;
+    width: 48px;
+  }
+  .tempo-box {
+    padding: 2px 6px;
+    gap: 4px;
+  }
+  .tempo-value {
+    width: 24px;
+    font-size: 0.8rem;
   }
 }
 

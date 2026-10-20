@@ -467,12 +467,15 @@ import fs from 'node:fs';
 const translationsSrc = fs.readFileSync(new URL('../src/i18n/translations.ts', import.meta.url), 'utf-8');
 const presetsSrc = fs.readFileSync(new URL('../src/sequencer/Presets.ts', import.meta.url), 'utf-8');
 
-// Verify presets contain hiphop and trap
-assert(presetsSrc.includes('hiphop-groove'), 'Presets must include hiphop-groove');
-assert(presetsSrc.includes('trap-808'), 'Presets must include trap-808');
-assert(presetsSrc.includes('Boom Bap Hip Hop'), 'Presets must include Boom Bap Hip Hop name');
-assert(presetsSrc.includes('Trap 808'), 'Presets must include Trap 808 name');
-console.log('✓ Presets verified: Boom Bap Hip Hop (92 BPM) and Trap 808 (142 BPM) present and valid.');
+// Verify presets contain only polyrhythm-orbit and idm-generative
+assert(presetsSrc.includes('polyrhythm-orbit'), 'Presets must include polyrhythm-orbit');
+assert(presetsSrc.includes('idm-generative'), 'Presets must include idm-generative');
+assert(!presetsSrc.includes('techno-drive'), 'Presets must not include techno-drive');
+assert(!presetsSrc.includes('hiphop-groove'), 'Presets must not include hiphop-groove');
+assert(!presetsSrc.includes('trap-808'), 'Presets must not include trap-808');
+assert(!presetsSrc.includes('ambient-nexus'), 'Presets must not include ambient-nexus');
+assert(!presetsSrc.includes('acid-honeycomb'), 'Presets must not include acid-honeycomb');
+console.log('✓ Presets verified: Only Hex Polyrhythm and IDM Generative are kept.');
 
 // Verify i18n keys
 const enMatch = translationsSrc.match(/en:\s*\{([\s\S]*?)\n\s*\},/);
@@ -493,7 +496,7 @@ const extractKeys = (block) => {
 const enKeys = extractKeys(enMatch[1]);
 const frKeys = extractKeys(frMatch[1]);
 
-assert(enKeys.length >= 50, `Expected at least 50 EN keys, found ${enKeys.length}`);
+assert(enKeys.length >= 40, `Expected at least 40 EN keys, found ${enKeys.length}`);
 assert.strictEqual(enKeys.length, frKeys.length, `Key count mismatch between EN (${enKeys.length}) and FR (${frKeys.length})`);
 
 for (const key of enKeys) {

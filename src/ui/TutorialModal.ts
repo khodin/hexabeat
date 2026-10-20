@@ -390,7 +390,7 @@ export class TutorialModal {
             </div>
             <div class="tut-callout">
               <strong>À vous de jouer :</strong>
-              <p>Testez les préréglages (Techno, Hip-Hop, Trap...) ou partez d'un projet vide pour composer votre rythme.</p>
+              <p>Testez les préréglages (Polyrythmie, IDM) ou créez votre propre rythme.</p>
             </div>
           </div>
         ` : `
@@ -417,7 +417,7 @@ export class TutorialModal {
             </div>
             <div class="tut-callout">
               <strong>Ready to produce?</strong>
-              <p>Explore the built-in presets (Techno, Hip-Hop, Trap, Polyrhythm, Ambient) or start from a blank canvas to craft your own generative groove!</p>
+              <p>Explore the built-in presets (Hex Polyrhythm, IDM Generative) or craft your own generative groove!</p>
             </div>
           </div>
         `;
