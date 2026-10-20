@@ -14,50 +14,56 @@
     <div id="app">
       <!-- HEADER / TRANSPORT BAR -->
       <header class="header-bar">
-        <div class="brand">
-          <span class="brand-title">HexaBeat</span>
-          <button id="btn-help" class="btn-help" title="Guide & Tutorial" aria-label="Tutorial">❓</button>
-          <button id="btn-lang" class="btn-lang" title="Passer en Français" aria-label="Language Toggle">FR</button>
-          <a href="https://github.com/khodin/hexabeat" target="_blank" rel="noopener noreferrer" class="github-btn" title="View Source on GitHub">
-            <svg class="github-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-            </svg>
-          </a>
+        <div class="header-row header-row-top">
+          <div class="brand">
+            <span class="brand-title">HexaBeat</span>
+          </div>
+
+          <div class="header-actions-top">
+            <select id="preset-select" class="preset-select">
+              <optgroup id="optgroup-presets" label="Presets">
+                <option value="polyrhythm-orbit">Hex Polyrhythm</option>
+                <option value="idm-generative">IDM Generative</option>
+              </optgroup>
+              <optgroup id="optgroup-saved" label="Saved Projects"></optgroup>
+            </select>
+            <button id="btn-help" class="btn-help" title="Guide & Tutorial" aria-label="Tutorial">❓</button>
+            <button id="btn-lang" class="btn-lang" title="Passer en Français" aria-label="Language Toggle">FR</button>
+            <a href="https://github.com/khodin/hexabeat" target="_blank" rel="noopener noreferrer" class="github-btn" title="View Source on GitHub">
+              <svg class="github-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+            </a>
+          </div>
         </div>
 
-        <div class="transport-controls">
-          <select id="preset-select" class="preset-select">
-            <optgroup id="optgroup-presets" label="Presets">
-              <option value="polyrhythm-orbit">Hex Polyrhythm</option>
-              <option value="idm-generative">IDM Generative</option>
-            </optgroup>
-            <optgroup id="optgroup-saved" label="Saved Projects"></optgroup>
-          </select>
-
+        <div class="header-row header-row-bottom">
           <div class="tempo-box">
             <span class="tempo-label">BPM</span>
             <input type="range" id="bpm-slider" class="tempo-slider" min="60" max="220" value="120" />
             <span id="bpm-value" class="tempo-value">120</span>
           </div>
 
-          <button id="btn-play" class="btn btn-icon btn-primary" title="Play / Pause" aria-label="Play / Pause">
-            ▶
-          </button>
-          <button id="btn-stop" class="btn btn-icon btn-stop" title="Stop & Reset" aria-label="Stop & Reset">
-            ⏹
-          </button>
-          <button id="btn-clear" class="btn btn-icon" title="Clear Grid" aria-label="Clear Grid">
-            🗑
-          </button>
-          <button id="btn-share-project" class="btn btn-icon btn-share" title="Share via Link" aria-label="Share via Link">
-            🔗
-          </button>
-          <button id="btn-save-project" class="btn btn-icon btn-save" title="Save Project" aria-label="Save Project">
-            💾
-          </button>
-          <button id="btn-load-project" class="btn btn-icon btn-load" title="Projects Manager" aria-label="Projects Manager">
-            📁
-          </button>
+          <div class="transport-buttons">
+            <button id="btn-play" class="btn btn-icon btn-primary" title="Play / Pause" aria-label="Play / Pause">
+              ▶
+            </button>
+            <button id="btn-stop" class="btn btn-icon btn-stop" title="Stop & Reset" aria-label="Stop & Reset">
+              ⏹
+            </button>
+            <button id="btn-clear" class="btn btn-icon" title="Clear Grid" aria-label="Clear Grid">
+              🗑
+            </button>
+            <button id="btn-share-project" class="btn btn-icon btn-share" title="Share via Link" aria-label="Share via Link">
+              🔗
+            </button>
+            <button id="btn-save-project" class="btn btn-icon btn-save" title="Save Project" aria-label="Save Project">
+              💾
+            </button>
+            <button id="btn-load-project" class="btn btn-icon btn-load" title="Projects Manager" aria-label="Projects Manager">
+              📁
+            </button>
+          </div>
         </div>
       </header>
 

@@ -43,8 +43,10 @@ export class TutorialModal {
 
   public show() {
     if (!this.modal) return;
-    this.renderSlideContent();
+    this.goToSlide(0);
     this.modal.classList.remove('hidden');
+    const tabsContainer = document.querySelector('.tutorial-tabs');
+    if (tabsContainer) tabsContainer.scrollTo({ left: 0, behavior: 'instant' });
     try {
       localStorage.setItem('hexabeat_tutorial_seen', 'true');
     } catch {}
@@ -78,10 +80,25 @@ export class TutorialModal {
 
     if (!bodyEl) return;
 
-    // Update tab indicators
+    // Update tab indicators and smoothly ensure active tab is in view
+    const tabsContainer = document.querySelector('.tutorial-tabs');
     tabs.forEach((tab, i) => {
       if (i === this.currentSlide) {
         tab.classList.add('active');
+        if (tabsContainer) {
+          const tabEl = tab as HTMLElement;
+          const containerEl = tabsContainer as HTMLElement;
+          const tabLeft = tabEl.offsetLeft;
+          const tabRight = tabLeft + tabEl.offsetWidth;
+          const containerLeft = containerEl.scrollLeft;
+          const containerRight = containerLeft + containerEl.clientWidth;
+
+          if (tabLeft < containerLeft) {
+            containerEl.scrollTo({ left: Math.max(0, tabLeft - 12), behavior: 'smooth' });
+          } else if (tabRight > containerRight) {
+            containerEl.scrollTo({ left: tabRight - containerEl.clientWidth + 12, behavior: 'smooth' });
+          }
+        }
       } else {
         tab.classList.remove('active');
       }
@@ -268,7 +285,7 @@ export class TutorialModal {
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🧱</span>
                 <div>
-                  <strong>Bouton [🧱 Mur]</strong>
+                  <strong>Bouton [🧱]</strong>
                   <p>Transforme la case sélectionnée en mur. Les têtes rebondissent dessus.</p>
                 </div>
               </div>
@@ -292,8 +309,8 @@ export class TutorialModal {
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🧱</span>
                 <div>
-                  <strong>[Wall] Button: Physical Barrier</strong>
-                  <p>Tap a cell and click <strong>[🧱 Wall]</strong> in the bottom bar to convert it into an impassable crimson obstacle.</p>
+                  <strong>[🧱] Button: Wall</strong>
+                  <p>Tap a cell and click <strong>[🧱]</strong> in the bottom bar to convert it into an impassable crimson obstacle.</p>
                 </div>
               </div>
             </div>
@@ -311,13 +328,13 @@ export class TutorialModal {
           <div class="tut-slide">
             <h4 class="tut-title">Changer la direction</h4>
             <p class="tut-p">
-              Par défaut, les têtes continuent tout droit ou rebondissent. Vous pouvez forcer la direction d'une case :
+              Par défaut, les têtes se déplacent de façon aléatoire. Vous pouvez forcer la direction d'une case :
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">↗</span>
                 <div>
-                  <strong>Bouton [↗ Direction]</strong>
+                  <strong>Bouton [↗]</strong>
                   <p>Sélectionnez une case puis choisissez l'une des 6 directions.</p>
                 </div>
               </div>
@@ -331,21 +348,21 @@ export class TutorialModal {
             </div>
             <div class="tut-callout tut-callout-red">
               <strong>Enlever la direction :</strong>
-              <p>Sélectionnez la case et appuyez sur <strong>[✕ Effacer]</strong> dans la barre du bas.</p>
+              <p>Sélectionnez la case et appuyez sur <strong>[✕]</strong> dans la barre du bas.</p>
             </div>
           </div>
         ` : `
           <div class="tut-slide">
             <h4 class="tut-title">Directional Routing (Chevrons)</h4>
             <p class="tut-p">
-              By default, unrouted cells deflect playheads semi-randomly. You can force playheads into deterministic orbits:
+              By default, playheads branch and move randomly. You can force playheads into deterministic orbits:
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">↗</span>
                 <div>
-                  <strong>[↗ Route] Button</strong>
-                  <p>Select a cell and tap <strong>[↗ Route]</strong> in the bottom bar to pick one of 6 compass directions (Top-Right, Left, etc.).</p>
+                  <strong>[↗] Button</strong>
+                  <p>Select a cell and tap <strong>[↗]</strong> in the bottom bar to pick one of 6 compass directions (Top-Right, Left, etc.).</p>
                 </div>
               </div>
               <div class="tut-badge-card">
@@ -358,7 +375,7 @@ export class TutorialModal {
             </div>
             <div class="tut-callout tut-callout-red">
               <strong>Instant Removal:</strong>
-              <p>Whenever a routed cell is selected, a red <strong>[✕ Clear]</strong> button appears right in the bottom bar. 1 tap removes routing instantly!</p>
+              <p>Whenever a routed cell is selected, a red <strong>[✕]</strong> button appears right in the bottom bar. 1 tap removes routing instantly!</p>
             </div>
           </div>
         `;
@@ -376,14 +393,14 @@ export class TutorialModal {
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🔗</span>
                 <div>
-                  <strong>[🔗 PARTAGER]</strong>
+                  <strong>Bouton [🔗]</strong>
                   <p>Copie le lien du morceau ou ouvre le menu de partage sur mobile.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">💾</span>
                 <div>
-                  <strong>[💾 ENREGISTRER] & [📁 PROJETS]</strong>
+                  <strong>Boutons [💾] & [📁]</strong>
                   <p>Enregistrez vos morceaux dans le navigateur ou exportez-les en fichier <code>.json</code>.</p>
                 </div>
               </div>
@@ -403,14 +420,14 @@ export class TutorialModal {
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🔗</span>
                 <div>
-                  <strong>[🔗 SHARE] Button</strong>
+                  <strong>[🔗] Button</strong>
                   <p>On mobile, opens the native share sheet (WhatsApp, Messages, Telegram). On desktop, copies the link to your clipboard.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">💾</span>
                 <div>
-                  <strong>[💾 SAVE] & [📁 LOAD]</strong>
+                  <strong>[💾] & [📁] Buttons</strong>
                   <p>Store grooves persistently in your browser, or export and import portable <code>.json</code> project files.</p>
                 </div>
               </div>

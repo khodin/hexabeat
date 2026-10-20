@@ -77,7 +77,7 @@ export const SOUND_STYLES: Record<SoundType, SoundStyle> = {
   }
 };
 
-export type CellActionType = 'TAP' | 'ROUTE' | 'WALL';
+export type CellActionType = 'TAP' | 'ROUTE' | 'WALL' | 'TAP_OUTSIDE';
 
 export type CellActionHandler = (
   action: CellActionType,
@@ -176,15 +176,15 @@ export class HexCanvas {
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      const { q, r } = pixelToHex(x, y, this.hexSize, this.originX, this.originY);
-      if (!isInsideGrid(q, r)) {
-        this.pointerDownHex = null;
-        return;
-      }
-
       this.pointerDownX = x;
       this.pointerDownY = y;
-      this.pointerDownHex = { q, r };
+
+      const { q, r } = pixelToHex(x, y, this.hexSize, this.originX, this.originY);
+      if (isInsideGrid(q, r)) {
+        this.pointerDownHex = { q, r };
+      } else {
+        this.pointerDownHex = null;
+      }
     });
 
     const pointerUp = (e: PointerEvent) => {
@@ -195,8 +195,6 @@ export class HexCanvas {
         this.canvas.releasePointerCapture(e.pointerId);
       } catch {}
 
-      if (!this.pointerDownHex) return;
-
       const rect = this.canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -206,10 +204,16 @@ export class HexCanvas {
 
       // Small threshold (12px) to detect clean tap without drag/scroll drift
       if (Math.hypot(dx, dy) < 12) {
-        const { q, r } = this.pointerDownHex;
-        this.selectedCellKey = `${q},${r}`;
-        const cell = this.sequencer.getCell(q, r);
-        this.onCellAction?.('TAP', q, r, undefined, cell);
+        if (this.pointerDownHex) {
+          const { q, r } = this.pointerDownHex;
+          this.selectedCellKey = `${q},${r}`;
+          const cell = this.sequencer.getCell(q, r);
+          this.onCellAction?.('TAP', q, r, undefined, cell);
+        } else {
+          // Tapped outside the hexagonal grid: deselect active cell
+          this.selectedCellKey = null;
+          this.onCellAction?.('TAP_OUTSIDE', 0, 0, undefined, undefined);
+        }
       }
 
       this.pointerDownHex = null;

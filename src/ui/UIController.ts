@@ -182,7 +182,17 @@ export class UIController {
     });
 
     // 6. Direct Cell Selection & Editing
-    this.hexCanvas.setOnCellAction((_action, q, r, _dirIndex, cell) => {
+    this.hexCanvas.setOnCellAction((action, q, r, _dirIndex, cell) => {
+      if (action === 'TAP_OUTSIDE') {
+        this.selectedCoords = null;
+        this.hexCanvas.setSelectedCell(0, null);
+        if (!this.audioEngine.getIsPlaying()) {
+          this.cellInfo.textContent = t('tapCellHint');
+        }
+        this.updateSelectedCellHud();
+        return;
+      }
+
       if (!cell) return;
 
       const isCenter = q === 0 && r === 0;

@@ -60,13 +60,12 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 8px 14px;
   padding-top: max(8px, env(safe-area-inset-top, 8px));
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   z-index: 10;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 12px;
   flex-shrink: 0;
 }
 
@@ -86,10 +85,34 @@ html, body {
   -webkit-text-fill-color: transparent;
 }
 
-.transport-controls {
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-row-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-actions-top {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.header-row-bottom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.transport-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .btn {
@@ -784,43 +807,96 @@ html, body {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 720px) {
   .header-bar {
-    padding: 6px 8px;
+    flex-direction: column;
+    padding: 6px 10px;
+    padding-top: max(6px, env(safe-area-inset-top, 6px));
+    gap: 6px;
+  }
+  .header-row {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .header-row-top {
+    gap: 6px;
+  }
+  .header-actions-top {
+    gap: 5px;
+  }
+  .header-row-bottom {
     gap: 6px;
   }
   .brand-title {
-    font-size: 1rem;
-  }
-  .transport-controls {
-    flex-wrap: nowrap;
-    gap: 4px;
-  }
-  .btn {
-    padding: 5px 8px;
-    font-size: 0.75rem;
-  }
-  .btn-icon {
-    min-width: 30px;
-    height: 30px;
-    padding: 0 4px;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
   }
   .preset-select {
-    max-width: 105px;
-    font-size: 0.75rem;
+    max-width: 135px;
+    font-size: 0.74rem;
     padding: 4px 6px;
-  }
-  .tempo-slider {
-    width: 48px;
   }
   .tempo-box {
     padding: 2px 6px;
     gap: 4px;
   }
+  .tempo-slider {
+    width: 52px;
+  }
+  .tempo-label {
+    font-size: 0.7rem;
+  }
   .tempo-value {
     width: 24px;
     font-size: 0.8rem;
+  }
+  .transport-buttons {
+    gap: 4px;
+  }
+  .btn-icon {
+    min-width: 32px;
+    height: 30px;
+    padding: 0 4px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .header-bar {
+    padding: 4px 6px;
+    padding-top: max(4px, env(safe-area-inset-top, 4px));
+    gap: 4px;
+  }
+  .brand-title {
+    font-size: 0.85rem;
+  }
+  .preset-select {
+    max-width: 110px;
+    font-size: 0.7rem;
+    padding: 3px 4px;
+  }
+  .tempo-box {
+    padding: 2px 4px;
+    gap: 3px;
+  }
+  .tempo-slider {
+    width: 42px;
+  }
+  .tempo-label {
+    font-size: 0.65rem;
+  }
+  .tempo-value {
+    width: 20px;
+    font-size: 0.75rem;
+  }
+  .transport-buttons {
+    gap: 3px;
+  }
+  .btn-icon {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 2px;
+    font-size: 0.82rem;
   }
 }
 
@@ -886,6 +962,8 @@ html, body {
   border-bottom: 1px solid var(--border-subtle);
   overflow-x: auto;
   scrollbar-width: none;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tutorial-tabs::-webkit-scrollbar {
