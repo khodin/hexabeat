@@ -21,6 +21,4 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // 4. Initialize UI Controller
   new UIController(audioEngine, sequencer, hexCanvas);
-
-  console.log('HexaBeat initialized successfully.');
 });
