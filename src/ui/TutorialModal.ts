@@ -158,21 +158,21 @@ export class TutorialModal {
             <div class="tut-icon-hero">⬡</div>
             <h4 class="tut-title">The Hexagonal Sequencer</h4>
             <p class="tut-p">
-              Inspired by the classic <strong>JR Hexatone Pro</strong>, HexaBeat turns a dense <strong>91-cell honeycomb</strong> into a physical generative rhythm workstation.
+              Inspired by <strong>JR Hexatone Pro</strong>, HexaBeat is a rhythm sequencer on a <strong>91-cell</strong> hexagonal grid.
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🎯</span>
                 <div>
-                  <strong>6-Compass Physics</strong>
-                  <p>Rhythm playheads move at 60° angles and physically bounce off perimeter walls and obstacles.</p>
+                  <strong>6 directions</strong>
+                  <p>Playheads move in 6 directions and bounce off edges.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">⏱</span>
                 <div>
-                  <strong>Tempo Synchronized</strong>
-                  <p>On every clock step (BPM), all active playheads move forward to their next hexagonal node.</p>
+                  <strong>On tempo (BPM)</strong>
+                  <p>On every beat, active playheads advance by one cell.</p>
                 </div>
               </div>
             </div>
@@ -228,42 +228,42 @@ export class TutorialModal {
           <div class="tut-slide">
             <h4 class="tut-title">The 6 Playheads & Sounds</h4>
             <p class="tut-p">
-              Each playhead departs outward from its dedicated pad on the circle around the center with a unique procedural sound:
+              The 6 playheads start from the first circle around the center, each with its own sound:
             </p>
             <div class="tut-heads-list">
               <div class="tut-head-row" style="--hcolor: #00ffff">
                 <span class="tut-head-num">1</span>
-                <span class="tut-head-name">Bass Drum (Kick)</span>
-                <span class="tut-head-desc">Punchy electronic sub kick</span>
+                <span class="tut-head-name">Kick</span>
+                <span class="tut-head-desc">Bass drum</span>
               </div>
               <div class="tut-head-row" style="--hcolor: #ff007f">
                 <span class="tut-head-num">2</span>
-                <span class="tut-head-name">Snare Drum</span>
-                <span class="tut-head-desc">Tight cracking rimshot snare</span>
+                <span class="tut-head-name">Snare</span>
+                <span class="tut-head-desc">Snare drum</span>
               </div>
               <div class="tut-head-row" style="--hcolor: #39ff14">
                 <span class="tut-head-num">3</span>
-                <span class="tut-head-name">Closed Hi-Hat</span>
-                <span class="tut-head-desc">Crisp high-frequency clocking</span>
+                <span class="tut-head-name">Closed Hat</span>
+                <span class="tut-head-desc">Closed hi-hat</span>
               </div>
               <div class="tut-head-row" style="--hcolor: #ffe600">
                 <span class="tut-head-num">4</span>
-                <span class="tut-head-name">Open Hi-Hat</span>
-                <span class="tut-head-desc">Metallic offbeat sizzle</span>
+                <span class="tut-head-name">Open Hat</span>
+                <span class="tut-head-desc">Open hi-hat</span>
               </div>
               <div class="tut-head-row" style="--hcolor: #a855f7">
                 <span class="tut-head-num">5</span>
-                <span class="tut-head-name">Handclap</span>
-                <span class="tut-head-desc">Multi-layered analog clap</span>
+                <span class="tut-head-name">Clap</span>
+                <span class="tut-head-desc">Handclap</span>
               </div>
               <div class="tut-head-row" style="--hcolor: #ff6b2b">
                 <span class="tut-head-num">6</span>
-                <span class="tut-head-name">Lead Synth</span>
-                <span class="tut-head-desc">Melodic pitch mapped to cell position</span>
+                <span class="tut-head-name">Synth</span>
+                <span class="tut-head-desc">Melodic synth</span>
               </div>
             </div>
             <p class="tut-tip">
-              💡 <strong>Tip:</strong> Tap any departure pad (1 to 6) around the center to toggle that playhead ON or OFF!
+              💡 <strong>Tip:</strong> Tap cells 1 to 6 in the center to enable or mute a playhead.
             </p>
           </div>
         `;
@@ -297,26 +297,26 @@ export class TutorialModal {
           </div>
         ` : `
           <div class="tut-slide">
-            <h4 class="tut-title">Toggle Beats & Build Walls</h4>
+            <h4 class="tut-title">Toggle Beats & Walls</h4>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">👆</span>
                 <div>
-                  <strong>Tap Cell: Beat On / Off</strong>
-                  <p>Tap any cell on the grid to toggle it as a <strong>cyan beat node</strong>. When a playhead reaches it, its instrument fires with a glowing ripple!</p>
+                  <strong>Tap a cell</strong>
+                  <p>Tap a cell to turn it on. When a playhead reaches it, it plays its sound.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🧱</span>
                 <div>
-                  <strong>[🧱] Button: Wall</strong>
-                  <p>Tap a cell and click <strong>[🧱]</strong> in the bottom bar to convert it into an impassable crimson obstacle.</p>
+                  <strong>[🧱] Button</strong>
+                  <p>Turns the selected cell into a wall. Playheads bounce off walls.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
-              <strong>Sculpt the Flow:</strong>
-              <p>Playheads physically reflect off dead walls! Use walls as rhythm mirrors to trap playheads into repeatable loops and polyrhythms.</p>
+              <strong>Create rhythms:</strong>
+              <p>Place walls to create loops and regular bounces.</p>
             </div>
           </div>
         `;
@@ -353,29 +353,29 @@ export class TutorialModal {
           </div>
         ` : `
           <div class="tut-slide">
-            <h4 class="tut-title">Directional Routing (Chevrons)</h4>
+            <h4 class="tut-title">Change Direction</h4>
             <p class="tut-p">
-              By default, playheads branch and move randomly. You can force playheads into deterministic orbits:
+              By default, playheads move randomly. You can set a fixed direction on any cell:
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">↗</span>
                 <div>
                   <strong>[↗] Button</strong>
-                  <p>Select a cell and tap <strong>[↗]</strong> in the bottom bar to pick one of 6 compass directions.</p>
+                  <p>Select a cell and pick one of the 6 directions.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
-                <span class="tut-badge-icon">🚀</span>
+                <span class="tut-badge-icon">🧭</span>
                 <div>
-                  <strong>Stealth Chevrons & Facet Gates</strong>
-                  <p>A bold chevron and a neon perimeter gate light up on the cell edge, making the trajectory visible at a glance.</p>
+                  <strong>Arrow on cell</strong>
+                  <p>An arrow shows the direction playheads will take when entering that cell.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
-              <strong>Change or Remove:</strong>
-              <p>Tap the direction button anytime to change directions, or re-tap the active direction to remove it.</p>
+              <strong>Change or remove:</strong>
+              <p>Tap the direction button to change orientation, or re-tap the active direction to remove it.</p>
             </div>
           </div>
         `;
@@ -412,29 +412,29 @@ export class TutorialModal {
           </div>
         ` : `
           <div class="tut-slide">
-            <h4 class="tut-title">Instant URL Sharing & Storage</h4>
+            <h4 class="tut-title">Share & Save</h4>
             <p class="tut-p">
-              HexaBeat encodes your entire musical groove directly into the URL hash without requiring any backend server:
+              Your tracks can be shared with a simple URL link:
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🔗</span>
                 <div>
                   <strong>[🔗] Button</strong>
-                  <p>On mobile, opens the native share sheet (WhatsApp, Messages, Telegram). On desktop, copies the link to your clipboard.</p>
+                  <p>Copies the track link or opens the share menu on mobile.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">💾</span>
                 <div>
                   <strong>[💾] & [📁] Buttons</strong>
-                  <p>Store grooves persistently in your browser, or export and import portable <code>.json</code> project files.</p>
+                  <p>Save tracks in your browser or export them as <code>.json</code> files.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
-              <strong>Ready to produce?</strong>
-              <p>Explore the built-in presets (Hex Polyrhythm, IDM Generative) or craft your own generative groove!</p>
+              <strong>Your turn:</strong>
+              <p>Try the presets (Hex Polyrhythm, IDM Generative) or build your own groove.</p>
             </div>
           </div>
         `;

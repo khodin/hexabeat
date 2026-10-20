@@ -249,11 +249,33 @@ html, body {
   background: var(--bg-surface-elevated);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
-  padding: 6px 10px;
+  padding: 8px 14px;
   border-radius: 8px;
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   font-weight: 600;
+  min-height: 38px;
+  min-width: 175px;
   outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.preset-select:hover {
+  border-color: var(--accent-cyan);
+}
+
+.preset-select:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.35);
+}
+
+.preset-select option,
+.preset-select optgroup {
+  background: #121420;
+  color: #e0e6ed;
+  font-size: 0.92rem;
+  padding: 6px 10px;
 }
 
 /* MIDDLE CANVAS */
@@ -912,9 +934,11 @@ html, body {
     letter-spacing: 0.5px;
   }
   .preset-select {
-    max-width: 86px;
-    font-size: 0.7rem;
-    padding: 3px 4px;
+    max-width: 155px;
+    min-width: 130px;
+    min-height: 36px;
+    font-size: 0.85rem;
+    padding: 4px 8px;
   }
   .tempo-box {
     flex: 1;
@@ -1001,20 +1025,31 @@ html, body {
   }
 }
 
+@media (max-width: 480px) {
+  .brand-title {
+    display: none;
+  }
+  .preset-select {
+    max-width: 145px;
+    min-width: 120px;
+    min-height: 34px;
+    font-size: 0.82rem;
+    padding: 3px 6px;
+  }
+}
+
 @media (max-width: 380px) {
   .header-bar {
     padding: 4px 6px;
     padding-top: max(4px, env(safe-area-inset-top, 4px));
     gap: 4px;
   }
-  .brand-title {
-    font-size: 0.8rem;
-    letter-spacing: 0;
-  }
   .preset-select {
-    max-width: 74px;
-    font-size: 0.66rem;
-    padding: 2px 3px;
+    max-width: 125px;
+    min-width: 105px;
+    min-height: 32px;
+    font-size: 0.78rem;
+    padding: 2px 5px;
   }
   .header-actions-top {
     gap: 2px;

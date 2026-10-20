@@ -205,12 +205,12 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     routeRemovedToast: 'Route removed from cell (%s, %s)',
     sharedLoadedToast: '🔗 Loaded shared project: "%s"',
 
-    tutorialTitle: '🎓 HexaBeat Guide & Tutorial',
+    tutorialTitle: '🎓 How It Works',
     tabConcept: '1. Concept',
     tabHeads: '2. Instruments',
     tabCellsWalls: '3. Beats & Walls',
-    tabRouting: '4. Routing',
-    tabShare: '5. Sharing',
+    tabRouting: '4. Directions',
+    tabShare: '5. Share',
     btnPrev: '← Previous',
     btnNext: 'Next →',
     btnStart: '🚀 Start Jamming!'
