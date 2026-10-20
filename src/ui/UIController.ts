@@ -423,8 +423,9 @@ export class UIController {
         this.renderSavedProjectsList();
         this.modalLoad?.classList.add('hidden');
         this.cellInfo.textContent = formatString(t('importedInfo'), saved.name);
-      } catch (err: any) {
-        alert(formatString(t('importError'), err.message || 'Invalid format'));
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Invalid format';
+        alert(formatString(t('importError'), message || 'Invalid format'));
       } finally {
         if (this.fileImportProject) this.fileImportProject.value = '';
       }
@@ -451,8 +452,8 @@ export class UIController {
         });
         this.showToast(t('shareSuccessToast'));
         return;
-      } catch (err: any) {
-        if (err.name === 'AbortError') return; // User simply closed the share sheet
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return; // User simply closed the share sheet
       }
     }
 
