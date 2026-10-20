@@ -77,7 +77,7 @@ export const SOUND_STYLES: Record<SoundType, SoundStyle> = {
   }
 };
 
-export type CellActionType = 'TAP' | 'ROUTE' | 'WALL' | 'TAP_OUTSIDE';
+export type CellActionType = 'TAP' | 'DRAG' | 'ROUTE' | 'WALL' | 'TAP_OUTSIDE';
 
 export type CellActionHandler = (
   action: CellActionType,
@@ -98,9 +98,7 @@ export class HexCanvas {
 
   private onCellAction: CellActionHandler | null = null;
   private isPointerDown: boolean = false;
-  private pointerDownX: number = 0;
-  private pointerDownY: number = 0;
-  private pointerDownHex: { q: number; r: number } | null = null;
+  private visitedHexes = new Set<string>();
 
   constructor(canvas: HTMLCanvasElement, private sequencer: Sequencer) {
     this.canvas = canvas;
@@ -176,15 +174,37 @@ export class HexCanvas {
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      this.pointerDownX = x;
-      this.pointerDownY = y;
-
       const { q, r } = pixelToHex(x, y, this.hexSize, this.originX, this.originY);
       if (isInsideGrid(q, r)) {
-        this.pointerDownHex = { q, r };
+        this.visitedHexes.clear();
+        this.visitedHexes.add(`${q},${r}`);
+        this.selectedCellKey = `${q},${r}`;
+        const cell = this.sequencer.getCell(q, r);
+        this.onCellAction?.('TAP', q, r, undefined, cell);
       } else {
-        this.pointerDownHex = null;
+        this.visitedHexes.clear();
+        this.selectedCellKey = null;
+        this.onCellAction?.('TAP_OUTSIDE', 0, 0, undefined, undefined);
       }
+    });
+
+    this.canvas.addEventListener('pointermove', (e: PointerEvent) => {
+      if (!this.isPointerDown) return;
+
+      const rect = this.canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const { q, r } = pixelToHex(x, y, this.hexSize, this.originX, this.originY);
+      if (!isInsideGrid(q, r)) return;
+
+      const key = `${q},${r}`;
+      if (this.visitedHexes.has(key)) return;
+      this.visitedHexes.add(key);
+
+      this.selectedCellKey = key;
+      const cell = this.sequencer.getCell(q, r);
+      this.onCellAction?.('DRAG', q, r, undefined, cell);
     });
 
     const pointerUp = (e: PointerEvent) => {
@@ -195,28 +215,7 @@ export class HexCanvas {
         this.canvas.releasePointerCapture(e.pointerId);
       } catch {}
 
-      const rect = this.canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const dx = x - this.pointerDownX;
-      const dy = y - this.pointerDownY;
-
-      // Small threshold (12px) to detect clean tap without drag/scroll drift
-      if (Math.hypot(dx, dy) < 12) {
-        if (this.pointerDownHex) {
-          const { q, r } = this.pointerDownHex;
-          this.selectedCellKey = `${q},${r}`;
-          const cell = this.sequencer.getCell(q, r);
-          this.onCellAction?.('TAP', q, r, undefined, cell);
-        } else {
-          // Tapped outside the hexagonal grid: deselect active cell
-          this.selectedCellKey = null;
-          this.onCellAction?.('TAP_OUTSIDE', 0, 0, undefined, undefined);
-        }
-      }
-
-      this.pointerDownHex = null;
+      this.visitedHexes.clear();
     };
 
     this.canvas.addEventListener('pointerup', pointerUp);

@@ -36,6 +36,13 @@ export interface Translations {
   btnRouteWithDir: string;
   btnClearRoute: string;
   stepPrefix: string;
+  toolBeat: string;
+  toolWall: string;
+  toolRoute: string;
+  stampDirChanged: string;
+  hintBeatTool: string;
+  hintWallTool: string;
+  hintRouteTool: string;
 
   // Dynamic Status Messages
   cellPrefix: string;
@@ -142,10 +149,17 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     tapCellHint: 'Tap cell to toggle beat',
     btnWall: 'Wall',
     btnUnblock: 'Unblock',
-    btnRoute: 'Route',
-    btnRouteWithDir: 'Route (%s)',
+    btnRoute: 'Direction',
+    btnRouteWithDir: 'Direction: %s',
     btnClearRoute: 'Clear',
     stepPrefix: 'Step: %s',
+    toolBeat: 'Beat',
+    toolWall: 'Wall',
+    toolRoute: 'Direction',
+    stampDirChanged: 'Direction stamp: %s',
+    hintBeatTool: 'Beat tool • Tap or drag to place sounds',
+    hintWallTool: 'Wall tool • Tap or drag to place walls',
+    hintRouteTool: 'Direction stamp (%s) • Tap to stamp, click tool to change',
 
     cellPrefix: 'Cell',
     beatEnabled: 'Beat Enabled',
@@ -248,6 +262,13 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     btnRouteWithDir: 'Direction : %s',
     btnClearRoute: 'Effacer',
     stepPrefix: 'Pas : %s',
+    toolBeat: 'Son',
+    toolWall: 'Mur',
+    toolRoute: 'Direction',
+    stampDirChanged: 'Tampon direction : %s',
+    hintBeatTool: 'Outil Son • Touchez ou glissez pour activer des sons',
+    hintWallTool: 'Outil Mur • Touchez ou glissez pour placer des murs',
+    hintRouteTool: 'Tampon Direction (%s) • Touchez pour orienter, re-cliquez pour changer',
 
     cellPrefix: 'Case',
     beatEnabled: 'Son activé',

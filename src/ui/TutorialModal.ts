@@ -57,6 +57,10 @@ export class TutorialModal {
     this.modal.classList.add('hidden');
   }
 
+  public isOpen(): boolean {
+    return !!this.modal && !this.modal.classList.contains('hidden');
+  }
+
   public shouldAutoShow(): boolean {
     try {
       return localStorage.getItem('hexabeat_tutorial_seen') !== 'true';
@@ -273,109 +277,115 @@ export class TutorialModal {
         // Slide 3: Beats & Walls
         bodyEl.innerHTML = isFr ? `
           <div class="tut-slide">
-            <h4 class="tut-title">Activer les sons & murs</h4>
+            <h4 class="tut-title">Outils Sons & Murs</h4>
+            <p class="tut-p">
+              Utilisez la palette d'outils en bas pour composer sur la grille :
+            </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
-                <span class="tut-badge-icon">👆</span>
+                <span class="tut-badge-icon">🎵</span>
                 <div>
-                  <strong>Toucher une case</strong>
-                  <p>Touchez une case pour l'allumer. Quand une tête passe dessus, elle joue son son.</p>
+                  <strong>Outil Son [🎵]</strong>
+                  <p>Touchez ou glissez pour activer ou éteindre des sons sur les cases.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🧱</span>
                 <div>
-                  <strong>Bouton [🧱]</strong>
-                  <p>Transforme la case sélectionnée en mur. Les têtes rebondissent dessus.</p>
+                  <strong>Outil Mur [🧱]</strong>
+                  <p>Touchez ou tracez des murs d'obstacles pour faire rebondir les têtes.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
               <strong>Créer des rythmes :</strong>
-              <p>Placez des murs pour créer des boucles et des allers-retours réguliers.</p>
+              <p>Placez des murs pour créer des boucles fermées et des polyrythmies régulières.</p>
             </div>
           </div>
         ` : `
           <div class="tut-slide">
-            <h4 class="tut-title">Toggle Beats & Walls</h4>
+            <h4 class="tut-title">Beat & Wall Tools</h4>
+            <p class="tut-p">
+              Use the bottom tool palette to compose directly on the grid:
+            </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
-                <span class="tut-badge-icon">👆</span>
+                <span class="tut-badge-icon">🎵</span>
                 <div>
-                  <strong>Tap a cell</strong>
-                  <p>Tap a cell to turn it on. When a playhead reaches it, it plays its sound.</p>
+                  <strong>Beat Tool [🎵]</strong>
+                  <p>Tap or drag across cells to toggle rhythm notes on or off.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🧱</span>
                 <div>
-                  <strong>[🧱] Button</strong>
-                  <p>Turns the selected cell into a wall. Playheads bounce off walls.</p>
+                  <strong>Wall Tool [🧱]</strong>
+                  <p>Tap or drag to build obstacle walls that bounce playheads.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
               <strong>Create rhythms:</strong>
-              <p>Place walls to create loops and regular bounces.</p>
+              <p>Place walls to create loops and repeatable polyrhythms.</p>
             </div>
           </div>
         `;
         break;
 
       case 3:
-        // Slide 4: Directional Routing
+        // Slide 4: Directional Routing (Stamp Tool)
         bodyEl.innerHTML = isFr ? `
           <div class="tut-slide">
-            <h4 class="tut-title">Changer la direction</h4>
+            <h4 class="tut-title">Tampon de Direction</h4>
             <p class="tut-p">
-              Par défaut, les têtes se déplacent de façon aléatoire. Vous pouvez forcer la direction d'une case :
+              Par défaut, les têtes se déplacent de façon aléatoire. Vous pouvez forcer leur route :
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">↗</span>
                 <div>
-                  <strong>Bouton [↗]</strong>
-                  <p>Sélectionnez une case puis choisissez l'une des 6 directions.</p>
+                  <strong>Outil Tampon [↗]</strong>
+                  <p>Chaque case touchée ou tracée reçoit directement la direction sélectionnée.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🧭</span>
                 <div>
-                  <strong>Flèche sur la case</strong>
-                  <p>Une flèche indique la direction prise par les têtes qui entrent dans la case.</p>
+                  <strong>Changer la direction</strong>
+                  <p>Touchez l'outil [↗] pour choisir parmi les 6 directions (ou touche R sur PC).</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
-              <strong>Modifier ou retirer :</strong>
-              <p>Appuyez sur le bouton de direction pour changer d'orientation ou la retirer en recliquant dessus.</p>
+              <strong>Retirer une direction :</strong>
+              <p>Re-cliquer sur une case ayant déjà la même flèche efface sa direction.</p>
             </div>
           </div>
         ` : `
           <div class="tut-slide">
-            <h4 class="tut-title">Change Direction</h4>
+            <h4 class="tut-title">Direction Stamp</h4>
             <p class="tut-p">
-              By default, playheads move randomly. You can set a fixed direction on any cell:
+              By default, playheads move randomly. You can stamp directional tracks:
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">↗</span>
                 <div>
-                  <strong>[↗] Button</strong>
-                  <p>Select a cell and pick one of the 6 directions.</p>
+                  <strong>Stamp Tool [↗]</strong>
+                  <p>Tap or drag across cells to stamp the active compass direction.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🧭</span>
                 <div>
-                  <strong>Arrow on cell</strong>
-                  <p>An arrow shows the direction playheads will take when entering that cell.</p>
+                  <strong>Change Direction</strong>
+                  <p>Tap the [↗] tool to pick from 6 directions (or press R on desktop).</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
-              <strong>Change or remove:</strong>
-              <p>Tap the direction button to change orientation, or re-tap the active direction to remove it.</p>
+              <strong>Remove direction:</strong>
+              <p>Re-stamping a cell with its active arrow removes the direction.</p>
             </div>
           </div>
         `;

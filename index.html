@@ -76,20 +76,24 @@
       <footer class="bottom-bar">
         <div class="bottom-status-row">
           <div class="status-left">
-            <span id="selected-cell-info" class="status-chip">Tap cell to toggle beat</span>
+            <span id="selected-cell-info" class="status-chip">Beat tool • Tap or drag to place sounds</span>
           </div>
           <div class="status-right">
             <span id="step-indicator" class="status-chip">Step: 0</span>
           </div>
         </div>
-        <div id="cell-hud" class="cell-hud">
-          <button id="btn-toggle-wall" class="btn btn-hud" title="Wall" aria-label="Wall">
-            <span class="btn-hud-icon">🧱</span>
-            <span class="btn-hud-text">Wall</span>
+        <div id="cell-hud" class="cell-hud tool-palette" role="toolbar" aria-label="Tool Palette">
+          <button id="btn-tool-beat" class="btn btn-hud btn-tool active" data-tool="BEAT" title="Beat Tool (1)" aria-label="Beat Tool">
+            <span class="btn-hud-icon">🎵</span>
+            <span class="btn-hud-text" id="tool-beat-text">Beat</span>
           </button>
-          <button id="btn-open-route" class="btn btn-hud btn-hud-route" title="Direction" aria-label="Direction">
-            <span class="btn-hud-icon">↗</span>
-            <span class="btn-hud-text">Route</span>
+          <button id="btn-tool-wall" class="btn btn-hud btn-tool" data-tool="WALL" title="Wall Tool (2)" aria-label="Wall Tool">
+            <span class="btn-hud-icon">🧱</span>
+            <span class="btn-hud-text" id="tool-wall-text">Wall</span>
+          </button>
+          <button id="btn-tool-route" class="btn btn-hud btn-tool btn-tool-route" data-tool="DIRECTION" title="Direction Stamp Tool (3)" aria-label="Direction Stamp Tool">
+            <span class="btn-hud-icon" id="tool-route-arrow">↗</span>
+            <span class="btn-hud-text" id="tool-route-text">Direction</span>
           </button>
         </div>
       </footer>

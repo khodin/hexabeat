@@ -405,28 +405,50 @@ html, body {
   color: var(--text-muted);
 }
 
-.btn-hud.is-wall {
+/* TOOL PALETTE ACTIVE STATES */
+.btn-tool {
+  position: relative;
+  user-select: none;
+  border-width: 1.5px;
+}
+
+#btn-tool-beat.active {
+  background: rgba(0, 255, 255, 0.18);
+  border-color: #00ffff;
+  color: #00ffff;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.45);
+}
+
+#btn-tool-beat:hover:not(.active) {
+  border-color: rgba(0, 255, 255, 0.4);
+}
+
+#btn-tool-wall.active {
   background: rgba(255, 51, 68, 0.22);
   border-color: #ff3344;
   color: #ff5566;
-  box-shadow: 0 0 10px rgba(255, 51, 68, 0.4);
+  box-shadow: 0 0 12px rgba(255, 51, 68, 0.45);
 }
 
-.btn-hud-route {
-  border-color: rgba(0, 229, 255, 0.35);
-  color: #00e5ff;
+#btn-tool-wall:hover:not(.active) {
+  border-color: rgba(255, 51, 68, 0.4);
 }
 
-.btn-hud-route.is-routed {
-  background: rgba(0, 229, 255, 0.2);
-  border-color: #00e5ff;
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.35);
+#btn-tool-route.active {
+  background: rgba(255, 230, 0, 0.18);
+  border-color: #ffe600;
+  color: #ffe600;
+  box-shadow: 0 0 12px rgba(255, 230, 0, 0.45);
 }
 
-.btn-hud-clear {
-  background: rgba(255, 60, 60, 0.15);
-  border-color: rgba(255, 60, 60, 0.5);
-  color: #ff5566;
+#btn-tool-route:hover:not(.active) {
+  border-color: rgba(255, 230, 0, 0.4);
+}
+
+#btn-tool-route.active #tool-route-arrow {
+  display: inline-block;
+  transform: scale(1.15);
+  transition: transform 0.15s ease;
 }
 
 .btn-hud-clear:hover {

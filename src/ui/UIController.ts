@@ -8,6 +8,25 @@ import { TutorialModal } from './TutorialModal';
 import { getLocale, setLocale, t, formatString, Locale } from '../i18n/translations';
 
 export type CellTool = 'ENABLE' | 'DISABLE' | 'DEAD';
+export type EditorTool = 'BEAT' | 'WALL' | 'DIRECTION';
+
+const STAMP_DIRECTIONS: ModifierType[] = ['DIR_TR', 'DIR_R', 'DIR_BR', 'DIR_BL', 'DIR_L', 'DIR_TL'];
+
+const DIR_ARROWS: Record<string, string> = {
+  'DIR_TL': '↖',
+  'DIR_TR': '↗',
+  'DIR_L': '←',
+  'DIR_R': '→',
+  'DIR_BL': '↙',
+  'DIR_BR': '↘',
+  'DIR_0': '→',
+  'DIR_1': '↘',
+  'DIR_2': '↙',
+  'DIR_3': '←',
+  'DIR_4': '↖',
+  'DIR_5': '↗',
+  'NONE': '•',
+};
 
 export class UIController {
   private currentProjectName: string = '';
@@ -47,9 +66,20 @@ export class UIController {
   private fileImportProject = document.getElementById('file-import-project') as HTMLInputElement | null;
   private savedProjectsList = document.getElementById('saved-projects-list') as HTMLDivElement | null;
 
-  // Selected Cell & Routing Elements
-  private btnToggleWall = document.getElementById('btn-toggle-wall') as HTMLButtonElement | null;
-  private btnOpenRoute = document.getElementById('btn-open-route') as HTMLButtonElement | null;
+  // Tool Palette Elements
+  private btnToolBeat = document.getElementById('btn-tool-beat') as HTMLButtonElement | null;
+  private btnToolWall = document.getElementById('btn-tool-wall') as HTMLButtonElement | null;
+  private btnToolRoute = document.getElementById('btn-tool-route') as HTMLButtonElement | null;
+  private toolBeatText = document.getElementById('tool-beat-text') as HTMLSpanElement | null;
+  private toolWallText = document.getElementById('tool-wall-text') as HTMLSpanElement | null;
+  private toolRouteText = document.getElementById('tool-route-text') as HTMLSpanElement | null;
+  private toolRouteArrow = document.getElementById('tool-route-arrow') as HTMLSpanElement | null;
+
+  // Active Tool & Stamp State
+  private activeTool: EditorTool = 'BEAT';
+  private currentStampDir: ModifierType = 'DIR_TR';
+
+  // Modal Route & Selected Cell Elements
   private modalRoute = document.getElementById('modal-route') as HTMLDivElement | null;
   private btnCloseRouteModal = document.getElementById('btn-close-route-modal') as HTMLButtonElement | null;
   private btnCloseRoute = document.getElementById('btn-close-route') as HTMLButtonElement | null;
@@ -63,6 +93,8 @@ export class UIController {
   ) {
     this.tutorialModal = new TutorialModal();
     this.initEvents();
+    this.initToolPalette();
+    this.initKeyboardShortcuts();
     this.initProjectControls();
     this.initLanguageAndHelp();
     this.initUrlShare();
@@ -180,15 +212,12 @@ export class UIController {
       }
     });
 
-    // 6. Direct Cell Selection & Editing
+    // 6. Direct Cell Selection & Editing (Tap & Drag with active tool)
     this.hexCanvas.setOnCellAction((action, q, r, _dirIndex, cell) => {
       if (action === 'TAP_OUTSIDE') {
         this.selectedCoords = null;
         this.hexCanvas.setSelectedCell(0, null);
-        if (!this.audioEngine.getIsPlaying()) {
-          this.cellInfo.textContent = t('tapCellHint');
-        }
-        this.updateSelectedCellHud();
+        this.updateToolHint();
         return;
       }
 
@@ -196,26 +225,28 @@ export class UIController {
 
       const isCenter = q === 0 && r === 0;
       if (isCenter) {
-        this.selectedCoords = null;
-        this.hexCanvas.setSelectedCell(0, null);
-        this.cellInfo.textContent = t('centerCore');
-        this.updateSelectedCellHud();
+        if (action === 'TAP') {
+          this.selectedCoords = null;
+          this.hexCanvas.setSelectedCell(0, null);
+          this.cellInfo.textContent = t('centerCore');
+        }
         return;
       }
 
       const isDeparture = this.sequencer.isDepartureCell(q, r);
       if (isDeparture) {
-        this.selectedCoords = null;
-        this.hexCanvas.setSelectedCell(q, r);
-        const head = this.sequencer.getDeparturePlayhead(q, r);
-        if (head) {
-          const isActive = this.sequencer.togglePlayhead(head.id);
-          if (isActive) {
-            this.audioEngine.previewSound(head.sound);
+        if (action === 'TAP') {
+          this.selectedCoords = null;
+          this.hexCanvas.setSelectedCell(q, r);
+          const head = this.sequencer.getDeparturePlayhead(q, r);
+          if (head) {
+            const isActive = this.sequencer.togglePlayhead(head.id);
+            if (isActive) {
+              this.audioEngine.previewSound(head.sound);
+            }
+            this.cellInfo.textContent = `${t('headPrefix')} ${head.id} (${head.name}): ${isActive ? t('headActive') : t('headMuted')}`;
           }
-          this.cellInfo.textContent = `${t('headPrefix')} ${head.id} (${head.name}): ${isActive ? t('headActive') : t('headMuted')}`;
         }
-        this.updateSelectedCellHud();
         return;
       }
 
@@ -223,47 +254,95 @@ export class UIController {
       this.selectedCoords = { q, r };
       this.hexCanvas.setSelectedCell(q, r);
 
-      // Tapping cell toggles Beat (Enable <-> Disable)
-      if (cell.isDead) {
-        // If it's a dead wall, tapping selects it so user can click [Unblock]
-        this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('impassableWall')}`;
-      } else if (cell.enabled) {
-        this.sequencer.setCell(q, r, false, false, cell.modifier);
-        this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('beatDisabled')}`;
-      } else {
-        this.sequencer.setCell(q, r, true, false, cell.modifier);
-        this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('beatEnabled')}`;
-        const activeHead = this.sequencer.getPlayheads().find(p => p.active);
-        if (activeHead) {
-          this.audioEngine.previewSound(activeHead.sound, q * 3 + r * 5);
+      if (this.activeTool === 'BEAT') {
+        if (action === 'TAP') {
+          if (cell.isDead) {
+            this.sequencer.setCell(q, r, true, false, 'NONE');
+            this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('beatEnabled')}`;
+            const activeHead = this.sequencer.getPlayheads().find(p => p.active);
+            if (activeHead) {
+              this.audioEngine.previewSound(activeHead.sound, q * 3 + r * 5);
+            }
+          } else if (cell.enabled) {
+            this.sequencer.setCell(q, r, false, false, cell.modifier);
+            this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('beatDisabled')}`;
+          } else {
+            this.sequencer.setCell(q, r, true, false, cell.modifier);
+            this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('beatEnabled')}`;
+            const activeHead = this.sequencer.getPlayheads().find(p => p.active);
+            if (activeHead) {
+              this.audioEngine.previewSound(activeHead.sound, q * 3 + r * 5);
+            }
+          }
+        } else if (action === 'DRAG') {
+          if (cell.isDead || !cell.enabled) {
+            this.sequencer.setCell(q, r, true, false, cell.modifier);
+            this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('beatEnabled')}`;
+            const activeHead = this.sequencer.getPlayheads().find(p => p.active);
+            if (activeHead) {
+              this.audioEngine.previewSound(activeHead.sound, q * 3 + r * 5);
+            }
+          }
+        }
+      } else if (this.activeTool === 'WALL') {
+        if (action === 'TAP') {
+          if (cell.isDead) {
+            this.sequencer.setCell(q, r, false, false, 'NONE');
+            this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('wallRemoved')}`;
+          } else {
+            this.sequencer.setCell(q, r, false, true, 'NONE');
+            this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('wallPlaced')}`;
+          }
+        } else if (action === 'DRAG') {
+          if (!cell.isDead) {
+            this.sequencer.setCell(q, r, false, true, 'NONE');
+            this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('wallPlaced')}`;
+          }
+        }
+      } else if (this.activeTool === 'DIRECTION') {
+        if (action === 'TAP') {
+          if (cell.modifier === this.currentStampDir) {
+            this.sequencer.setCell(q, r, cell.enabled, false, 'NONE');
+            this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('routeCleared')}`;
+          } else {
+            const enabled = cell.isDead ? true : cell.enabled;
+            this.sequencer.setCell(q, r, enabled, false, this.currentStampDir);
+            this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${formatString(t('routeSet'), this.currentStampDir.replace('DIR_', ''))}`;
+          }
+        } else if (action === 'DRAG') {
+          if (cell.modifier !== this.currentStampDir) {
+            const enabled = cell.isDead ? true : cell.enabled;
+            this.sequencer.setCell(q, r, enabled, false, this.currentStampDir);
+            this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${formatString(t('routeSet'), this.currentStampDir.replace('DIR_', ''))}`;
+          }
         }
       }
 
       this.updateSelectedCellHud();
     });
 
-    // Wall Toggle Button in bottom bar
-    this.btnToggleWall?.addEventListener('click', () => {
-      if (!this.selectedCoords) return;
-      const { q, r } = this.selectedCoords;
-      const cell = this.sequencer.getCell(q, r);
-      if (!cell) return;
+    // 7. Sequencer Step Listener
+    this.sequencer.addStepListener((stepIndex: number) => {
+      this.currentStep = stepIndex;
+      this.stepIndicator.textContent = formatString(t('stepPrefix'), stepIndex);
+    });
+  }
 
-      const isNowDead = !cell.isDead;
-      if (isNowDead) {
-        this.sequencer.setCell(q, r, false, true, 'NONE');
-        this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('wallPlaced')}`;
-      } else {
-        this.sequencer.setCell(q, r, false, false, 'NONE');
-        this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('wallRemoved')}`;
-      }
-      this.updateSelectedCellHud();
+  private initToolPalette() {
+    this.btnToolBeat?.addEventListener('click', () => {
+      this.setActiveTool('BEAT');
     });
 
-    // Open Route Modal Button
-    this.btnOpenRoute?.addEventListener('click', () => {
-      if (!this.selectedCoords) return;
-      this.openRouteModal();
+    this.btnToolWall?.addEventListener('click', () => {
+      this.setActiveTool('WALL');
+    });
+
+    this.btnToolRoute?.addEventListener('click', () => {
+      if (this.activeTool === 'DIRECTION') {
+        this.openRouteModal();
+      } else {
+        this.setActiveTool('DIRECTION');
+      }
     });
 
     // Close Route Modal Handlers
@@ -278,46 +357,98 @@ export class UIController {
     const routeOptButtons = document.querySelectorAll('.btn-route-opt');
     routeOptButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
-        if (!this.selectedCoords) return;
         const dir = btn.getAttribute('data-dir') as ModifierType;
-        const { q, r } = this.selectedCoords;
-        const cell = this.sequencer.getCell(q, r);
-        if (!cell) return;
-
-        // If user tapped the currently active direction, toggle it OFF (set to NONE)
-        if (cell.modifier === dir) {
-          this.sequencer.setCell(q, r, cell.enabled, false, 'NONE');
-          this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('routeCleared')}`;
-          this.showToast(formatString(t('routeRemovedToast'), q, r));
-        } else {
-          // Set route modifier (and auto-enable sound if not dead wall)
-          const enabled = cell.isDead ? false : true;
-          this.sequencer.setCell(q, r, enabled, false, dir);
-          this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${formatString(t('routeSet'), dir)}`;
+        if (dir) {
+          this.setStampDirection(dir);
+          if (this.selectedCoords) {
+            const { q, r } = this.selectedCoords;
+            const cell = this.sequencer.getCell(q, r);
+            if (cell && !cell.isDead) {
+              this.sequencer.setCell(q, r, cell.enabled, false, dir);
+              this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${formatString(t('routeSet'), dir.replace('DIR_', ''))}`;
+            }
+          }
+          this.showToast(formatString(t('stampDirChanged'), dir.replace('DIR_', '')));
         }
         this.modalRoute?.classList.add('hidden');
-        this.updateSelectedCellHud();
       });
     });
 
     // Clear Route Button in Modal
     this.btnModalClearRoute?.addEventListener('click', () => {
-      if (!this.selectedCoords) return;
-      const { q, r } = this.selectedCoords;
-      const cell = this.sequencer.getCell(q, r);
-      if (!cell) return;
-
-      this.sequencer.setCell(q, r, cell.enabled, false, 'NONE');
-      this.showToast(formatString(t('routeRemovedToast'), q, r));
-      this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('routeCleared')}`;
+      if (this.selectedCoords) {
+        const { q, r } = this.selectedCoords;
+        const cell = this.sequencer.getCell(q, r);
+        if (cell) {
+          this.sequencer.setCell(q, r, cell.enabled, false, 'NONE');
+          this.showToast(formatString(t('routeRemovedToast'), q, r));
+          this.cellInfo.textContent = `${t('cellPrefix')} (${q}, ${r}) • ${t('routeCleared')}`;
+        }
+      }
       this.modalRoute?.classList.add('hidden');
-      this.updateSelectedCellHud();
     });
+  }
 
-    // 7. Sequencer Step Listener
-    this.sequencer.addStepListener((stepIndex: number) => {
-      this.currentStep = stepIndex;
-      this.stepIndicator.textContent = formatString(t('stepPrefix'), stepIndex);
+  public setActiveTool(tool: EditorTool) {
+    this.activeTool = tool;
+    this.btnToolBeat?.classList.toggle('active', tool === 'BEAT');
+    this.btnToolWall?.classList.toggle('active', tool === 'WALL');
+    this.btnToolRoute?.classList.toggle('active', tool === 'DIRECTION');
+    this.updateToolHint();
+  }
+
+  public setStampDirection(dir: ModifierType) {
+    this.currentStampDir = dir;
+    if (this.toolRouteArrow) {
+      this.toolRouteArrow.textContent = DIR_ARROWS[dir] || '↗';
+    }
+    if (this.activeTool === 'DIRECTION') {
+      this.updateToolHint();
+    }
+  }
+
+  public rotateStampDirection() {
+    const currentIndex = STAMP_DIRECTIONS.indexOf(this.currentStampDir);
+    const nextIndex = (currentIndex + 1) % STAMP_DIRECTIONS.length;
+    const nextDir = STAMP_DIRECTIONS[nextIndex];
+    this.setStampDirection(nextDir);
+    this.setActiveTool('DIRECTION');
+    this.showToast(formatString(t('stampDirChanged'), nextDir.replace('DIR_', '')));
+  }
+
+  private updateToolHint() {
+    if (this.audioEngine.getIsPlaying() && this.selectedCoords) return;
+    if (this.activeTool === 'BEAT') {
+      this.cellInfo.textContent = t('hintBeatTool');
+    } else if (this.activeTool === 'WALL') {
+      this.cellInfo.textContent = t('hintWallTool');
+    } else if (this.activeTool === 'DIRECTION') {
+      const arrow = DIR_ARROWS[this.currentStampDir] || '↗';
+      this.cellInfo.textContent = formatString(t('hintRouteTool'), arrow);
+    }
+  }
+
+  private initKeyboardShortcuts() {
+    window.addEventListener('keydown', (e) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      const isAnyModalOpen = !this.modalSave?.classList.contains('hidden') ||
+                             !this.modalLoad?.classList.contains('hidden') ||
+                             !this.modalRoute?.classList.contains('hidden') ||
+                             this.tutorialModal.isOpen();
+      if (isAnyModalOpen) return;
+
+      const key = e.key.toLowerCase();
+      if (key === '1' || key === 's') {
+        this.setActiveTool('BEAT');
+      } else if (key === '2' || key === 'w' || key === 'm') {
+        this.setActiveTool('WALL');
+      } else if (key === '3' || key === 'd') {
+        this.setActiveTool('DIRECTION');
+      } else if (key === 'r') {
+        this.rotateStampDirection();
+      }
     });
   }
 
@@ -586,77 +717,11 @@ export class UIController {
   }
 
   private updateSelectedCellHud() {
-    if (!this.selectedCoords) {
-      if (this.btnToggleWall) {
-        this.btnToggleWall.disabled = true;
-        this.btnToggleWall.innerHTML = `<span class="btn-hud-icon">🧱</span> <span class="btn-hud-text">${t('btnWall')}</span>`;
-        this.btnToggleWall.title = t('btnWall');
-        this.btnToggleWall.setAttribute('aria-label', t('btnWall'));
-        this.btnToggleWall.classList.remove('is-wall');
-      }
-      if (this.btnOpenRoute) {
-        this.btnOpenRoute.disabled = true;
-        this.btnOpenRoute.innerHTML = `<span class="btn-hud-icon">↗</span> <span class="btn-hud-text">${t('btnRoute')}</span>`;
-        this.btnOpenRoute.title = t('btnRoute');
-        this.btnOpenRoute.setAttribute('aria-label', t('btnRoute'));
-        this.btnOpenRoute.classList.remove('is-routed');
-      }
-      return;
-    }
-
-    const { q, r } = this.selectedCoords;
-    const cell = this.sequencer.getCell(q, r);
-    if (!cell) return;
-
-    if (this.btnToggleWall) {
-      this.btnToggleWall.disabled = false;
-      if (cell.isDead) {
-        this.btnToggleWall.innerHTML = `<span class="btn-hud-icon">⬜</span> <span class="btn-hud-text">${t('btnUnblock')}</span>`;
-        this.btnToggleWall.title = t('btnUnblock');
-        this.btnToggleWall.setAttribute('aria-label', t('btnUnblock'));
-        this.btnToggleWall.classList.add('is-wall');
-      } else {
-        this.btnToggleWall.innerHTML = `<span class="btn-hud-icon">🧱</span> <span class="btn-hud-text">${t('btnWall')}</span>`;
-        this.btnToggleWall.title = t('btnWall');
-        this.btnToggleWall.setAttribute('aria-label', t('btnWall'));
-        this.btnToggleWall.classList.remove('is-wall');
-      }
-    }
-
-    const hasRoute = cell.modifier && cell.modifier !== 'NONE';
-
-    const dirArrowMap: Partial<Record<ModifierType, string>> = {
-      'NONE': '↗',
-      'DIR_TL': '↖',
-      'DIR_TR': '↗',
-      'DIR_L': '←',
-      'DIR_R': '→',
-      'DIR_BL': '↙',
-      'DIR_BR': '↘',
-      'DIR_0': '→',
-      'DIR_1': '↘',
-      'DIR_2': '↙',
-      'DIR_3': '←',
-      'DIR_4': '↖',
-      'DIR_5': '↗',
-    };
-
-    if (this.btnOpenRoute) {
-      this.btnOpenRoute.disabled = cell.isDead;
-      if (hasRoute) {
-        const arrow = dirArrowMap[cell.modifier] || '↗';
-        const shortDir = cell.modifier.replace('DIR_', '');
-        const titleText = formatString(t('btnRouteWithDir'), shortDir);
-        this.btnOpenRoute.innerHTML = `<span class="btn-hud-icon">${arrow}</span> <span class="btn-hud-text">${shortDir}</span>`;
-        this.btnOpenRoute.title = titleText;
-        this.btnOpenRoute.setAttribute('aria-label', titleText);
-        this.btnOpenRoute.classList.add('is-routed');
-      } else {
-        this.btnOpenRoute.innerHTML = `<span class="btn-hud-icon">↗</span> <span class="btn-hud-text">${t('btnRoute')}</span>`;
-        this.btnOpenRoute.title = t('btnRoute');
-        this.btnOpenRoute.setAttribute('aria-label', t('btnRoute'));
-        this.btnOpenRoute.classList.remove('is-routed');
-      }
+    this.btnToolBeat?.classList.toggle('active', this.activeTool === 'BEAT');
+    this.btnToolWall?.classList.toggle('active', this.activeTool === 'WALL');
+    this.btnToolRoute?.classList.toggle('active', this.activeTool === 'DIRECTION');
+    if (this.toolRouteArrow) {
+      this.toolRouteArrow.textContent = DIR_ARROWS[this.currentStampDir] || '↗';
     }
   }
 
@@ -831,10 +896,30 @@ export class UIController {
       btnCloseTut.setAttribute('aria-label', t('closeBtn'));
     }
 
+    // Tool buttons & labels
+    if (this.toolBeatText) this.toolBeatText.textContent = t('toolBeat');
+    if (this.toolWallText) this.toolWallText.textContent = t('toolWall');
+    if (this.toolRouteText) this.toolRouteText.textContent = t('toolRoute');
+    if (this.btnToolBeat) {
+      this.btnToolBeat.title = `${t('toolBeat')} (1)`;
+      this.btnToolBeat.setAttribute('aria-label', t('toolBeat'));
+    }
+    if (this.btnToolWall) {
+      this.btnToolWall.title = `${t('toolWall')} (2)`;
+      this.btnToolWall.setAttribute('aria-label', t('toolWall'));
+    }
+    if (this.btnToolRoute) {
+      this.btnToolRoute.title = `${t('toolRoute')} (3)`;
+      this.btnToolRoute.setAttribute('aria-label', t('toolRoute'));
+    }
+    if (this.toolRouteArrow) {
+      this.toolRouteArrow.textContent = DIR_ARROWS[this.currentStampDir] || '↗';
+    }
+
     // Cell HUD & status
     this.updateSelectedCellHud();
     if (!this.selectedCoords && !isPlaying) {
-      this.cellInfo.textContent = t('tapCellHint');
+      this.updateToolHint();
     }
 
     // Re-render project list if modal is present
@@ -842,16 +927,13 @@ export class UIController {
   }
 
   private openRouteModal() {
-    if (!this.selectedCoords || !this.modalRoute) return;
-    const { q, r } = this.selectedCoords;
-    const cell = this.sequencer.getCell(q, r);
-    if (!cell) return;
+    if (!this.modalRoute) return;
 
-    // Highlight active modifier button in modal
+    // Highlight current stamp direction in modal
     const routeOptButtons = document.querySelectorAll('.btn-route-opt');
     routeOptButtons.forEach((btn) => {
       const dir = btn.getAttribute('data-dir');
-      if (dir === cell.modifier) {
+      if (dir === this.currentStampDir) {
         btn.classList.add('active');
       } else {
         btn.classList.remove('active');
