@@ -54,6 +54,9 @@ export interface Translations {
   gridCleared: string;
   presetLoaded: string;
   projectLoaded: string;
+  exportedInfo: string;
+  importedInfo: string;
+  importError: string;
 
   // Route Modal
   routeModalTitle: string;
@@ -92,6 +95,8 @@ export interface Translations {
 
   // Toast Notifications
   shareCopiedToast: string;
+  shareSuccessToast: string;
+  copyPrompt: string;
   routeRemovedToast: string;
   sharedLoadedToast: string;
 
@@ -135,11 +140,11 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     presetIdm: 'IDM Generative',
 
     tapCellHint: 'Tap cell to toggle beat',
-    btnWall: '🧱 Wall',
-    btnUnblock: '⬜ Unblock',
-    btnRoute: '↗ Route',
-    btnRouteWithDir: '↗ Route (%s)',
-    btnClearRoute: '✕ Clear',
+    btnWall: 'Wall',
+    btnUnblock: 'Unblock',
+    btnRoute: 'Route',
+    btnRouteWithDir: 'Route (%s)',
+    btnClearRoute: 'Clear',
     stepPrefix: 'Step: %s',
 
     cellPrefix: 'Cell',
@@ -158,6 +163,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     gridCleared: 'Grid Cleared',
     presetLoaded: 'Preset: %s',
     projectLoaded: 'Loaded project "%s" • %s BPM',
+    exportedInfo: 'Exported "%s.json"',
+    importedInfo: 'Imported & loaded "%s"',
+    importError: 'Failed to import project: %s',
 
     routeModalTitle: '🧭 Route Direction',
     routeModalDesc: 'Direct playheads entering this cell along a compass path:',
@@ -192,6 +200,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     closeBtn: 'Close',
 
     shareCopiedToast: '🔗 Link copied to clipboard!',
+    shareSuccessToast: 'Project shared successfully!',
+    copyPrompt: 'Copy your HexaBeat project link:',
     routeRemovedToast: 'Route removed from cell (%s, %s)',
     sharedLoadedToast: '🔗 Loaded shared project: "%s"',
 
@@ -232,11 +242,11 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     presetIdm: 'IDM',
 
     tapCellHint: 'Touchez une case pour ajouter un son',
-    btnWall: '🧱 Mur',
-    btnUnblock: '⬜ Débloquer',
-    btnRoute: '↗ Direction',
-    btnRouteWithDir: '↗ Direction (%s)',
-    btnClearRoute: '✕ Effacer',
+    btnWall: 'Mur',
+    btnUnblock: 'Débloquer',
+    btnRoute: 'Direction',
+    btnRouteWithDir: 'Direction : %s',
+    btnClearRoute: 'Effacer',
     stepPrefix: 'Pas : %s',
 
     cellPrefix: 'Case',
@@ -255,6 +265,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     gridCleared: 'Grille effacée',
     presetLoaded: 'Préréglage : %s',
     projectLoaded: 'Projet "%s" • %s BPM',
+    exportedInfo: 'Fichier "%s.json" exporté',
+    importedInfo: 'Projet "%s" importé',
+    importError: 'Échec de l\'import du projet : %s',
 
     routeModalTitle: '🧭 Choisir une direction',
     routeModalDesc: 'Choisissez la direction des têtes sur cette case :',
@@ -289,6 +302,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     closeBtn: 'Fermer',
 
     shareCopiedToast: '🔗 Lien copié !',
+    shareSuccessToast: 'Projet partagé avec succès !',
+    copyPrompt: 'Copiez le lien de votre morceau :',
     routeRemovedToast: 'Direction retirée de la case (%s, %s)',
     sharedLoadedToast: '🔗 Morceau chargé : "%s"',
 

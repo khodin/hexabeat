@@ -362,7 +362,7 @@ export class UIController {
       const project = this.sequencer.createProjectData(name, bpm);
       ProjectStorage.exportToFile(project);
       this.modalSave?.classList.add('hidden');
-      this.cellInfo.textContent = `Exported "${project.name}.json"`;
+      this.cellInfo.textContent = formatString(t('exportedInfo'), project.name);
     });
 
     // Open Load Modal
@@ -412,9 +412,9 @@ export class UIController {
         this.loadProject(saved);
         this.renderSavedProjectsList();
         this.modalLoad?.classList.add('hidden');
-        this.cellInfo.textContent = `Imported & loaded "${saved.name}"`;
+        this.cellInfo.textContent = formatString(t('importedInfo'), saved.name);
       } catch (err: any) {
-        alert(`Failed to import project: ${err.message || 'Invalid format'}`);
+        alert(formatString(t('importError'), err.message || 'Invalid format'));
       } finally {
         if (this.fileImportProject) this.fileImportProject.value = '';
       }
@@ -439,7 +439,7 @@ export class UIController {
           text: `Check out my HexaBeat groove: ${project.name} (${project.bpm} BPM)!`,
           url: shareUrl
         });
-        this.showToast('Project shared successfully!');
+        this.showToast(t('shareSuccessToast'));
         return;
       } catch (err: any) {
         if (err.name === 'AbortError') return; // User simply closed the share sheet
@@ -453,10 +453,10 @@ export class UIController {
         this.showToast(t('shareCopiedToast'));
         this.cellInfo.textContent = t('shareCopiedToast');
       } else {
-        prompt('Copy your HexaBeat project link:', shareUrl);
+        prompt(t('copyPrompt'), shareUrl);
       }
     } catch {
-      prompt('Copy your HexaBeat project link:', shareUrl);
+      prompt(t('copyPrompt'), shareUrl);
     }
   }
 
@@ -584,9 +584,26 @@ export class UIController {
 
   private updateSelectedCellHud() {
     if (!this.selectedCoords) {
-      if (this.btnToggleWall) this.btnToggleWall.disabled = true;
-      if (this.btnOpenRoute) this.btnOpenRoute.disabled = true;
-      if (this.btnClearRoute) this.btnClearRoute.classList.add('hidden');
+      if (this.btnToggleWall) {
+        this.btnToggleWall.disabled = true;
+        this.btnToggleWall.textContent = '🧱';
+        this.btnToggleWall.title = t('btnWall');
+        this.btnToggleWall.setAttribute('aria-label', t('btnWall'));
+        this.btnToggleWall.classList.remove('is-wall');
+      }
+      if (this.btnOpenRoute) {
+        this.btnOpenRoute.disabled = true;
+        this.btnOpenRoute.textContent = '↗';
+        this.btnOpenRoute.title = t('btnRoute');
+        this.btnOpenRoute.setAttribute('aria-label', t('btnRoute'));
+        this.btnOpenRoute.classList.remove('is-routed');
+      }
+      if (this.btnClearRoute) {
+        this.btnClearRoute.textContent = '✕';
+        this.btnClearRoute.title = t('btnClearRoute');
+        this.btnClearRoute.setAttribute('aria-label', t('btnClearRoute'));
+        this.btnClearRoute.classList.add('hidden');
+      }
       return;
     }
 
@@ -597,30 +614,58 @@ export class UIController {
     if (this.btnToggleWall) {
       this.btnToggleWall.disabled = false;
       if (cell.isDead) {
-        this.btnToggleWall.textContent = t('btnUnblock');
+        this.btnToggleWall.textContent = '⬜';
+        this.btnToggleWall.title = t('btnUnblock');
+        this.btnToggleWall.setAttribute('aria-label', t('btnUnblock'));
         this.btnToggleWall.classList.add('is-wall');
       } else {
-        this.btnToggleWall.textContent = t('btnWall');
+        this.btnToggleWall.textContent = '🧱';
+        this.btnToggleWall.title = t('btnWall');
+        this.btnToggleWall.setAttribute('aria-label', t('btnWall'));
         this.btnToggleWall.classList.remove('is-wall');
       }
     }
 
     const hasRoute = cell.modifier && cell.modifier !== 'NONE';
 
+    const dirArrowMap: Partial<Record<ModifierType, string>> = {
+      'NONE': '↗',
+      'DIR_TL': '↖',
+      'DIR_TR': '↗',
+      'DIR_L': '←',
+      'DIR_R': '→',
+      'DIR_BL': '↙',
+      'DIR_BR': '↘',
+      'DIR_0': '→',
+      'DIR_1': '↘',
+      'DIR_2': '↙',
+      'DIR_3': '←',
+      'DIR_4': '↖',
+      'DIR_5': '↗',
+    };
+
     if (this.btnOpenRoute) {
       this.btnOpenRoute.disabled = cell.isDead;
       if (hasRoute) {
+        const arrow = dirArrowMap[cell.modifier] || '↗';
         const shortDir = cell.modifier.replace('DIR_', '');
-        this.btnOpenRoute.textContent = formatString(t('btnRouteWithDir'), shortDir);
+        this.btnOpenRoute.textContent = arrow;
+        const titleText = formatString(t('btnRouteWithDir'), shortDir);
+        this.btnOpenRoute.title = titleText;
+        this.btnOpenRoute.setAttribute('aria-label', titleText);
         this.btnOpenRoute.classList.add('is-routed');
       } else {
-        this.btnOpenRoute.textContent = t('btnRoute');
+        this.btnOpenRoute.textContent = '↗';
+        this.btnOpenRoute.title = t('btnRoute');
+        this.btnOpenRoute.setAttribute('aria-label', t('btnRoute'));
         this.btnOpenRoute.classList.remove('is-routed');
       }
     }
 
     if (this.btnClearRoute) {
-      this.btnClearRoute.textContent = t('btnClearRoute');
+      this.btnClearRoute.textContent = '✕';
+      this.btnClearRoute.title = t('btnClearRoute');
+      this.btnClearRoute.setAttribute('aria-label', t('btnClearRoute'));
       if (hasRoute && !cell.isDead) {
         this.btnClearRoute.classList.remove('hidden');
       } else {
@@ -634,26 +679,32 @@ export class UIController {
     if (this.btnPlay) {
       this.btnPlay.textContent = isPlaying ? t('pause') : t('play');
       this.btnPlay.title = isPlaying ? t('pauseTitle') : t('playTitle');
+      this.btnPlay.setAttribute('aria-label', this.btnPlay.title);
     }
     if (this.btnStop) {
       this.btnStop.textContent = t('stop');
       this.btnStop.title = t('stopTitle');
+      this.btnStop.setAttribute('aria-label', this.btnStop.title);
     }
     if (this.btnClear) {
       this.btnClear.textContent = t('clear');
       this.btnClear.title = t('clearTitle');
+      this.btnClear.setAttribute('aria-label', this.btnClear.title);
     }
     if (this.btnShareProject) {
       this.btnShareProject.textContent = t('share');
       this.btnShareProject.title = t('shareTitle');
+      this.btnShareProject.setAttribute('aria-label', this.btnShareProject.title);
     }
     if (this.btnSaveProject) {
       this.btnSaveProject.textContent = t('save');
       this.btnSaveProject.title = t('saveTitle');
+      this.btnSaveProject.setAttribute('aria-label', this.btnSaveProject.title);
     }
     if (this.btnLoadProject) {
       this.btnLoadProject.textContent = t('load');
       this.btnLoadProject.title = t('loadTitle');
+      this.btnLoadProject.setAttribute('aria-label', this.btnLoadProject.title);
     }
 
     const tempoLabel = document.querySelector('.tempo-label');
@@ -661,17 +712,20 @@ export class UIController {
 
     if (this.btnHelp) {
       this.btnHelp.title = t('helpTitle');
+      this.btnHelp.setAttribute('aria-label', t('helpTitle'));
     }
 
     if (this.btnLang) {
       const curLocale = getLocale();
       this.btnLang.textContent = curLocale === 'fr' ? 'EN' : 'FR';
       this.btnLang.title = t('langTitle');
+      this.btnLang.setAttribute('aria-label', t('langTitle'));
     }
 
     const githubBtn = document.querySelector('.github-btn') as HTMLElement | null;
     if (githubBtn) {
       githubBtn.title = t('githubTitle');
+      githubBtn.setAttribute('aria-label', t('githubTitle'));
     }
 
     // Presets dropdown optgroups & items
@@ -700,22 +754,44 @@ export class UIController {
     const nameLabel = document.querySelector('label[for="project-name-input"]');
     if (nameLabel) nameLabel.textContent = t('projectNameLabel');
     if (this.projectNameInput) this.projectNameInput.placeholder = t('projectNamePlaceholder');
-    if (this.btnShareModal) this.btnShareModal.textContent = t('shareLinkBtn');
-    if (this.btnExportJson) this.btnExportJson.textContent = t('exportFileBtn');
-    if (this.btnConfirmSave) this.btnConfirmSave.textContent = t('saveProjectBtn');
+    const tempoSummaryLabel = document.getElementById('save-summary-tempo-label');
+    if (tempoSummaryLabel) tempoSummaryLabel.textContent = t('tempoLabel');
+    const cellsSummaryLabel = document.getElementById('save-summary-cells-label');
+    if (cellsSummaryLabel) cellsSummaryLabel.textContent = t('cellsLabel');
+    if (this.btnShareModal) {
+      this.btnShareModal.textContent = t('shareLinkBtn');
+      this.btnShareModal.title = t('shareLinkBtn');
+      this.btnShareModal.setAttribute('aria-label', t('shareLinkBtn'));
+    }
+    if (this.btnExportJson) {
+      this.btnExportJson.textContent = t('exportFileBtn');
+      this.btnExportJson.title = t('exportFileBtn');
+      this.btnExportJson.setAttribute('aria-label', t('exportFileBtn'));
+    }
+    if (this.btnConfirmSave) {
+      this.btnConfirmSave.textContent = t('saveProjectBtn');
+      this.btnConfirmSave.title = t('saveProjectBtn');
+      this.btnConfirmSave.setAttribute('aria-label', t('saveProjectBtn'));
+    }
+    if (this.btnCloseSaveModal) {
+      this.btnCloseSaveModal.title = t('closeBtn');
+      this.btnCloseSaveModal.setAttribute('aria-label', t('closeBtn'));
+    }
 
     // Load modal labels
     const loadTitle = document.querySelector('#modal-load .modal-title');
     if (loadTitle) loadTitle.textContent = t('loadModalTitle');
     const loadSubtitle = document.querySelector('.load-subtitle');
     if (loadSubtitle) loadSubtitle.textContent = t('savedGrooves');
-    const btnImport = document.querySelector('.btn-import');
-    if (btnImport) {
-      const fileInput = document.getElementById('file-import-project');
-      btnImport.innerHTML = `${t('importFileBtn')} `;
-      if (fileInput) btnImport.appendChild(fileInput);
-    }
+    const importBtnText = document.getElementById('import-btn-text');
+    if (importBtnText) importBtnText.textContent = t('importFileBtn');
+    const btnImportLabel = document.getElementById('btn-import-label');
+    if (btnImportLabel) btnImportLabel.title = t('importFileBtn');
     if (this.btnCloseLoad) this.btnCloseLoad.textContent = t('closeBtn');
+    if (this.btnCloseLoadModal) {
+      this.btnCloseLoadModal.title = t('closeBtn');
+      this.btnCloseLoadModal.setAttribute('aria-label', t('closeBtn'));
+    }
 
     // Route modal labels
     const routeTitle = document.querySelector('#modal-route .modal-title');
@@ -735,10 +811,20 @@ export class UIController {
       const dir = btn.getAttribute('data-dir');
       if (dir && routeDirMap[dir]) {
         btn.innerHTML = `<span class="route-arrow">${routeDirMap[dir].arrow}</span> ${routeDirMap[dir].label}`;
+        btn.setAttribute('title', routeDirMap[dir].label);
+        btn.setAttribute('aria-label', routeDirMap[dir].label);
       }
     });
-    if (this.btnModalClearRoute) this.btnModalClearRoute.textContent = t('removeRoute');
+    if (this.btnModalClearRoute) {
+      this.btnModalClearRoute.textContent = t('removeRoute');
+      this.btnModalClearRoute.title = t('removeRoute');
+      this.btnModalClearRoute.setAttribute('aria-label', t('removeRoute'));
+    }
     if (this.btnCloseRoute) this.btnCloseRoute.textContent = t('done');
+    if (this.btnCloseRouteModal) {
+      this.btnCloseRouteModal.title = t('closeBtn');
+      this.btnCloseRouteModal.setAttribute('aria-label', t('closeBtn'));
+    }
 
     // Tutorial modal header & tabs
     const tutTitle = document.getElementById('tutorial-modal-title');
@@ -753,6 +839,11 @@ export class UIController {
     if (tab3) tab3.textContent = t('tabRouting');
     const tab4 = document.getElementById('tab-4');
     if (tab4) tab4.textContent = t('tabShare');
+    const btnCloseTut = document.getElementById('btn-close-tutorial-modal');
+    if (btnCloseTut) {
+      btnCloseTut.title = t('closeBtn');
+      btnCloseTut.setAttribute('aria-label', t('closeBtn'));
+    }
 
     // Cell HUD & status
     this.updateSelectedCellHud();

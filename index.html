@@ -72,14 +72,14 @@
           <span id="selected-cell-info" class="status-chip">Tap cell to toggle beat</span>
         </div>
         <div id="cell-hud" class="cell-hud">
-          <button id="btn-toggle-wall" class="btn btn-hud" title="Toggle impassable Wall Obstacle">
-            🧱 Wall
+          <button id="btn-toggle-wall" class="btn btn-hud" title="Wall" aria-label="Wall">
+            🧱
           </button>
-          <button id="btn-open-route" class="btn btn-hud btn-hud-route" title="Set Directional Routing">
-            ↗ Route
+          <button id="btn-open-route" class="btn btn-hud btn-hud-route" title="Direction" aria-label="Direction">
+            ↗
           </button>
-          <button id="btn-clear-route" class="btn btn-hud btn-hud-clear hidden" title="Remove routing arrow from cell">
-            ✕ Clear
+          <button id="btn-clear-route" class="btn btn-hud btn-hud-clear hidden" title="Clear Direction" aria-label="Clear Direction">
+            ✕
           </button>
         </div>
         <div class="status-right">
@@ -99,8 +99,8 @@
           <label for="project-name-input" class="modal-label">Project Name</label>
           <input type="text" id="project-name-input" class="modal-input" placeholder="e.g. Cyber Honeycomb" maxlength="32" autocomplete="off" />
           <div class="project-summary-box">
-            <span>Tempo: <strong id="save-summary-bpm">128 BPM</strong></span>
-            <span>Cells: <strong id="save-summary-cells">0 Configured</strong></span>
+            <span><span id="save-summary-tempo-label">Tempo:</span> <strong id="save-summary-bpm">128 BPM</strong></span>
+            <span><span id="save-summary-cells-label">Cells:</span> <strong id="save-summary-cells">0 Configured</strong></span>
           </div>
         </div>
         <div class="modal-footer">
@@ -121,8 +121,8 @@
         <div class="modal-body">
           <div class="load-modal-toolbar">
             <span class="load-subtitle">Saved Grooves</span>
-            <label class="btn btn-import" title="Import a project from a .json file">
-              ⬆ Import File
+            <label class="btn btn-import" id="btn-import-label" title="Import File">
+              <span id="import-btn-text">⬆ Import File</span>
               <input type="file" id="file-import-project" accept=".json,application/json" style="display: none;" />
             </label>
           </div>
