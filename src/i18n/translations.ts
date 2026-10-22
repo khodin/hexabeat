@@ -285,7 +285,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     quest1Goal: 'Kicks: %s/%s',
 
     quest2Title: '2. Echo Bounce',
-    quest2Desc: 'Place obstacle Walls on the 3 crimson cells to seal the corridor and bounce Alpha in a rapid loop.',
+    quest2Desc: 'Select the Wall tool [🧱] below, then place walls on the 3 crimson cells.',
     quest2Goal: 'Bounces: %s/%s',
 
     quest3Title: '3. Infinite Orbit',
@@ -429,7 +429,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     quest1Goal: 'Kicks : %s/%s',
 
     quest2Title: '2. L\'Écho du Rebond',
-    quest2Desc: 'Place des Murs sur les 3 cases rouges pour fermer le couloir et faire rebondir Alpha en boucle rapide.',
+    quest2Desc: 'Sélectionne l\'outil Mur [🧱] en bas, puis pose des murs sur les 3 cases rouges.',
     quest2Goal: 'Rebonds : %s/%s',
 
     quest3Title: '3. L\'Orbite Infinie',

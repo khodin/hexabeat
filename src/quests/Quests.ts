@@ -47,7 +47,7 @@ export const QUESTS: QuestDefinition[] = [
     titleKey: 'quest2Title',
     descKey: 'quest2Desc',
     goalKey: 'quest2Goal',
-    defaultTool: 'WALL',
+    defaultTool: 'BEAT',
     initialBpm: 120,
     initialActivePlayheadIds: [1], // Alpha only
     initialCells: [
