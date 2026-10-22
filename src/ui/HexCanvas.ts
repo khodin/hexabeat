@@ -467,6 +467,39 @@ export class HexCanvas {
     }
     this.ctx.stroke();
     this.ctx.restore();
+
+    // Ghost directional indicator for unfulfilled DIRECTION targets
+    if (target.tool === 'DIRECTION' && !isFulfilled && target.expectedModifier && target.expectedModifier in COMPASS_DIR_MAP) {
+      const dirIndex = COMPASS_DIR_MAP[target.expectedModifier];
+      const angle = HEX_DIRECTIONS[dirIndex].angle;
+      const facetDist = (this.hexSize - 2) * (Math.sqrt(3) / 2);
+
+      this.ctx.save();
+      this.ctx.translate(x, y);
+      this.ctx.rotate(angle);
+      this.ctx.globalAlpha = 0.5 + 0.3 * pulse;
+
+      const tipX = facetDist * 0.72;
+      const tailX = -facetDist * 0.38;
+      const wingY = facetDist * 0.46;
+      const notchX = tailX + facetDist * 0.24;
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(tipX, 0);
+      this.ctx.lineTo(tailX, -wingY);
+      this.ctx.lineTo(notchX, 0);
+      this.ctx.lineTo(tailX, wingY);
+      this.ctx.closePath();
+
+      this.ctx.fillStyle = 'rgba(255, 230, 0, 0.45)';
+      this.ctx.strokeStyle = '#ffe600';
+      this.ctx.lineWidth = 1.4;
+      this.ctx.shadowColor = 'rgba(255, 230, 0, 0.6)';
+      this.ctx.shadowBlur = 8;
+      this.ctx.fill();
+      this.ctx.stroke();
+      this.ctx.restore();
+    }
   }
 
   private drawCellContent(x: number, y: number, cell: Cell, isDead: boolean, isEnabled: boolean, departureHead?: Playhead) {

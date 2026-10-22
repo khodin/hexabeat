@@ -591,15 +591,15 @@ while (q2Kicks < 4 && q2Steps < 20) {
 assert.strictEqual(q2Kicks, 4, 'Quest 2 corridor must produce 4 kicks');
 assert.strictEqual(q2Steps, 7, 'Quest 2 corridor must complete 4 kicks in exactly 7 steps');
 
-// Test Quest 3 orbit loop detection
+// Test Quest 3 orbit loop detection (12-step full ring-2 round)
 let loopStreak = 0;
 const q3Step = (dist) => {
   if (dist === 2) loopStreak++;
   else loopStreak = 0;
-  return loopStreak >= 6;
+  return loopStreak >= 12;
 };
-for (let s = 1; s <= 5; s++) assert.strictEqual(q3Step(2), false);
-assert.strictEqual(q3Step(2), true, 'Quest 3 must complete when 6 consecutive ring-2 steps are sustained');
+for (let s = 1; s <= 11; s++) assert.strictEqual(q3Step(2), false);
+assert.strictEqual(q3Step(2), true, 'Quest 3 must complete when 12 consecutive ring-2 steps (full loop) are sustained');
 
 // Test Quest 4 polyrhythm alternation
 let q4Metrics = { kicks: 0, snares: 0 };

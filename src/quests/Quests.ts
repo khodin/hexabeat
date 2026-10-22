@@ -107,16 +107,18 @@ export const QUESTS: QuestDefinition[] = [
     initialBpm: 120,
     initialActivePlayheadIds: [1], // Alpha only
     initialCells: [
-      // Pre-configured 3 intermediate sides of Ring 2 hexagon orbit
-      { q: 1, r: 1, enabled: false, isDead: false, modifier: 'DIR_BL' },
-      { q: -2, r: 1, enabled: false, isDead: false, modifier: 'DIR_TL' },
-      { q: 1, r: -2, enabled: false, isDead: false, modifier: 'DIR_R' }
+      // Alpha departure pad guides directly to (2, 0)
+      { q: 1, r: 0, enabled: false, isDead: false, modifier: 'DIR_R' },
+      // 3 pre-placed alternating vertices of Ring 2 hexagon orbit:
+      { q: 0, r: 2, enabled: false, isDead: false, modifier: 'DIR_L' },
+      { q: -2, r: 0, enabled: false, isDead: false, modifier: 'DIR_TR' },
+      { q: 2, r: -2, enabled: false, isDead: false, modifier: 'DIR_BR' }
     ],
     targets: [
-      // 3 vertices to complete by player
-      { q: 2, r: 0, tool: 'DIRECTION', expectedModifier: 'DIR_BR' },
-      { q: -1, r: 2, tool: 'DIRECTION', expectedModifier: 'DIR_L' },
-      { q: -1, r: -1, tool: 'DIRECTION', expectedModifier: 'DIR_TR' }
+      // 3 vertices to complete by player to close the full 12-cell ring:
+      { q: 2, r: 0, tool: 'DIRECTION', expectedModifier: 'DIR_BL' },
+      { q: -2, r: 2, tool: 'DIRECTION', expectedModifier: 'DIR_TL' },
+      { q: 0, r: -2, tool: 'DIRECTION', expectedModifier: 'DIR_R' }
     ],
     resetMetrics: (): QuestMetrics => ({
       kicksCount: 0,
@@ -137,10 +139,10 @@ export const QUESTS: QuestDefinition[] = [
           metrics.loopStreak = 0;
         }
       }
-      return metrics.loopStreak >= 6;
+      return metrics.loopStreak >= 12;
     },
     getProgressString: (metrics: QuestMetrics): string => {
-      return formatString(t('quest3Goal'), Math.min(6, metrics.loopStreak));
+      return formatString(t('quest3Goal'), Math.min(12, metrics.loopStreak), 12);
     }
   },
 

@@ -285,12 +285,12 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     quest1Goal: 'First beat: %s/%s',
 
     quest2Title: '2. Echo Bounce',
-    quest2Desc: 'Select the Wall tool [🧱] below, then place walls on the 3 crimson cells.',
+    quest2Desc: 'Select the Wall tool [🧱] below, place the 3 walls on the crimson cells, then press Play ▶ to hear 4 bounces.',
     quest2Goal: 'Bounces: %s/%s',
 
     quest3Title: '3. Infinite Orbit',
-    quest3Desc: 'Stamp directional arrows on the 3 golden cells to lock Alpha into a closed loop.',
-    quest3Goal: 'Orbit loop: %s/6',
+    quest3Desc: 'Route the 3 golden cells with Direction arrows, then press Play ▶ to complete 1 full loop around the center (12 steps).',
+    quest3Goal: 'Full loop: %s/%s steps',
 
     quest4Title: '4. Kick & Snare Duo',
     quest4Desc: "Tap Beta's pink pad at the center to wake it up, and place a snare sound on its path.",
@@ -429,12 +429,12 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     quest1Goal: 'Premier battement : %s/%s',
 
     quest2Title: '2. L\'Écho du Rebond',
-    quest2Desc: 'Sélectionne l\'outil Mur [🧱] en bas, puis pose des murs sur les 3 cases rouges.',
+    quest2Desc: 'Sélectionne l\'outil Mur [🧱] en bas, pose les 3 murs sur les cases rouges, puis appuie sur Lecture ▶ pour valider 4 rebonds.',
     quest2Goal: 'Rebonds : %s/%s',
 
     quest3Title: '3. L\'Orbite Infinie',
-    quest3Desc: 'Applique les flèches de Direction sur les 3 cases dorées pour enfermer Alpha dans une boucle.',
-    quest3Goal: 'Cycle d\'orbite : %s/6',
+    quest3Desc: 'Oriente les 3 cases dorées avec les flèches de Direction, puis appuie sur Lecture ▶ pour qu\'Alpha boucle 1 tour complet (12 pas).',
+    quest3Goal: 'Tour complet : %s/%s pas',
 
     quest4Title: '4. Le Duo Poum-Tchak',
     quest4Desc: 'Touche la baie rose de Beta au centre pour l\'activer, et pose un son sur sa trajectoire.',
