@@ -281,8 +281,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     questStatusCompleted: 'Completed ⭐',
 
     quest1Title: '1. The First Beat',
-    quest1Desc: 'Place a sound on the glowing cell and press Play to hear Alpha kick.',
-    quest1Goal: 'Kicks: %s/%s',
+    quest1Desc: 'Place a sound on the glowing cell and press Play to trigger your first kick.',
+    quest1Goal: 'First beat: %s/%s',
 
     quest2Title: '2. Echo Bounce',
     quest2Desc: 'Select the Wall tool [🧱] below, then place walls on the 3 crimson cells.',
@@ -425,8 +425,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     questStatusCompleted: 'Terminé ⭐',
 
     quest1Title: '1. Le Premier Battement',
-    quest1Desc: 'Place un son sur la case clignotante et appuie sur Play pour entendre le kick d\'Alpha.',
-    quest1Goal: 'Kicks : %s/%s',
+    quest1Desc: 'Place un son sur la case clignotante et appuie sur Lecture ▶ pour déclencher ton premier battement.',
+    quest1Goal: 'Premier battement : %s/%s',
 
     quest2Title: '2. L\'Écho du Rebond',
     quest2Desc: 'Sélectionne l\'outil Mur [🧱] en bas, puis pose des murs sur les 3 cases rouges.',

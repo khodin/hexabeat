@@ -14,7 +14,9 @@ export const QUESTS: QuestDefinition[] = [
     defaultTool: 'BEAT',
     initialBpm: 120,
     initialActivePlayheadIds: [1], // Alpha only
-    initialCells: [],
+    initialCells: [
+      { q: 1, r: 0, enabled: false, isDead: false, modifier: 'DIR_R' }
+    ],
     targets: [
       { q: 2, r: 0, tool: 'BEAT' }
     ],
@@ -31,10 +33,10 @@ export const QUESTS: QuestDefinition[] = [
       if (alphaTrigger) {
         metrics.kicksCount++;
       }
-      return metrics.kicksCount >= 4;
+      return metrics.kicksCount >= 1;
     },
     getProgressString: (metrics: QuestMetrics): string => {
-      return formatString(t('quest1Goal'), Math.min(4, metrics.kicksCount), 4);
+      return formatString(t('quest1Goal'), Math.min(1, metrics.kicksCount), 1);
     }
   },
 
