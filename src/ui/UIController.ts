@@ -122,6 +122,11 @@ export class UIController {
     private hexCanvas: HexCanvas
   ) {
     this.tutorialModal = new TutorialModal();
+    this.tutorialModal.setCallbacks({
+      onOpenAcademy: () => {
+        this.openAcademyModal();
+      }
+    });
     this.questManager = new QuestManager(this.sequencer, this.audioEngine);
     this.initEvents();
     this.initToolPalette();

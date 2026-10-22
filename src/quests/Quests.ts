@@ -113,16 +113,22 @@ export const QUESTS: QuestDefinition[] = [
     initialCells: [
       // Alpha departure pad guides directly to (2, 0)
       { q: 1, r: 0, enabled: false, isDead: false, modifier: 'DIR_R' },
-      // 3 pre-placed alternating vertices of Ring 2 hexagon orbit:
+      // 3 pre-placed alternating sides of the Ring 2 hexagon orbit (2 cells per side):
       { q: 0, r: 2, enabled: false, isDead: false, modifier: 'DIR_L' },
+      { q: -1, r: 2, enabled: false, isDead: false, modifier: 'DIR_L' },
       { q: -2, r: 0, enabled: false, isDead: false, modifier: 'DIR_TR' },
-      { q: 2, r: -2, enabled: false, isDead: false, modifier: 'DIR_BR' }
+      { q: -1, r: -1, enabled: false, isDead: false, modifier: 'DIR_TR' },
+      { q: 2, r: -2, enabled: false, isDead: false, modifier: 'DIR_BR' },
+      { q: 2, r: -1, enabled: false, isDead: false, modifier: 'DIR_BR' }
     ],
     targets: [
-      // 3 vertices to complete by player to close the full 12-cell ring:
+      // 3 link segments (2 cells each) to complete by player to close the full 12-cell ring:
       { q: 2, r: 0, tool: 'DIRECTION', expectedModifier: 'DIR_BL' },
+      { q: 1, r: 1, tool: 'DIRECTION', expectedModifier: 'DIR_BL' },
       { q: -2, r: 2, tool: 'DIRECTION', expectedModifier: 'DIR_TL' },
-      { q: 0, r: -2, tool: 'DIRECTION', expectedModifier: 'DIR_R' }
+      { q: -2, r: 1, tool: 'DIRECTION', expectedModifier: 'DIR_TL' },
+      { q: 0, r: -2, tool: 'DIRECTION', expectedModifier: 'DIR_R' },
+      { q: 1, r: -2, tool: 'DIRECTION', expectedModifier: 'DIR_R' }
     ],
     threeStarsMaxSteps: 14,
     twoStarsMaxSteps: 24,
@@ -169,17 +175,23 @@ export const QUESTS: QuestDefinition[] = [
       { q: 1, r: 0, enabled: false, isDead: false, modifier: 'DIR_R' },
       // Ring 2 hexagon orbit with Kick on (2, 0)
       { q: 2, r: 0, enabled: true, isDead: false, modifier: 'DIR_BL' },
+      { q: 1, r: 1, enabled: false, isDead: false, modifier: 'DIR_BL' },
       // Corner 2 (0, 2) is target for player to place Snare
       { q: 0, r: 2, enabled: false, isDead: false, modifier: 'DIR_L' },
-      // Other corners of Ring 2 to complete continuous dual loop
+      { q: -1, r: 2, enabled: false, isDead: false, modifier: 'DIR_L' },
+      // Other corners & segments of Ring 2 to complete continuous dual loop
       { q: -2, r: 2, enabled: false, isDead: false, modifier: 'DIR_TL' },
+      { q: -2, r: 1, enabled: false, isDead: false, modifier: 'DIR_TL' },
       { q: -2, r: 0, enabled: false, isDead: false, modifier: 'DIR_TR' },
+      { q: -1, r: -1, enabled: false, isDead: false, modifier: 'DIR_TR' },
       { q: 0, r: -2, enabled: false, isDead: false, modifier: 'DIR_R' },
-      { q: 2, r: -2, enabled: false, isDead: false, modifier: 'DIR_BR' }
+      { q: 1, r: -2, enabled: false, isDead: false, modifier: 'DIR_R' },
+      { q: 2, r: -2, enabled: false, isDead: false, modifier: 'DIR_BR' },
+      { q: 2, r: -1, enabled: false, isDead: false, modifier: 'DIR_BR' }
     ],
     targets: [
       { q: 0, r: 1, tool: 'BEAT' }, // Beta launch pad
-      { q: 0, r: 2, tool: 'BEAT' }  // Snare trigger node
+      { q: 0, r: 2, tool: 'BEAT', expectedModifier: 'DIR_L' }  // Snare trigger node
     ],
     threeStarsMaxSteps: 26,
     twoStarsMaxSteps: 42,
