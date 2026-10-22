@@ -113,12 +113,15 @@ export const QUESTS: QuestDefinition[] = [
     initialCells: [
       // Alpha departure pad guides directly to (2, 0)
       { q: 1, r: 0, enabled: false, isDead: false, modifier: 'DIR_R' },
-      // 3 pre-placed alternating sides of the Ring 2 hexagon orbit (2 cells per side):
-      { q: 0, r: 2, enabled: false, isDead: false, modifier: 'DIR_L' },
+      // 6 vertices of Ring 2 orbit pre-loaded with Kick beats:
+      { q: 2, r: 0, enabled: true, isDead: false, modifier: 'NONE' },
+      { q: 0, r: 2, enabled: true, isDead: false, modifier: 'DIR_L' },
       { q: -1, r: 2, enabled: false, isDead: false, modifier: 'DIR_L' },
-      { q: -2, r: 0, enabled: false, isDead: false, modifier: 'DIR_TR' },
+      { q: -2, r: 2, enabled: true, isDead: false, modifier: 'NONE' },
+      { q: -2, r: 0, enabled: true, isDead: false, modifier: 'DIR_TR' },
       { q: -1, r: -1, enabled: false, isDead: false, modifier: 'DIR_TR' },
-      { q: 2, r: -2, enabled: false, isDead: false, modifier: 'DIR_BR' },
+      { q: 0, r: -2, enabled: true, isDead: false, modifier: 'NONE' },
+      { q: 2, r: -2, enabled: true, isDead: false, modifier: 'DIR_BR' },
       { q: 2, r: -1, enabled: false, isDead: false, modifier: 'DIR_BR' }
     ],
     targets: [
@@ -130,8 +133,8 @@ export const QUESTS: QuestDefinition[] = [
       { q: 0, r: -2, tool: 'DIRECTION', expectedModifier: 'DIR_R' },
       { q: 1, r: -2, tool: 'DIRECTION', expectedModifier: 'DIR_R' }
     ],
-    threeStarsMaxSteps: 14,
-    twoStarsMaxSteps: 24,
+    threeStarsMaxSteps: 20,
+    twoStarsMaxSteps: 36,
     resetMetrics: (): QuestMetrics => ({
       kicksCount: 0,
       snaresCount: 0,
