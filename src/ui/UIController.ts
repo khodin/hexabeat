@@ -629,6 +629,9 @@ export class UIController {
         } else {
           this.btnToolWall?.classList.remove('tool-callout');
         }
+        if (quest.id === 'quest-3-infinite-orbit') {
+          this.setStampDirection('DIR_BL');
+        }
         this.hexCanvas.setQuestTargets(quest.targets);
         this.hexCanvas.setSelectedCell(0, null);
         this.selectedCoords = null;

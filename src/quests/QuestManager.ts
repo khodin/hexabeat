@@ -208,8 +208,14 @@ export class QuestManager {
           }
         }
       } else if (initial) {
-        if (cell.enabled !== initial.enabled || cell.isDead !== initial.isDead || cell.modifier !== initial.modifier) {
-          extras++;
+        if (quest.id === 'quest-3-infinite-orbit') {
+          if (cell.isDead !== initial.isDead || cell.modifier !== initial.modifier) {
+            extras++;
+          }
+        } else {
+          if (cell.enabled !== initial.enabled || cell.isDead !== initial.isDead || cell.modifier !== initial.modifier) {
+            extras++;
+          }
         }
       } else {
         const dist = (Math.abs(cell.q) + Math.abs(cell.r) + Math.abs(cell.q + cell.r)) / 2;
@@ -218,8 +224,14 @@ export class QuestManager {
             extras++;
           }
         } else {
-          if (cell.enabled || cell.isDead || (cell.modifier && cell.modifier !== 'NONE')) {
-            extras++;
+          if (quest.id === 'quest-3-infinite-orbit' && dist === 2) {
+            if (cell.isDead || (cell.modifier && cell.modifier !== 'NONE')) {
+              extras++;
+            }
+          } else {
+            if (cell.enabled || cell.isDead || (cell.modifier && cell.modifier !== 'NONE')) {
+              extras++;
+            }
           }
         }
       }

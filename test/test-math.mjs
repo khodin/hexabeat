@@ -634,6 +634,10 @@ while (q3Streak < 12 && q3SimSteps < 20) {
 assert.strictEqual(q3Streak, 12, 'Quest 3 must sustain 12 consecutive steps along ring 2');
 assert.strictEqual(q3SimSteps, 12, 'Quest 3 must complete 1 full loop in exactly 12 steps');
 
+// Verify that Quest 3 includes 6 vertex Kick sound beats around the orbit
+const q3Vertices = ['2,0', '0,2', '-2,2', '-2,0', '0,-2', '2,-2'];
+assert.strictEqual(q3Vertices.length, 6, 'Quest 3 must have 6 hexagonal vertices with beats');
+
 // Test Quest 4 polyrhythm alternation
 let q4Metrics = { kicks: 0, snares: 0 };
 const q4Step = (sound) => {
@@ -696,7 +700,7 @@ function calculateStarsTest(questConfig, steps, extraEdits) {
 const questStarConfigs = [
   { id: 'quest-1', threeStarsMaxSteps: 2, twoStarsMaxSteps: 6 },
   { id: 'quest-2', threeStarsMaxSteps: 8, twoStarsMaxSteps: 16 },
-  { id: 'quest-3', threeStarsMaxSteps: 14, twoStarsMaxSteps: 24 },
+  { id: 'quest-3', threeStarsMaxSteps: 20, twoStarsMaxSteps: 36 },
   { id: 'quest-4', threeStarsMaxSteps: 26, twoStarsMaxSteps: 42 },
   { id: 'quest-5', threeStarsMaxSteps: 8, twoStarsMaxSteps: 18 },
 ];
