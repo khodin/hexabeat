@@ -51,6 +51,7 @@
             <button id="btn-load-project" class="btn btn-icon btn-load" title="Projects Manager" aria-label="Projects Manager">
               📁
             </button>
+            <button id="btn-academy" class="btn btn-icon btn-academy" title="HexaBeat Academy" aria-label="Academy">🎓</button>
             <button id="btn-help" class="btn-help" title="Guide & Tutorial" aria-label="Tutorial">❓</button>
             <button id="btn-lang" class="btn-lang" title="Passer en Français" aria-label="Language Toggle">FR</button>
             <a href="https://github.com/khodin/hexabeat" target="_blank" rel="noopener noreferrer" class="github-btn" title="View Source on GitHub">
@@ -84,6 +85,23 @@
 
       <!-- MAIN HEXAGONAL CANVAS -->
       <main class="canvas-container">
+        <!-- ACTIVE QUEST FLOATING HUD -->
+        <div id="quest-hud" class="quest-hud hidden" role="region" aria-label="Active Quest">
+          <div class="quest-hud-header">
+            <span class="quest-badge" id="quest-badge-text">Quest 1/5</span>
+            <span class="quest-title" id="quest-title-text">The First Beat</span>
+          </div>
+          <div class="quest-hud-body">
+            <p class="quest-desc" id="quest-desc-text">Place a sound on the glowing cell and press Play.</p>
+          </div>
+          <div class="quest-hud-footer">
+            <span class="quest-goal-pill" id="quest-goal-text">Kicks: 0/4</span>
+            <div class="quest-actions">
+              <button id="btn-quest-reset" class="btn btn-sm btn-quest-action" title="Reset Quest">↺</button>
+              <button id="btn-quest-quit" class="btn btn-sm btn-quest-action btn-quest-quit" title="Exit to Studio">✕</button>
+            </div>
+          </div>
+        </div>
         <canvas id="hex-canvas"></canvas>
       </main>
 
@@ -226,6 +244,44 @@
             <button id="btn-tutorial-done" class="btn">Close</button>
             <button id="btn-tutorial-next" class="btn btn-primary">Next →</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACADEMY QUESTS SELECTOR MODAL -->
+    <div id="modal-academy" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-card modal-card-lg">
+        <div class="modal-header">
+          <h3 id="academy-modal-title" class="modal-title">🎓 HexaBeat Academy</h3>
+          <button class="modal-close" id="btn-close-academy-modal" title="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <p id="academy-modal-subtitle" class="modal-desc">Master groove architecture step by step through interactive challenges</p>
+          <div id="academy-quests-list" class="academy-quests-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-close-academy" class="btn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUEST VICTORY CELEBRATION MODAL -->
+    <div id="modal-quest-victory" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-card modal-card-sm modal-card-victory">
+        <div class="modal-header">
+          <h3 id="victory-modal-title" class="modal-title">🎉 Quest Completed!</h3>
+          <button class="modal-close" id="btn-close-victory-modal" title="Close">✕</button>
+        </div>
+        <div class="modal-body victory-body">
+          <div class="victory-stars">⭐⭐⭐</div>
+          <p id="victory-quest-title" class="victory-quest-name">1. The First Beat</p>
+          <p id="victory-modal-subtitle" class="modal-desc">Outstanding! You mastered this technique.</p>
+        </div>
+        <div class="modal-footer victory-footer">
+          <button id="btn-victory-studio" class="btn">Keep Jamming 🎛️</button>
+          <button id="btn-victory-next" class="btn btn-primary">Next Quest ▶</button>
         </div>
       </div>
     </div>
