@@ -437,6 +437,9 @@ export class UIController {
 
   public setActiveTool(tool: EditorTool) {
     this.activeTool = tool;
+    if (tool === 'WALL') {
+      this.btnToolWall?.classList.remove('tool-callout');
+    }
     this.btnToolBeat?.classList.toggle('active', tool === 'BEAT');
     this.btnToolWall?.classList.toggle('active', tool === 'WALL');
     this.btnToolRoute?.classList.toggle('active', tool === 'DIRECTION');
@@ -612,6 +615,11 @@ export class UIController {
       onQuestStarted: (quest: QuestDefinition) => {
         this.questHud?.classList.remove('hidden');
         this.setActiveTool(quest.defaultTool);
+        if (quest.id === 'quest-2-echo-bounce') {
+          this.btnToolWall?.classList.add('tool-callout');
+        } else {
+          this.btnToolWall?.classList.remove('tool-callout');
+        }
         this.hexCanvas.setQuestTargets(quest.targets);
         this.hexCanvas.setSelectedCell(0, null);
         this.selectedCoords = null;
@@ -644,6 +652,7 @@ export class UIController {
       },
 
       onQuestVictory: (quest: QuestDefinition, isLast: boolean) => {
+        this.btnToolWall?.classList.remove('tool-callout');
         this.hexCanvas.setQuestTargets([]);
         if (this.victoryQuestTitle) {
           this.victoryQuestTitle.textContent = `${quest.index}. ${t(quest.titleKey)}`;
@@ -659,6 +668,7 @@ export class UIController {
       },
 
       onQuestExited: () => {
+        this.btnToolWall?.classList.remove('tool-callout');
         this.questHud?.classList.add('hidden');
         this.hexCanvas.setQuestTargets([]);
         this.updateToolHint();
