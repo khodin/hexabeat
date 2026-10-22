@@ -497,6 +497,7 @@ const enKeys = extractKeys(enMatch[1]);
 const frKeys = extractKeys(frMatch[1]);
 
 assert(enKeys.length >= 40, `Expected at least 40 EN keys, found ${enKeys.length}`);
+assert(enKeys.includes('questRetryPromptBtn'), 'questRetryPromptBtn key must exist in translations');
 assert.strictEqual(enKeys.length, frKeys.length, `Key count mismatch between EN (${enKeys.length}) and FR (${frKeys.length})`);
 
 for (const key of enKeys) {

@@ -76,6 +76,7 @@ export class UIController {
   private btnCloseVictoryModal = document.getElementById('btn-close-victory-modal') as HTMLButtonElement | null;
   private btnVictoryStudio = document.getElementById('btn-victory-studio') as HTMLButtonElement | null;
   private btnVictoryNext = document.getElementById('btn-victory-next') as HTMLButtonElement | null;
+  private btnVictoryRetry = document.getElementById('btn-victory-retry') as HTMLButtonElement | null;
   private victoryQuestTitle = document.getElementById('victory-quest-title') as HTMLParagraphElement | null;
   private victoryStars = document.getElementById('victory-stars') as HTMLDivElement | null;
   private victoryModalSubtitle = document.getElementById('victory-modal-subtitle') as HTMLParagraphElement | null;
@@ -680,6 +681,14 @@ export class UIController {
             this.victoryModalSubtitle.textContent = formatString(t('questVictoryStars1'), steps);
           }
         }
+        if (this.btnVictoryRetry) {
+          if (stars < 3) {
+            this.btnVictoryRetry.textContent = t('questRetryPromptBtn');
+            this.btnVictoryRetry.classList.remove('hidden');
+          } else {
+            this.btnVictoryRetry.classList.add('hidden');
+          }
+        }
         if (this.btnVictoryNext) {
           if (isLast) {
             this.btnVictoryNext.textContent = t('questContinueStudioBtn');
@@ -720,6 +729,11 @@ export class UIController {
     // Victory Modal Handlers
     this.btnCloseVictoryModal?.addEventListener('click', () => {
       this.modalQuestVictory?.classList.add('hidden');
+    });
+
+    this.btnVictoryRetry?.addEventListener('click', () => {
+      this.modalQuestVictory?.classList.add('hidden');
+      this.questManager.resetCurrentQuest();
     });
 
     this.btnVictoryStudio?.addEventListener('click', () => {

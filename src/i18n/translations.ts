@@ -134,6 +134,7 @@ export interface Translations {
   questVictoryStars3: string;
   questVictoryStars2: string;
   questVictoryStars1: string;
+  questRetryPromptBtn: string;
   questStarsGoalBadge: string;
   questPlayBtn: string;
   questStatusLocked: string;
@@ -283,9 +284,10 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     questContinueStudioBtn: 'Keep Jamming in Studio 🎛️',
     questVictoryTitle: 'Quest Completed! 🎉',
     questVictorySubtitle: 'Outstanding! You mastered this technique.',
-    questVictoryStars3: 'Flawless! Target reached in %s steps with zero extra cells.',
-    questVictoryStars2: 'Well done! Cleared in %s steps. Can you optimize the path with no extra cells?',
-    questVictoryStars1: 'Completed in %s steps! Try a more direct path and remove unnecessary cells.',
+    questVictoryStars3: 'Flawless! Target reached in %s steps with zero extra cells. ⭐⭐⭐',
+    questVictoryStars2: 'Well done! Cleared in %s steps. Retry to earn 3 stars with no extra cells! ⭐⭐',
+    questVictoryStars1: 'Completed in %s steps! Retry with a more direct path to unlock 3 stars! ⭐',
+    questRetryPromptBtn: '↺ Retry for 3★',
     questStarsGoalBadge: '3★: ≤%s steps',
     questPlayBtn: '▶ Play',
     questStatusLocked: 'Locked',
@@ -433,9 +435,10 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     questContinueStudioBtn: 'Continuer dans le Studio 🎛️',
     questVictoryTitle: 'Défi Réussi ! 🎉',
     questVictorySubtitle: 'Bravo ! Tu maîtrises cette mécanique.',
-    questVictoryStars3: 'Parfait ! Objectif atteint en %s pas sans case superflue.',
-    questVictoryStars2: 'Bien joué ! Validé en %s pas. Peux-tu optimiser le chemin sans case superflue ?',
-    questVictoryStars1: 'Réussi en %s pas ! Essaie un chemin plus direct et retire les cases superflues.',
+    questVictoryStars3: 'Parfait ! Objectif atteint en %s pas sans case superflue. ⭐⭐⭐',
+    questVictoryStars2: 'Bien joué ! Validé en %s pas. Réessaie pour obtenir 3 étoiles sans case superflue ! ⭐⭐',
+    questVictoryStars1: 'Réussi en %s pas ! Réessaie avec un chemin plus direct pour décrocher 3 étoiles ! ⭐',
+    questRetryPromptBtn: '↺ Réessayer pour 3★',
     questStarsGoalBadge: '3★ : ≤%s pas',
     questPlayBtn: '▶ Jouer',
     questStatusLocked: 'Verrouillé',
