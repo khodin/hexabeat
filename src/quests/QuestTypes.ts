@@ -45,4 +45,6 @@ export interface QuestDefinition {
   resetMetrics: () => QuestMetrics;
   onStep: (event: QuestStepEvent, metrics: QuestMetrics) => boolean;
   getProgressString: (metrics: QuestMetrics) => string;
+  threeStarsMaxSteps: number;
+  twoStarsMaxSteps: number;
 }

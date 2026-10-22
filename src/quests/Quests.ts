@@ -20,6 +20,8 @@ export const QUESTS: QuestDefinition[] = [
     targets: [
       { q: 2, r: 0, tool: 'BEAT' }
     ],
+    threeStarsMaxSteps: 2,
+    twoStarsMaxSteps: 6,
     resetMetrics: (): QuestMetrics => ({
       kicksCount: 0,
       snaresCount: 0,
@@ -65,6 +67,8 @@ export const QUESTS: QuestDefinition[] = [
       { q: 4, r: 0, tool: 'WALL' },
       { q: 3, r: 1, tool: 'WALL' }
     ],
+    threeStarsMaxSteps: 8,
+    twoStarsMaxSteps: 16,
     resetMetrics: (): QuestMetrics => ({
       kicksCount: 0,
       snaresCount: 0,
@@ -120,6 +124,8 @@ export const QUESTS: QuestDefinition[] = [
       { q: -2, r: 2, tool: 'DIRECTION', expectedModifier: 'DIR_TL' },
       { q: 0, r: -2, tool: 'DIRECTION', expectedModifier: 'DIR_R' }
     ],
+    threeStarsMaxSteps: 14,
+    twoStarsMaxSteps: 24,
     resetMetrics: (): QuestMetrics => ({
       kicksCount: 0,
       snaresCount: 0,
@@ -175,6 +181,8 @@ export const QUESTS: QuestDefinition[] = [
       { q: 0, r: 1, tool: 'BEAT' }, // Beta launch pad
       { q: 0, r: 2, tool: 'BEAT' }  // Snare trigger node
     ],
+    threeStarsMaxSteps: 26,
+    twoStarsMaxSteps: 42,
     resetMetrics: (): QuestMetrics => ({
       kicksCount: 0,
       snaresCount: 0,
@@ -213,12 +221,24 @@ export const QUESTS: QuestDefinition[] = [
     defaultTool: 'BEAT',
     initialBpm: 128,
     initialActivePlayheadIds: [6], // Zeta (Synth) active
-    initialCells: [],
-    targets: [
-      { q: 2, r: -2, tool: 'BEAT' }, // Frequency Sol 3
-      { q: 3, r: -2, tool: 'BEAT' }, // Frequency Do 3
-      { q: 3, r: -3, tool: 'BEAT' }  // Frequency Do 4
+    initialCells: [
+      // 8 walls surrounding the 3 melodic target cells to form the chamber
+      { q: 2, r: -1, enabled: false, isDead: true, modifier: 'NONE' },
+      { q: 3, r: -1, enabled: false, isDead: true, modifier: 'NONE' },
+      { q: 4, r: -2, enabled: false, isDead: true, modifier: 'NONE' },
+      { q: 4, r: -3, enabled: false, isDead: true, modifier: 'NONE' },
+      { q: 4, r: -4, enabled: false, isDead: true, modifier: 'NONE' },
+      { q: 3, r: -4, enabled: false, isDead: true, modifier: 'NONE' },
+      { q: 2, r: -3, enabled: false, isDead: true, modifier: 'NONE' },
+      { q: 1, r: -2, enabled: false, isDead: true, modifier: 'NONE' }
     ],
+    targets: [
+      { q: 2, r: -2, tool: 'BEAT' }, // Frequency Sol 3 (index 4)
+      { q: 3, r: -2, tool: 'BEAT' }, // Frequency Do 3 (index 1)
+      { q: 3, r: -3, tool: 'BEAT' }  // Frequency Do 4 (index 6)
+    ],
+    threeStarsMaxSteps: 8,
+    twoStarsMaxSteps: 18,
     resetMetrics: (): QuestMetrics => ({
       kicksCount: 0,
       snaresCount: 0,

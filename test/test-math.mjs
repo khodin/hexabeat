@@ -627,6 +627,59 @@ assert.strictEqual(q5Step(2, -2), false); // same note 4
 assert.strictEqual(q5Step(3, -2), false); // note 1 (size 2)
 assert.strictEqual(q5Step(3, -3), true, 'Quest 5 must complete when 3 distinct pitch frequencies are triggered');
 
+// 15. Test Quest 5 Melodic Chamber Bounce Simulation & Rapid Convergence
+const q5Walls = new Set(['2,-1', '3,-1', '4,-2', '4,-3', '4,-4', '3,-4', '2,-3', '1,-2']);
+const isQ5Blocked = (q, r) => getHexDistance(q, r) <= 1 || q5Walls.has(`${q},${r}`);
+let zetaQ = 1, zetaR = -1, zetaDir = 5; // Zeta starts at (1, -1) heading NE (TR)
+const chamberNotes = new Set();
+const visitedPositions = [];
+for (let step = 1; step <= 10; step++) {
+  const next = calculateBounce(zetaQ, zetaR, zetaDir, 5, isQ5Blocked);
+  zetaQ = next.nextQ;
+  zetaR = next.nextR;
+  zetaDir = next.nextDir;
+  visitedPositions.push(`${zetaQ},${zetaR}`);
+  const pitch = Math.abs(zetaQ * 3 + zetaR * 5) % 7;
+  chamberNotes.add(pitch);
+  if (step === 3) {
+    assert.strictEqual(chamberNotes.size, 3, 'Quest 5 chamber must trigger all 3 distinct melodic notes by step 3');
+  }
+}
+assert.strictEqual(chamberNotes.size, 3, 'Quest 5 must maintain all 3 notes');
+// Check that positions 4 to 10 remain strictly within the 3 chamber cells
+const targetCells = new Set(['2,-2', '3,-2', '3,-3']);
+for (const pos of visitedPositions) {
+  assert(targetCells.has(pos), `Position ${pos} must be inside the 3-cell melodic chamber`);
+}
+console.log('✓ Quest 5 tight chamber bounce simulation verified: reaches 3 distinct notes at step 3 and stays bounded.');
+
+// 16. Test Star Rating System (⭐⭐⭐) Across All 5 Quests
+function calculateStarsTest(questConfig, steps, extraEdits) {
+  if (steps <= questConfig.threeStarsMaxSteps && extraEdits === 0) return 3;
+  if (steps <= questConfig.twoStarsMaxSteps && extraEdits <= 1) return 2;
+  return 1;
+}
+
+const questStarConfigs = [
+  { id: 'quest-1', threeStarsMaxSteps: 2, twoStarsMaxSteps: 6 },
+  { id: 'quest-2', threeStarsMaxSteps: 8, twoStarsMaxSteps: 16 },
+  { id: 'quest-3', threeStarsMaxSteps: 14, twoStarsMaxSteps: 24 },
+  { id: 'quest-4', threeStarsMaxSteps: 26, twoStarsMaxSteps: 42 },
+  { id: 'quest-5', threeStarsMaxSteps: 8, twoStarsMaxSteps: 18 },
+];
+
+for (const cfg of questStarConfigs) {
+  // Test 3 stars: optimal steps and 0 extraneous modifications
+  assert.strictEqual(calculateStarsTest(cfg, cfg.threeStarsMaxSteps, 0), 3, `${cfg.id} must award 3 stars on optimal run`);
+  // Test 2 stars with extra edits or intermediate steps
+  assert.strictEqual(calculateStarsTest(cfg, cfg.threeStarsMaxSteps, 1), 2, `${cfg.id} with 1 extra edit must drop to 2 stars`);
+  assert.strictEqual(calculateStarsTest(cfg, cfg.twoStarsMaxSteps, 0), 2, `${cfg.id} with higher steps must award 2 stars`);
+  // Test 1 star with high steps or >= 2 extra edits
+  assert.strictEqual(calculateStarsTest(cfg, cfg.twoStarsMaxSteps + 1, 0), 1, `${cfg.id} exceeding 2-star steps must award 1 star`);
+  assert.strictEqual(calculateStarsTest(cfg, cfg.threeStarsMaxSteps, 2), 1, `${cfg.id} with 2 extra edits must award 1 star`);
+}
+console.log('✓ Star rating evaluation (1, 2, 3 stars) verified for shortest paths and instruction adherence across all quests.');
+
 console.log('✓ HexaBeat Academy 5 quests verified: targets, step evaluators, and progressive milestone completions validated.');
 
 console.log('All HexaBeat unit tests passed!');

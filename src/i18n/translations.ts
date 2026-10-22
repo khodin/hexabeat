@@ -129,6 +129,10 @@ export interface Translations {
   questContinueStudioBtn: string;
   questVictoryTitle: string;
   questVictorySubtitle: string;
+  questVictoryStars3: string;
+  questVictoryStars2: string;
+  questVictoryStars1: string;
+  questStarsGoalBadge: string;
   questPlayBtn: string;
   questStatusLocked: string;
   questStatusUnlocked: string;
@@ -275,6 +279,10 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     questContinueStudioBtn: 'Keep Jamming in Studio 🎛️',
     questVictoryTitle: 'Quest Completed! 🎉',
     questVictorySubtitle: 'Outstanding! You mastered this technique.',
+    questVictoryStars3: 'Flawless! Target reached in %s steps with zero extra cells.',
+    questVictoryStars2: 'Well done! Cleared in %s steps. Can you optimize the path with no extra cells?',
+    questVictoryStars1: 'Completed in %s steps! Try a more direct path and remove unnecessary cells.',
+    questStarsGoalBadge: '3★: ≤%s steps',
     questPlayBtn: '▶ Play',
     questStatusLocked: 'Locked',
     questStatusUnlocked: 'Ready',
@@ -297,7 +305,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     quest4Goal: 'Kicks: %s/%s • Snares: %s/%s',
 
     quest5Title: '5. Spatial Melody',
-    quest5Desc: "Zeta's pitch depends on cell position (q, r). Place 3 sounds to play a melodic arpeggio.",
+    quest5Desc: 'Place beats on the 3 melodic chamber cells, then press Play ▶ to hear all 3 unique notes.',
     quest5Goal: 'Unique notes: %s/%s'
   },
   fr: {
@@ -419,6 +427,10 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     questContinueStudioBtn: 'Continuer dans le Studio 🎛️',
     questVictoryTitle: 'Défi Réussi ! 🎉',
     questVictorySubtitle: 'Bravo ! Tu maîtrises cette mécanique.',
+    questVictoryStars3: 'Parfait ! Objectif atteint en %s pas sans case superflue.',
+    questVictoryStars2: 'Bien joué ! Validé en %s pas. Peux-tu optimiser le chemin sans case superflue ?',
+    questVictoryStars1: 'Réussi en %s pas ! Essaie un chemin plus direct et retire les cases superflues.',
+    questStarsGoalBadge: '3★ : ≤%s pas',
     questPlayBtn: '▶ Jouer',
     questStatusLocked: 'Verrouillé',
     questStatusUnlocked: 'Disponible',
@@ -441,7 +453,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     quest4Goal: 'Kicks : %s/%s • Snares : %s/%s',
 
     quest5Title: '5. La Mélodie Spatiale',
-    quest5Desc: 'La note de Zeta dépend de la position (q, r). Place 3 sons pour entendre un arpège mélodique.',
+    quest5Desc: 'Pose des sons sur les 3 cases de la chambre mélodique, puis appuie sur Lecture ▶ pour entendre les 3 notes uniques.',
     quest5Goal: 'Notes uniques : %s/%s'
   }
 };
