@@ -430,10 +430,16 @@ export class HexCanvas {
   }
 
   private drawQuestTargetIndicator(x: number, y: number, target: QuestTarget, cell: Cell, now: number) {
+    const isDeparture = this.sequencer.isDepartureCell(cell.q, cell.r);
+    const departureHead = isDeparture ? this.sequencer.getDeparturePlayhead(cell.q, cell.r) : undefined;
+
     let color = '#00ffff';
     let isFulfilled = cell.enabled;
 
-    if (target.tool === 'WALL') {
+    if (departureHead) {
+      color = departureHead.color;
+      isFulfilled = departureHead.active;
+    } else if (target.tool === 'WALL') {
       color = '#ff3344';
       isFulfilled = cell.isDead;
     } else if (target.tool === 'DIRECTION') {

@@ -50,7 +50,7 @@ export const QUESTS: QuestDefinition[] = [
     descKey: 'quest2Desc',
     goalKey: 'quest2Goal',
     defaultTool: 'BEAT',
-    initialBpm: 120,
+    initialBpm: 60,
     initialActivePlayheadIds: [1], // Alpha only
     initialCells: [
       { q: 2, r: 0, enabled: true, isDead: false, modifier: 'NONE' },
@@ -159,13 +159,17 @@ export const QUESTS: QuestDefinition[] = [
     initialBpm: 120,
     initialActivePlayheadIds: [1], // Alpha active, Beta (2) waiting at (0, 1)
     initialCells: [
-      // Alpha loop on Ring 2
-      { q: 2, r: 0, enabled: true, isDead: false, modifier: 'DIR_BR' },
-      { q: 1, r: 1, enabled: false, isDead: false, modifier: 'DIR_BL' },
-      { q: -1, r: 2, enabled: true, isDead: false, modifier: 'DIR_L' },
-      { q: -2, r: 1, enabled: false, isDead: false, modifier: 'DIR_TL' },
-      { q: -1, r: -1, enabled: true, isDead: false, modifier: 'DIR_TR' },
-      { q: 1, r: -2, enabled: false, isDead: false, modifier: 'DIR_R' }
+      // Alpha start route from departure pad
+      { q: 1, r: 0, enabled: false, isDead: false, modifier: 'DIR_R' },
+      // Ring 2 hexagon orbit with Kick on (2, 0)
+      { q: 2, r: 0, enabled: true, isDead: false, modifier: 'DIR_BL' },
+      // Corner 2 (0, 2) is target for player to place Snare
+      { q: 0, r: 2, enabled: false, isDead: false, modifier: 'DIR_L' },
+      // Other corners of Ring 2 to complete continuous dual loop
+      { q: -2, r: 2, enabled: false, isDead: false, modifier: 'DIR_TL' },
+      { q: -2, r: 0, enabled: false, isDead: false, modifier: 'DIR_TR' },
+      { q: 0, r: -2, enabled: false, isDead: false, modifier: 'DIR_R' },
+      { q: 2, r: -2, enabled: false, isDead: false, modifier: 'DIR_BR' }
     ],
     targets: [
       { q: 0, r: 1, tool: 'BEAT' }, // Beta launch pad

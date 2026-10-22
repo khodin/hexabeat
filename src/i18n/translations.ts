@@ -293,7 +293,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     quest3Goal: 'Full loop: %s/%s steps',
 
     quest4Title: '4. Kick & Snare Duo',
-    quest4Desc: "Tap Beta's pink pad at the center to wake it up, and place a snare sound on its path.",
+    quest4Desc: "Tap the pink pad (0, 1) to wake up Beta, place a beat on (0, 2), then press Play ▶ to hear 4 kicks and 4 snares.",
     quest4Goal: 'Kicks: %s/%s • Snares: %s/%s',
 
     quest5Title: '5. Spatial Melody',
@@ -437,7 +437,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     quest3Goal: 'Tour complet : %s/%s pas',
 
     quest4Title: '4. Le Duo Poum-Tchak',
-    quest4Desc: 'Touche la baie rose de Beta au centre pour l\'activer, et pose un son sur sa trajectoire.',
+    quest4Desc: 'Touche la baie rose (0, 1) pour réveiller Beta, pose un son sur (0, 2), puis appuie sur Lecture ▶ pour entendre 4 kicks et 4 snares.',
     quest4Goal: 'Kicks : %s/%s • Snares : %s/%s',
 
     quest5Title: '5. La Mélodie Spatiale',
