@@ -84,6 +84,7 @@ export class QuestManager {
     this.currentMetrics = quest.resetMetrics();
 
     // 1. Stop playback & reset playheads
+    this.audioEngine.stop();
     this.sequencer.stop();
 
     // 2. Clear grid and apply initial quest cells
