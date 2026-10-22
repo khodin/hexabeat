@@ -1,7 +1,7 @@
 import { AudioEngine } from '../audio/AudioEngine';
 import { Sequencer } from '../sequencer/Sequencer';
 import { HexCanvas } from './HexCanvas';
-import { ModifierType, ProjectData } from '../grid/HexTypes';
+import { ModifierType, ProjectData, Preset } from '../grid/HexTypes';
 import { PRESETS } from '../sequencer/Presets';
 import { ProjectStorage } from '../sequencer/ProjectStorage';
 import { TutorialModal } from './TutorialModal';
@@ -30,6 +30,8 @@ const DIR_ARROWS: Record<string, string> = {
 
 export class UIController {
   private currentProjectName: string = '';
+  private currentSharedProject: ProjectData | null = null;
+  private loadedProjectsMap = new Map<string, ProjectData>();
   private currentStep: number = 0;
   private tutorialModal: TutorialModal;
 
@@ -97,17 +99,26 @@ export class UIController {
     this.initKeyboardShortcuts();
     this.initProjectControls();
     this.initLanguageAndHelp();
-    this.initUrlShare();
     this.updateAllTranslations();
     this.updatePresetSelectDropdown();
     this.updateSelectedCellHud();
 
     const initialPreset = PRESETS[0];
     if (initialPreset) {
+      this.currentProjectName = initialPreset.name;
       this.bpmSlider.value = `${initialPreset.bpm}`;
       this.bpmValue.textContent = `${initialPreset.bpm}`;
       this.audioEngine.setBpm(initialPreset.bpm);
+      this.presetSelect.value = initialPreset.id;
     }
+
+    // Load shared project from URL if present (which correctly updates preset dropdown and BPM)
+    this.initUrlShare();
+
+    // Listen to hash changes in case a new link is opened or navigated in the same session
+    window.addEventListener('hashchange', () => {
+      this.initUrlShare();
+    });
 
     if (this.tutorialModal.shouldAutoShow()) {
       setTimeout(() => this.tutorialModal.show(), 400);
@@ -195,7 +206,9 @@ export class UIController {
 
       const selectedId = this.presetSelect.value;
       if (selectedId.startsWith('proj_')) {
-        const project = ProjectStorage.getProject(selectedId);
+        const project = ProjectStorage.getProject(selectedId) ||
+          (this.currentSharedProject?.id === selectedId ? this.currentSharedProject : null) ||
+          this.loadedProjectsMap.get(selectedId);
         if (project) {
           this.loadProject(project);
         }
@@ -203,12 +216,13 @@ export class UIController {
       }
       const preset = PRESETS.find(p => p.id === selectedId);
       if (preset) {
+        this.currentSharedProject = null;
         this.sequencer.loadPreset(preset);
         this.bpmSlider.value = `${preset.bpm}`;
         this.bpmValue.textContent = `${preset.bpm}`;
         this.audioEngine.setBpm(preset.bpm);
         this.currentProjectName = preset.name;
-        this.cellInfo.textContent = formatString(t('presetLoaded'), preset.name);
+        this.cellInfo.textContent = formatString(t('presetLoaded'), this.getLocalizedPresetName(preset.id));
       }
     });
 
@@ -484,6 +498,7 @@ export class UIController {
       const project = this.sequencer.createProjectData(name, bpm);
       const saved = ProjectStorage.saveProject(project);
       this.currentProjectName = saved.name;
+      this.currentSharedProject = null;
       this.updatePresetSelectDropdown(saved.id);
       this.modalSave?.classList.add('hidden');
       this.cellInfo.textContent = formatString(t('projectLoaded'), saved.name, bpm);
@@ -595,12 +610,76 @@ export class UIController {
     }
   }
 
-  private initUrlShare() {
+  private findMatchingPreset(project: ProjectData): Preset | undefined {
+    // 1. Direct ID match
+    let match = PRESETS.find(p => p.id === project.id);
+    if (match) return match;
+
+    // Helper to check if structure matches a preset
+    const matchesStructure = (p: Preset): boolean => {
+      if (p.bpm !== project.bpm) return false;
+
+      if (project.playheads) {
+        const pActiveIds = p.playheads.filter(h => h.active).map(h => h.id).sort();
+        const projActiveIds = project.playheads.filter(h => h.active).map(h => h.id).sort();
+        if (pActiveIds.length !== projActiveIds.length || !pActiveIds.every((id, idx) => id === projActiveIds[idx])) {
+          return false;
+        }
+      }
+
+      const pCells = p.cells.filter(c => c.enabled || c.isDead || (c.modifier && c.modifier !== 'NONE'));
+      const projCells = project.cells.filter(c => c.enabled || c.isDead || (c.modifier && c.modifier !== 'NONE'));
+      if (pCells.length !== projCells.length) return false;
+
+      return pCells.every(pc => {
+        const found = projCells.find(c => c.q === pc.q && c.r === pc.r);
+        if (!found) return false;
+        if (Boolean(found.enabled) !== Boolean(pc.enabled)) return false;
+        if (Boolean(found.isDead) !== Boolean(pc.isDead)) return false;
+        const pMod = pc.modifier || 'NONE';
+        const projMod = found.modifier || 'NONE';
+        return pMod === projMod;
+      });
+    };
+
+    // 2. Structural match
+    const structMatch = PRESETS.find(p => matchesStructure(p));
+    if (structMatch) return structMatch;
+
+    // 3. Name & BPM match
+    const norm = (s: string) => s.trim().toLowerCase();
+    const projName = norm(project.name);
+
+    match = PRESETS.find(p => norm(p.name) === projName || norm(p.id) === projName);
+    if (match && match.bpm === project.bpm) return match;
+
+    if ((projName === 'polyrythmie' || projName === 'hex polyrhythm') && project.bpm === 120) {
+      return PRESETS.find(p => p.id === 'polyrhythm-orbit');
+    }
+    if ((projName === 'idm' || projName === 'idm generative') && project.bpm === 138) {
+      return PRESETS.find(p => p.id === 'idm-generative');
+    }
+
+    return undefined;
+  }
+
+  private getLocalizedPresetName(presetId: string): string {
+    if (presetId === 'polyrhythm-orbit') return t('presetPolyrhythm');
+    if (presetId === 'idm-generative') return t('presetIdm');
+    const preset = PRESETS.find(p => p.id === presetId);
+    return preset ? preset.name : presetId;
+  }
+
+  private initUrlShare(): boolean {
     const sharedProject = ProjectStorage.decodeProjectFromUrl();
     if (sharedProject) {
       this.loadProject(sharedProject);
-      this.showToast(formatString(t('sharedLoadedToast'), sharedProject.name));
+      const matchingPreset = this.findMatchingPreset(sharedProject);
+      const displayName = matchingPreset ? this.getLocalizedPresetName(matchingPreset.id) : sharedProject.name;
+      this.showToast(formatString(t('sharedLoadedToast'), displayName));
+      return true;
     }
+    return false;
   }
 
   private showToast(message: string) {
@@ -630,10 +709,22 @@ export class UIController {
     this.bpmSlider.value = `${project.bpm}`;
     this.bpmValue.textContent = `${project.bpm}`;
     this.audioEngine.setBpm(project.bpm);
-    this.currentProjectName = project.name;
-    this.updatePresetSelectDropdown(project.id);
+
+    const matchingPreset = this.findMatchingPreset(project);
+    if (matchingPreset) {
+      this.currentProjectName = matchingPreset.name;
+      this.currentSharedProject = null;
+      this.updatePresetSelectDropdown(matchingPreset.id);
+      this.cellInfo.textContent = formatString(t('presetLoaded'), this.getLocalizedPresetName(matchingPreset.id));
+    } else {
+      this.currentProjectName = project.name;
+      this.currentSharedProject = project;
+      this.loadedProjectsMap.set(project.id, project);
+      this.updatePresetSelectDropdown(project.id);
+      this.cellInfo.textContent = formatString(t('projectLoaded'), project.name, project.bpm);
+    }
+
     this.modalLoad?.classList.add('hidden');
-    this.cellInfo.textContent = formatString(t('projectLoaded'), project.name, project.bpm);
   }
 
   private renderSavedProjectsList() {
@@ -711,6 +802,13 @@ export class UIController {
       opt.textContent = `★ ${project.name}`;
       this.optgroupSaved?.appendChild(opt);
     });
+
+    if (this.currentSharedProject && !projects.some(p => p.id === this.currentSharedProject!.id)) {
+      const opt = document.createElement('option');
+      opt.value = this.currentSharedProject.id;
+      opt.textContent = `🔗 ${this.currentSharedProject.name}`;
+      this.optgroupSaved.appendChild(opt);
+    }
 
     if (selectedId) {
       this.presetSelect.value = selectedId;
