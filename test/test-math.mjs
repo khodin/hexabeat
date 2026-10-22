@@ -579,6 +579,21 @@ assert.strictEqual(q1Step(true), false);
 assert.strictEqual(q1Step(true), false);
 assert.strictEqual(q1Step(true), true, 'Quest 1 must complete on 4th kick');
 
+// Test Quest 2 corridor bounce simulation
+const q2Walls = new Set(['2,-1', '3,-1', '1,1', '2,1', '4,-1', '4,0', '3,1']);
+const isQ2Blocked = (q, r) => getHexDistance(q, r) <= 1 || q2Walls.has(`${q},${r}`);
+let q2Q = 1, q2R = 0, q2Dir = 0, q2Kicks = 0, q2Steps = 0;
+while (q2Kicks < 4 && q2Steps < 20) {
+  q2Steps++;
+  const res = calculateBounce(q2Q, q2R, q2Dir, 5, isQ2Blocked);
+  q2Q = res.nextQ;
+  q2R = res.nextR;
+  q2Dir = res.nextDir;
+  if (q2Q === 2 && q2R === 0) q2Kicks++;
+}
+assert.strictEqual(q2Kicks, 4, 'Quest 2 corridor must produce 4 kicks');
+assert.strictEqual(q2Steps, 7, 'Quest 2 corridor must complete 4 kicks in exactly 7 steps');
+
 // Test Quest 3 orbit loop detection
 let loopStreak = 0;
 const q3Step = (dist) => {
