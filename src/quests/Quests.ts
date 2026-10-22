@@ -51,10 +51,17 @@ export const QUESTS: QuestDefinition[] = [
     initialBpm: 120,
     initialActivePlayheadIds: [1], // Alpha only
     initialCells: [
-      { q: 2, r: 0, enabled: true, isDead: false, modifier: 'NONE' }
+      { q: 2, r: 0, enabled: true, isDead: false, modifier: 'NONE' },
+      // Guide rails for the bounce corridor:
+      { q: 2, r: -1, enabled: false, isDead: true, modifier: 'NONE' },
+      { q: 3, r: -1, enabled: false, isDead: true, modifier: 'NONE' },
+      { q: 1, r: 1, enabled: false, isDead: true, modifier: 'NONE' },
+      { q: 2, r: 1, enabled: false, isDead: true, modifier: 'NONE' }
     ],
     targets: [
-      { q: 3, r: 0, tool: 'WALL' }
+      { q: 4, r: -1, tool: 'WALL' },
+      { q: 4, r: 0, tool: 'WALL' },
+      { q: 3, r: 1, tool: 'WALL' }
     ],
     resetMetrics: (): QuestMetrics => ({
       kicksCount: 0,
@@ -65,14 +72,14 @@ export const QUESTS: QuestDefinition[] = [
       visitedPositionsHistory: []
     }),
     onStep: (event: QuestStepEvent, metrics: QuestMetrics): boolean => {
-      const alpha = event.playheadPositions.find(p => p.id === 1);
       const alphaTrigger = event.triggeredPlayheads.find(p => p.id === 1 && p.sound === 'KICK');
       if (alphaTrigger) {
         metrics.kicksCount++;
       }
 
-      // Check if alpha hit the wall at (3, 0)
-      if (alpha && alpha.q === 2 && alpha.r === 0 && event.isBlockedAt(3, 0)) {
+      // Check if alpha hit the wall at (4, 0)
+      const alpha = event.playheadPositions.find(p => p.id === 1);
+      if (alpha && alpha.q === 3 && alpha.r === 0 && event.isBlockedAt(4, 0)) {
         metrics.wallBouncesCount++;
       }
 
