@@ -478,8 +478,8 @@ assert(!presetsSrc.includes('acid-honeycomb'), 'Presets must not include acid-ho
 console.log('✓ Presets verified: Only Hex Polyrhythm and IDM Generative are kept.');
 
 // Verify i18n keys
-const enMatch = translationsSrc.match(/en:\s*\{([\s\S]*?)\n\s*\},/);
-const frMatch = translationsSrc.match(/fr:\s*\{([\s\S]*?)\n\s*\}\n\};/);
+const enMatch = translationsSrc.match(/en:\s*\{([\s\S]*?)\r?\n\s*\},/);
+const frMatch = translationsSrc.match(/fr:\s*\{([\s\S]*?)\r?\n\s*\}\r?\n\};/);
 assert(enMatch, 'Must find en translation block');
 assert(frMatch, 'Must find fr translation block');
 
@@ -503,6 +503,62 @@ for (const key of enKeys) {
   assert(frKeys.includes(key), `Missing French translation key: "${key}"`);
 }
 console.log(`✓ i18n verified: ${enKeys.length} keys in English and French 100% matched with zero missing entries.`);
+
+// 13. Test Preset Matching from Shared URLs
+const testPresets = [
+  { id: 'polyrhythm-orbit', name: 'Hex Polyrhythm', bpm: 120 },
+  { id: 'idm-generative', name: 'IDM Generative', bpm: 138 }
+];
+
+function findMatchingPresetTest(project) {
+  let match = testPresets.find(p => p.id === project.id);
+  if (match) return match;
+
+  const norm = (s) => s.trim().toLowerCase();
+  const projName = norm(project.name || '');
+
+  match = testPresets.find(p => norm(p.name) === projName || norm(p.id) === projName);
+  if (match && match.bpm === project.bpm) return match;
+
+  if ((projName === 'polyrythmie' || projName === 'hex polyrhythm') && project.bpm === 120) {
+    return testPresets.find(p => p.id === 'polyrhythm-orbit');
+  }
+  if ((projName === 'idm' || projName === 'idm generative') && project.bpm === 138) {
+    return testPresets.find(p => p.id === 'idm-generative');
+  }
+
+  return undefined;
+}
+
+// Case A: Shared link for Hex Polyrhythm
+const polyUrl = encodeProjectToUrl({ name: 'Hex Polyrhythm', bpm: 120, cells: [], playheads: [] });
+const decodedPoly = decodeProjectFromUrl(polyUrl);
+const matchedPoly = findMatchingPresetTest(decodedPoly);
+assert(matchedPoly, 'Hex Polyrhythm shared link must match polyrhythm-orbit preset');
+assert.strictEqual(matchedPoly.id, 'polyrhythm-orbit');
+
+// Case B: Shared link for IDM Generative
+const idmUrl = encodeProjectToUrl({ name: 'IDM Generative', bpm: 138, cells: [], playheads: [] });
+const decodedIdm = decodeProjectFromUrl(idmUrl);
+const matchedIdm = findMatchingPresetTest(decodedIdm);
+assert(matchedIdm, 'IDM Generative shared link must match idm-generative preset');
+assert.strictEqual(matchedIdm.id, 'idm-generative');
+
+// Case C: Shared link with French translation name (Polyrythmie)
+const polyFrUrl = encodeProjectToUrl({ name: 'Polyrythmie', bpm: 120, cells: [], playheads: [] });
+const decodedPolyFr = decodeProjectFromUrl(polyFrUrl);
+const matchedPolyFr = findMatchingPresetTest(decodedPolyFr);
+assert(matchedPolyFr, 'Polyrythmie French name shared link must match polyrhythm-orbit preset');
+assert.strictEqual(matchedPolyFr.id, 'polyrhythm-orbit');
+
+// Case D: Shared link for custom project
+const customUrl = encodeProjectToUrl({ name: 'Cyber Honeycomb', bpm: 140, cells: [], playheads: [] });
+const decodedCustom = decodeProjectFromUrl(customUrl);
+const matchedCustom = findMatchingPresetTest(decodedCustom);
+assert.strictEqual(matchedCustom, undefined, 'Custom project must not match built-in presets');
+assert.strictEqual(decodedCustom.name, 'Cyber Honeycomb');
+
+console.log('✓ Preset identification from shared URLs verified successfully (Hex Polyrhythm, IDM, French aliases, and custom projects).');
 
 console.log('All HexaBeat unit tests passed!');
 
