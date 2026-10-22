@@ -117,6 +117,8 @@ export interface Translations {
   btnPrev: string;
   btnNext: string;
   btnStart: string;
+  btnPlayDirectly: string;
+  btnLearnAcademy: string;
 
   // Academy & Guided Quests
   btnAcademy: string;
@@ -268,6 +270,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     btnPrev: '← Previous',
     btnNext: 'Next →',
     btnStart: '🚀 Start Jamming!',
+    btnPlayDirectly: '🎛️ Play directly',
+    btnLearnAcademy: '🎓 Learn with Academy',
 
     btnAcademy: 'Academy',
     academyTitle: '🎓 HexaBeat Academy',
@@ -297,7 +301,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     quest2Goal: 'Bounces: %s/%s',
 
     quest3Title: '3. Infinite Orbit',
-    quest3Desc: 'Route the 3 golden cells with Direction arrows, then press Play ▶ to complete 1 full loop around the center (12 steps).',
+    quest3Desc: 'Route the golden cells with Direction arrows to link the orbit, then press Play ▶ to complete 1 full loop (12 steps).',
     quest3Goal: 'Full loop: %s/%s steps',
 
     quest4Title: '4. Kick & Snare Duo',
@@ -416,6 +420,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     btnPrev: '← Précédent',
     btnNext: 'Suivant →',
     btnStart: '🚀 C\'est parti !',
+    btnPlayDirectly: '🎛️ Jouer directement',
+    btnLearnAcademy: '🎓 Apprendre avec l\'Académie',
 
     btnAcademy: 'Académie',
     academyTitle: '🎓 L\'Académie HexaBeat',
@@ -445,7 +451,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     quest2Goal: 'Rebonds : %s/%s',
 
     quest3Title: '3. L\'Orbite Infinie',
-    quest3Desc: 'Oriente les 3 cases dorées avec les flèches de Direction, puis appuie sur Lecture ▶ pour qu\'Alpha boucle 1 tour complet (12 pas).',
+    quest3Desc: 'Oriente les cases dorées avec les flèches de Direction pour l\'orbite, puis appuie sur Lecture ▶ pour boucler 1 tour complet (12 pas).',
     quest3Goal: 'Tour complet : %s/%s pas',
 
     quest4Title: '4. Le Duo Poum-Tchak',

@@ -601,6 +601,38 @@ const q3Step = (dist) => {
 for (let s = 1; s <= 11; s++) assert.strictEqual(q3Step(2), false);
 assert.strictEqual(q3Step(2), true, 'Quest 3 must complete when 12 consecutive ring-2 steps (full loop) are sustained');
 
+// Test Quest 3 full 12-cell orbit trajectory simulation with 6 golden targets placed
+const COMPASS = { DIR_R: 0, DIR_BR: 1, DIR_BL: 2, DIR_L: 3, DIR_TL: 4, DIR_TR: 5 };
+const q3Ring2 = {
+  '1,0': COMPASS.DIR_R,
+  '2,0': COMPASS.DIR_BL,
+  '1,1': COMPASS.DIR_BL,
+  '0,2': COMPASS.DIR_L,
+  '-1,2': COMPASS.DIR_L,
+  '-2,2': COMPASS.DIR_TL,
+  '-2,1': COMPASS.DIR_TL,
+  '-2,0': COMPASS.DIR_TR,
+  '-1,-1': COMPASS.DIR_TR,
+  '0,-2': COMPASS.DIR_R,
+  '1,-2': COMPASS.DIR_R,
+  '2,-2': COMPASS.DIR_BR,
+  '2,-1': COMPASS.DIR_BR,
+};
+let q3SimQ = 1, q3SimR = 0, q3SimDir = 0, q3Streak = 0, q3SimSteps = 0;
+while (q3Streak < 12 && q3SimSteps < 20) {
+  q3SimSteps++;
+  const mod = q3Ring2[`${q3SimQ},${q3SimR}`];
+  if (mod !== undefined) q3SimDir = mod;
+  const off = HEX_DIRECTIONS[q3SimDir];
+  q3SimQ += off.dq;
+  q3SimR += off.dr;
+  const dist = getHexDistance(q3SimQ, q3SimR);
+  if (dist === 2) q3Streak++;
+  else q3Streak = 0;
+}
+assert.strictEqual(q3Streak, 12, 'Quest 3 must sustain 12 consecutive steps along ring 2');
+assert.strictEqual(q3SimSteps, 12, 'Quest 3 must complete 1 full loop in exactly 12 steps');
+
 // Test Quest 4 polyrhythm alternation
 let q4Metrics = { kicks: 0, snares: 0 };
 const q4Step = (sound) => {

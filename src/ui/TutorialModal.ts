@@ -1,13 +1,23 @@
 import { getLocale } from '../i18n/translations';
 
+export interface TutorialCallbacks {
+  onOpenAcademy?: () => void;
+  onPlayDirectly?: () => void;
+}
+
 export class TutorialModal {
   private modal: HTMLDivElement | null;
   private currentSlide: number = 0;
   private readonly totalSlides = 5;
+  private callbacks?: TutorialCallbacks;
 
   constructor() {
     this.modal = document.getElementById('modal-tutorial') as HTMLDivElement | null;
     this.initEvents();
+  }
+
+  public setCallbacks(callbacks: TutorialCallbacks) {
+    this.callbacks = callbacks;
   }
 
   private initEvents() {
@@ -18,7 +28,13 @@ export class TutorialModal {
     const tabs = document.querySelectorAll('.tutorial-tab');
 
     btnClose?.addEventListener('click', () => this.hide());
-    btnDone?.addEventListener('click', () => this.hide());
+
+    btnDone?.addEventListener('click', () => {
+      this.hide();
+      if (this.currentSlide === this.totalSlides - 1) {
+        this.callbacks?.onPlayDirectly?.();
+      }
+    });
 
     btnPrev?.addEventListener('click', () => {
       if (this.currentSlide > 0) {
@@ -31,6 +47,7 @@ export class TutorialModal {
         this.goToSlide(this.currentSlide + 1);
       } else {
         this.hide();
+        this.callbacks?.onOpenAcademy?.();
       }
     });
 
@@ -117,7 +134,7 @@ export class TutorialModal {
 
     if (btnNext) {
       if (this.currentSlide === this.totalSlides - 1) {
-        btnNext.textContent = isFr ? '🚀 C\'est parti !' : '🚀 Start Jamming!';
+        btnNext.textContent = isFr ? '🎓 Apprendre avec l\'Académie' : '🎓 Learn with Academy';
         btnNext.classList.add('btn-primary');
       } else {
         btnNext.textContent = isFr ? 'Suivant →' : 'Next →';
@@ -126,7 +143,11 @@ export class TutorialModal {
     }
 
     if (btnDone) {
-      btnDone.textContent = isFr ? 'Fermer' : 'Close';
+      if (this.currentSlide === this.totalSlides - 1) {
+        btnDone.textContent = isFr ? '🎛️ Jouer directement' : '🎛️ Play directly';
+      } else {
+        btnDone.textContent = isFr ? 'Fermer' : 'Close';
+      }
     }
 
     // Render Slide Content
@@ -162,21 +183,21 @@ export class TutorialModal {
             <div class="tut-icon-hero">⬡</div>
             <h4 class="tut-title">The Hexagonal Sequencer</h4>
             <p class="tut-p">
-              Inspired by <strong>JR Hexatone Pro</strong>, HexaBeat is a rhythm sequencer on a <strong>91-cell</strong> hexagonal grid.
+              Inspired by <strong>JR Hexatone Pro</strong>, HexaBeat is a generative rhythm sequencer on a <strong>91-cell</strong> hexagonal grid.
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🎯</span>
                 <div>
-                  <strong>6 directions</strong>
+                  <strong>6 Directions</strong>
                   <p>Playheads move in 6 directions and bounce off edges.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">⏱</span>
                 <div>
-                  <strong>On tempo (BPM)</strong>
-                  <p>On every beat, active playheads advance by one cell.</p>
+                  <strong>Tempo Locked (BPM)</strong>
+                  <p>On each beat, active playheads advance one cell.</p>
                 </div>
               </div>
             </div>
@@ -185,135 +206,153 @@ export class TutorialModal {
         break;
 
       case 1:
-        // Slide 2: The 6 Playheads & Instruments
+        // Slide 2: Playheads & Instruments
         bodyEl.innerHTML = isFr ? `
           <div class="tut-slide">
-            <h4 class="tut-title">Les 6 têtes & instruments</h4>
+            <h4 class="tut-title">6 Têtes de Lecture & Instruments</h4>
             <p class="tut-p">
-              Les 6 têtes partent du premier cercle autour du centre, chacune avec son son :
+              Le cœur central (0, 0) héberge 6 têtes de lecture autour de lui. Touchez une baie pour l'activer ou la couper :
             </p>
-            <div class="tut-heads-list">
-              <div class="tut-head-row" style="--hcolor: #00ffff">
-                <span class="tut-head-num">1</span>
-                <span class="tut-head-name">Kick</span>
-                <span class="tut-head-desc">Grosse caisse</span>
+            <div class="tut-card-grid">
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #00ffff">⬢</span>
+                <div>
+                  <strong>Alpha (Cyan)</strong>
+                  <p>Grosse caisse (Kick) percutante.</p>
+                </div>
               </div>
-              <div class="tut-head-row" style="--hcolor: #ff007f">
-                <span class="tut-head-num">2</span>
-                <span class="tut-head-name">Snare</span>
-                <span class="tut-head-desc">Caisse claire</span>
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #ff007f">⬢</span>
+                <div>
+                  <strong>Beta (Rose)</strong>
+                  <p>Caisse claire (Snare) claquante.</p>
+                </div>
               </div>
-              <div class="tut-head-row" style="--hcolor: #39ff14">
-                <span class="tut-head-num">3</span>
-                <span class="tut-head-name">Closed Hat</span>
-                <span class="tut-head-desc">Charleston fermé</span>
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #39ff14">⬢</span>
+                <div>
+                  <strong>Gamma (Vert)</strong>
+                  <p>Charleston fermé (Closed Hat).</p>
+                </div>
               </div>
-              <div class="tut-head-row" style="--hcolor: #ffe600">
-                <span class="tut-head-num">4</span>
-                <span class="tut-head-name">Open Hat</span>
-                <span class="tut-head-desc">Charleston ouvert</span>
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #ffe600">⬢</span>
+                <div>
+                  <strong>Delta (Jaune)</strong>
+                  <p>Charleston ouvert (Open Hat).</p>
+                </div>
               </div>
-              <div class="tut-head-row" style="--hcolor: #a855f7">
-                <span class="tut-head-num">5</span>
-                <span class="tut-head-name">Clap</span>
-                <span class="tut-head-desc">Battement de mains</span>
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #a855f7">⬢</span>
+                <div>
+                  <strong>Epsilon (Violet)</strong>
+                  <p>Clap / Percussion.</p>
+                </div>
               </div>
-              <div class="tut-head-row" style="--hcolor: #ff6b2b">
-                <span class="tut-head-num">6</span>
-                <span class="tut-head-name">Synth</span>
-                <span class="tut-head-desc">Synthétiseur mélodique</span>
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #ff6b2b">⬢</span>
+                <div>
+                  <strong>Zeta (Orange)</strong>
+                  <p>Synthétiseur mélodique pentatonique.</p>
+                </div>
               </div>
             </div>
-            <p class="tut-tip">
-              💡 <strong>Astuce :</strong> Touchez les cases 1 à 6 au centre pour activer ou couper une tête.
-            </p>
           </div>
         ` : `
           <div class="tut-slide">
-            <h4 class="tut-title">The 6 Playheads & Sounds</h4>
+            <h4 class="tut-title">6 Playheads & Instruments</h4>
             <p class="tut-p">
-              The 6 playheads start from the first circle around the center, each with its own sound:
+              The core (0, 0) is surrounded by 6 departure bay pads. Tap any pad to arm or mute it:
             </p>
-            <div class="tut-heads-list">
-              <div class="tut-head-row" style="--hcolor: #00ffff">
-                <span class="tut-head-num">1</span>
-                <span class="tut-head-name">Kick</span>
-                <span class="tut-head-desc">Bass drum</span>
+            <div class="tut-card-grid">
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #00ffff">⬢</span>
+                <div>
+                  <strong>Alpha (Cyan)</strong>
+                  <p>Deep electronic Kick drum.</p>
+                </div>
               </div>
-              <div class="tut-head-row" style="--hcolor: #ff007f">
-                <span class="tut-head-num">2</span>
-                <span class="tut-head-name">Snare</span>
-                <span class="tut-head-desc">Snare drum</span>
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #ff007f">⬢</span>
+                <div>
+                  <strong>Beta (Pink)</strong>
+                  <p>Snappy Snare drum.</p>
+                </div>
               </div>
-              <div class="tut-head-row" style="--hcolor: #39ff14">
-                <span class="tut-head-num">3</span>
-                <span class="tut-head-name">Closed Hat</span>
-                <span class="tut-head-desc">Closed hi-hat</span>
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #39ff14">⬢</span>
+                <div>
+                  <strong>Gamma (Green)</strong>
+                  <p>Crisp Closed Hi-Hat.</p>
+                </div>
               </div>
-              <div class="tut-head-row" style="--hcolor: #ffe600">
-                <span class="tut-head-num">4</span>
-                <span class="tut-head-name">Open Hat</span>
-                <span class="tut-head-desc">Open hi-hat</span>
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #ffe600">⬢</span>
+                <div>
+                  <strong>Delta (Yellow)</strong>
+                  <p>Sizzling Open Hi-Hat.</p>
+                </div>
               </div>
-              <div class="tut-head-row" style="--hcolor: #a855f7">
-                <span class="tut-head-num">5</span>
-                <span class="tut-head-name">Clap</span>
-                <span class="tut-head-desc">Handclap</span>
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #a855f7">⬢</span>
+                <div>
+                  <strong>Epsilon (Purple)</strong>
+                  <p>Dynamic Handclap / Percussion.</p>
+                </div>
               </div>
-              <div class="tut-head-row" style="--hcolor: #ff6b2b">
-                <span class="tut-head-num">6</span>
-                <span class="tut-head-name">Synth</span>
-                <span class="tut-head-desc">Melodic synth</span>
+              <div class="tut-badge-card">
+                <span class="tut-badge-icon" style="color: #ff6b2b">⬢</span>
+                <div>
+                  <strong>Zeta (Orange)</strong>
+                  <p>Melodic Pentatonic Synth.</p>
+                </div>
               </div>
             </div>
-            <p class="tut-tip">
-              💡 <strong>Tip:</strong> Tap cells 1 to 6 in the center to enable or mute a playhead.
-            </p>
           </div>
         `;
         break;
 
       case 2:
-        // Slide 3: Beats & Walls
+        // Slide 3: Beats & Obstacle Walls
         bodyEl.innerHTML = isFr ? `
           <div class="tut-slide">
-            <h4 class="tut-title">Outils Sons & Murs</h4>
+            <h4 class="tut-title">Cases Sons & Murs d'Obstacle</h4>
             <p class="tut-p">
-              Utilisez la palette d'outils en bas pour composer sur la grille :
+              Utilisez la palette d'outils en bas pour peindre votre rythme :
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🎵</span>
                 <div>
                   <strong>Outil Son [🎵]</strong>
-                  <p>Touchez ou glissez pour activer ou éteindre des sons sur les cases.</p>
+                  <p>Active une case. Quand une tête la traverse, elle joue son instrument avec flash lumineux.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🧱</span>
                 <div>
                   <strong>Outil Mur [🧱]</strong>
-                  <p>Touchez ou tracez des murs d'obstacles pour faire rebondir les têtes.</p>
+                  <p>Pose un mur d'obstacle infranchissable qui fait rebondir les têtes de lecture.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
-              <strong>Créer des rythmes :</strong>
-              <p>Placez des murs pour créer des boucles fermées et des polyrythmies régulières.</p>
+              <strong>Astuce :</strong>
+              <p>Glissez votre doigt ou la souris pour peindre plusieurs cases en un seul geste continu.</p>
             </div>
           </div>
         ` : `
           <div class="tut-slide">
-            <h4 class="tut-title">Beat & Wall Tools</h4>
+            <h4 class="tut-title">Sound Beats & Obstacle Walls</h4>
             <p class="tut-p">
-              Use the bottom tool palette to compose directly on the grid:
+              Use the bottom toolbar to paint your rhythm layout:
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🎵</span>
                 <div>
                   <strong>Beat Tool [🎵]</strong>
-                  <p>Tap or drag across cells to toggle rhythm notes on or off.</p>
+                  <p>Enables a sound cell. When any playhead hits it, it fires its dedicated sound.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
@@ -325,27 +364,27 @@ export class TutorialModal {
               </div>
             </div>
             <div class="tut-callout">
-              <strong>Create rhythms:</strong>
-              <p>Place walls to create loops and repeatable polyrhythms.</p>
+              <strong>Tip:</strong>
+              <p>Drag your finger or cursor to paint multiple cells in one continuous swipe.</p>
             </div>
           </div>
         `;
         break;
 
       case 3:
-        // Slide 4: Directional Routing (Stamp Tool)
+        // Slide 4: Direction Stamps & Routing
         bodyEl.innerHTML = isFr ? `
           <div class="tut-slide">
             <h4 class="tut-title">Tampon de Direction</h4>
             <p class="tut-p">
-              Par défaut, les têtes se déplacent de façon aléatoire. Vous pouvez forcer leur route :
+              Par défaut, les têtes choisissent une direction aléatoire. Forcez leur trajectoire avec les flèches :
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">↗</span>
                 <div>
-                  <strong>Outil Tampon [↗]</strong>
-                  <p>Chaque case touchée ou tracée reçoit directement la direction sélectionnée.</p>
+                  <strong>Outil Direction [↗]</strong>
+                  <p>Applique la flèche active sur les cases pour guider les têtes dans des boucles précises.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
@@ -392,59 +431,59 @@ export class TutorialModal {
         break;
 
       case 4:
-        // Slide 5: Saving & URL Sharing
+        // Slide 5: Saving, Sharing & Next Steps
         bodyEl.innerHTML = isFr ? `
           <div class="tut-slide">
-            <h4 class="tut-title">Partager & sauvegarder</h4>
+            <h4 class="tut-title">Partager & Jouer</h4>
             <p class="tut-p">
-              Vos morceaux peuvent être partagés par simple lien URL :
+              Vos morceaux peuvent être partagés par simple lien URL ou exportés en fichier <code>.json</code>.
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🔗</span>
                 <div>
-                  <strong>Bouton [🔗]</strong>
-                  <p>Copie le lien du morceau ou ouvre le menu de partage sur mobile.</p>
+                  <strong>Partage Web & Mobile</strong>
+                  <p>Copiez le lien URL du morceau ou sauvegardez-le dans votre navigateur.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
-                <span class="tut-badge-icon">💾</span>
+                <span class="tut-badge-icon">🎓</span>
                 <div>
-                  <strong>Boutons [💾] & [📁]</strong>
-                  <p>Enregistrez vos morceaux dans le navigateur ou exportez-les en fichier <code>.json</code>.</p>
+                  <strong>L'Académie HexaBeat</strong>
+                  <p>5 défis courts guidés pas à pas pour maîtriser chaque outil et gagner 3 étoiles.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
-              <strong>À vous de jouer :</strong>
-              <p>Testez les préréglages (Polyrythmie, IDM) ou créez votre propre rythme.</p>
+              <strong>Prêt à commencer ?</strong>
+              <p>Apprenez pas à pas avec les défis de l'Académie ou commencez à composer directement dans le Studio !</p>
             </div>
           </div>
         ` : `
           <div class="tut-slide">
-            <h4 class="tut-title">Share & Save</h4>
+            <h4 class="tut-title">Share & Play</h4>
             <p class="tut-p">
-              Your tracks can be shared with a simple URL link:
+              Your tracks can be shared with a simple URL link or exported as <code>.json</code> files.
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
                 <span class="tut-badge-icon">🔗</span>
                 <div>
-                  <strong>[🔗] Button</strong>
-                  <p>Copies the track link or opens the share menu on mobile.</p>
+                  <strong>Web & Mobile Sharing</strong>
+                  <p>Copy the track URL or save your creations in your browser storage.</p>
                 </div>
               </div>
               <div class="tut-badge-card">
-                <span class="tut-badge-icon">💾</span>
+                <span class="tut-badge-icon">🎓</span>
                 <div>
-                  <strong>[💾] & [📁] Buttons</strong>
-                  <p>Save tracks in your browser or export them as <code>.json</code> files.</p>
+                  <strong>HexaBeat Academy</strong>
+                  <p>5 bite-sized interactive challenges to master every tool and earn 3 stars.</p>
                 </div>
               </div>
             </div>
             <div class="tut-callout">
-              <strong>Your turn:</strong>
-              <p>Try the presets (Hex Polyrhythm, IDM Generative) or build your own groove.</p>
+              <strong>Ready to roll?</strong>
+              <p>Learn step-by-step with Academy challenges or dive right into the Studio to make music!</p>
             </div>
           </div>
         `;
