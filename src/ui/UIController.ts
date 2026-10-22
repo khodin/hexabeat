@@ -60,6 +60,7 @@ export class UIController {
   private btnAcademy = document.getElementById('btn-academy') as HTMLButtonElement | null;
   private questHud = document.getElementById('quest-hud') as HTMLDivElement | null;
   private questBadgeText = document.getElementById('quest-badge-text') as HTMLSpanElement | null;
+  private questStarsBadge = document.getElementById('quest-stars-badge') as HTMLSpanElement | null;
   private questTitleText = document.getElementById('quest-title-text') as HTMLSpanElement | null;
   private questDescText = document.getElementById('quest-desc-text') as HTMLParagraphElement | null;
   private questGoalText = document.getElementById('quest-goal-text') as HTMLSpanElement | null;
@@ -76,6 +77,8 @@ export class UIController {
   private btnVictoryStudio = document.getElementById('btn-victory-studio') as HTMLButtonElement | null;
   private btnVictoryNext = document.getElementById('btn-victory-next') as HTMLButtonElement | null;
   private victoryQuestTitle = document.getElementById('victory-quest-title') as HTMLParagraphElement | null;
+  private victoryStars = document.getElementById('victory-stars') as HTMLDivElement | null;
+  private victoryModalSubtitle = document.getElementById('victory-modal-subtitle') as HTMLParagraphElement | null;
 
   // Project Save & Load Elements
   private btnSaveProject = document.getElementById('btn-save-project') as HTMLButtonElement | null;
@@ -370,7 +373,7 @@ export class UIController {
     this.sequencer.addStepListener((stepIndex: number) => {
       this.currentStep = stepIndex;
       this.stepIndicator.textContent = formatString(t('stepPrefix'), stepIndex);
-      this.questManager.onSequencerStep();
+      this.questManager.onSequencerStep(stepIndex);
     });
   }
 
@@ -627,6 +630,9 @@ export class UIController {
         if (this.questBadgeText) {
           this.questBadgeText.textContent = formatString(t('questBadge'), quest.index, QUESTS.length);
         }
+        if (this.questStarsBadge) {
+          this.questStarsBadge.textContent = formatString(t('questStarsGoalBadge'), quest.threeStarsMaxSteps);
+        }
         if (this.questTitleText) {
           this.questTitleText.textContent = t(quest.titleKey);
         }
@@ -651,11 +657,23 @@ export class UIController {
         }
       },
 
-      onQuestVictory: (quest: QuestDefinition, isLast: boolean) => {
+      onQuestVictory: (quest: QuestDefinition, isLast: boolean, stars: number, steps: number) => {
         this.btnToolWall?.classList.remove('tool-callout');
         this.hexCanvas.setQuestTargets([]);
         if (this.victoryQuestTitle) {
           this.victoryQuestTitle.textContent = `${quest.index}. ${t(quest.titleKey)}`;
+        }
+        if (this.victoryStars) {
+          this.victoryStars.textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+        }
+        if (this.victoryModalSubtitle) {
+          if (stars === 3) {
+            this.victoryModalSubtitle.textContent = formatString(t('questVictoryStars3'), steps);
+          } else if (stars === 2) {
+            this.victoryModalSubtitle.textContent = formatString(t('questVictoryStars2'), steps);
+          } else {
+            this.victoryModalSubtitle.textContent = formatString(t('questVictoryStars1'), steps);
+          }
         }
         if (this.btnVictoryNext) {
           if (isLast) {
@@ -716,6 +734,7 @@ export class UIController {
 
     QUESTS.forEach((quest, idx) => {
       const isCompleted = this.questManager.isQuestCompleted(quest.id);
+      const stars = this.questManager.getQuestStars(quest.id);
       const isUnlocked = this.questManager.isQuestUnlocked(idx);
 
       const card = document.createElement('div');
@@ -723,7 +742,8 @@ export class UIController {
 
       let statusHtml = '';
       if (isCompleted) {
-        statusHtml = `<span class="academy-quest-status status-completed">${t('questStatusCompleted')}</span>`;
+        const starIcons = '⭐'.repeat(stars || 1);
+        statusHtml = `<span class="academy-quest-status status-completed"><span class="academy-stars">${starIcons}</span>${t('questStatusCompleted')}</span>`;
       } else if (isUnlocked) {
         statusHtml = `<span class="academy-quest-status status-ready">${t('questStatusUnlocked')}</span>`;
       } else {
@@ -1242,6 +1262,7 @@ export class UIController {
     const activeQuest = this.questManager.getActiveQuest();
     if (activeQuest) {
       if (this.questBadgeText) this.questBadgeText.textContent = formatString(t('questBadge'), activeQuest.index, QUESTS.length);
+      if (this.questStarsBadge) this.questStarsBadge.textContent = formatString(t('questStarsGoalBadge'), activeQuest.threeStarsMaxSteps);
       if (this.questTitleText) this.questTitleText.textContent = t(activeQuest.titleKey);
       if (this.questDescText) this.questDescText.textContent = t(activeQuest.descKey);
     }
