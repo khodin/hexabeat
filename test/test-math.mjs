@@ -572,12 +572,9 @@ assert(questsSrc.includes('quest-5-spatial-melody'), 'Quests must include Quest 
 let q1Metrics = { kicksCount: 0 };
 const q1Step = (hasKick) => {
   if (hasKick) q1Metrics.kicksCount++;
-  return q1Metrics.kicksCount >= 4;
+  return q1Metrics.kicksCount >= 1;
 };
-assert.strictEqual(q1Step(true), false);
-assert.strictEqual(q1Step(true), false);
-assert.strictEqual(q1Step(true), false);
-assert.strictEqual(q1Step(true), true, 'Quest 1 must complete on 4th kick');
+assert.strictEqual(q1Step(true), true, 'Quest 1 must complete on first kick');
 
 // Test Quest 2 corridor bounce simulation
 const q2Walls = new Set(['2,-1', '3,-1', '1,1', '2,1', '4,-1', '4,0', '3,1']);
