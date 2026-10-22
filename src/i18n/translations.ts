@@ -117,6 +117,42 @@ export interface Translations {
   btnPrev: string;
   btnNext: string;
   btnStart: string;
+
+  // Academy & Guided Quests
+  btnAcademy: string;
+  academyTitle: string;
+  academySubtitle: string;
+  questBadge: string;
+  questResetBtn: string;
+  questQuitBtn: string;
+  questNextBtn: string;
+  questContinueStudioBtn: string;
+  questVictoryTitle: string;
+  questVictorySubtitle: string;
+  questPlayBtn: string;
+  questStatusLocked: string;
+  questStatusUnlocked: string;
+  questStatusCompleted: string;
+
+  quest1Title: string;
+  quest1Desc: string;
+  quest1Goal: string;
+
+  quest2Title: string;
+  quest2Desc: string;
+  quest2Goal: string;
+
+  quest3Title: string;
+  quest3Desc: string;
+  quest3Goal: string;
+
+  quest4Title: string;
+  quest4Desc: string;
+  quest4Goal: string;
+
+  quest5Title: string;
+  quest5Desc: string;
+  quest5Goal: string;
 }
 
 export const TRANSLATIONS: Record<Locale, Translations> = {
@@ -227,7 +263,42 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     tabShare: '5. Share',
     btnPrev: '← Previous',
     btnNext: 'Next →',
-    btnStart: '🚀 Start Jamming!'
+    btnStart: '🚀 Start Jamming!',
+
+    btnAcademy: 'Academy',
+    academyTitle: '🎓 HexaBeat Academy',
+    academySubtitle: 'Master groove architecture step by step through interactive challenges',
+    questBadge: 'Quest %s/%s',
+    questResetBtn: '↺ Reset',
+    questQuitBtn: '✕ Studio',
+    questNextBtn: 'Next Quest ▶',
+    questContinueStudioBtn: 'Keep Jamming in Studio 🎛️',
+    questVictoryTitle: 'Quest Completed! 🎉',
+    questVictorySubtitle: 'Outstanding! You mastered this technique.',
+    questPlayBtn: '▶ Play',
+    questStatusLocked: 'Locked',
+    questStatusUnlocked: 'Ready',
+    questStatusCompleted: 'Completed ⭐',
+
+    quest1Title: '1. The First Beat',
+    quest1Desc: 'Place a sound on the glowing cell and press Play to hear Alpha kick.',
+    quest1Goal: 'Kicks: %s/%s',
+
+    quest2Title: '2. Echo Bounce',
+    quest2Desc: 'Place an obstacle Wall on the crimson cell to bounce Alpha back and forth.',
+    quest2Goal: 'Bounces: %s/%s',
+
+    quest3Title: '3. Infinite Orbit',
+    quest3Desc: 'Stamp directional arrows on the 3 golden cells to lock Alpha into a closed loop.',
+    quest3Goal: 'Orbit loop: %s/6',
+
+    quest4Title: '4. Kick & Snare Duo',
+    quest4Desc: "Tap Beta's pink pad at the center to wake it up, and place a snare sound on its path.",
+    quest4Goal: 'Kicks: %s/%s • Snares: %s/%s',
+
+    quest5Title: '5. Spatial Melody',
+    quest5Desc: "Zeta's pitch depends on cell position (q, r). Place 3 sounds to play a melodic arpeggio.",
+    quest5Goal: 'Unique notes: %s/%s'
   },
   fr: {
     brandTitle: 'HexaBeat',
@@ -336,7 +407,42 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     tabShare: '5. Partager',
     btnPrev: '← Précédent',
     btnNext: 'Suivant →',
-    btnStart: '🚀 C\'est parti !'
+    btnStart: '🚀 C\'est parti !',
+
+    btnAcademy: 'Académie',
+    academyTitle: '🎓 L\'Académie HexaBeat',
+    academySubtitle: 'Maîtrise l\'architecture du groove pas à pas à travers des défis pratiques',
+    questBadge: 'Défi %s/%s',
+    questResetBtn: '↺ Recommencer',
+    questQuitBtn: '✕ Studio',
+    questNextBtn: 'Défi Suivant ▶',
+    questContinueStudioBtn: 'Continuer dans le Studio 🎛️',
+    questVictoryTitle: 'Défi Réussi ! 🎉',
+    questVictorySubtitle: 'Bravo ! Tu maîtrises cette mécanique.',
+    questPlayBtn: '▶ Jouer',
+    questStatusLocked: 'Verrouillé',
+    questStatusUnlocked: 'Disponible',
+    questStatusCompleted: 'Terminé ⭐',
+
+    quest1Title: '1. Le Premier Battement',
+    quest1Desc: 'Place un son sur la case clignotante et appuie sur Play pour entendre le kick d\'Alpha.',
+    quest1Goal: 'Kicks : %s/%s',
+
+    quest2Title: '2. L\'Écho du Rebond',
+    quest2Desc: 'Place un Mur sur la case rouge pour faire rebondir Alpha en va-et-vient régulier.',
+    quest2Goal: 'Rebonds : %s/%s',
+
+    quest3Title: '3. L\'Orbite Infinie',
+    quest3Desc: 'Applique les flèches de Direction sur les 3 cases dorées pour enfermer Alpha dans une boucle.',
+    quest3Goal: 'Cycle d\'orbite : %s/6',
+
+    quest4Title: '4. Le Duo Poum-Tchak',
+    quest4Desc: 'Touche la baie rose de Beta au centre pour l\'activer, et pose un son sur sa trajectoire.',
+    quest4Goal: 'Kicks : %s/%s • Snares : %s/%s',
+
+    quest5Title: '5. La Mélodie Spatiale',
+    quest5Desc: 'La note de Zeta dépend de la position (q, r). Place 3 sons pour entendre un arpège mélodique.',
+    quest5Goal: 'Notes uniques : %s/%s'
   }
 };
 

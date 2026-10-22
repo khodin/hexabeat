@@ -1,5 +1,6 @@
 import { Sequencer } from '../sequencer/Sequencer';
 import { Cell, Playhead, SoundType, ModifierType } from '../grid/HexTypes';
+import { QuestTarget } from '../quests/QuestTypes';
 import {
   hexToPixel,
   pixelToHex,
@@ -99,6 +100,7 @@ export class HexCanvas {
   private onCellAction: CellActionHandler | null = null;
   private isPointerDown: boolean = false;
   private visitedHexes = new Set<string>();
+  private questTargets: QuestTarget[] = [];
 
   constructor(canvas: HTMLCanvasElement, private sequencer: Sequencer) {
     this.canvas = canvas;
@@ -130,6 +132,10 @@ export class HexCanvas {
 
   public getSelectedCellKey(): string | null {
     return this.selectedCellKey;
+  }
+
+  public setQuestTargets(targets: QuestTarget[]) {
+    this.questTargets = targets;
   }
 
   public resize() {
@@ -415,6 +421,52 @@ export class HexCanvas {
       this.ctx.stroke();
       this.ctx.restore();
     }
+
+    // Quest Target Pulsing Glow Indicator
+    const questTarget = this.questTargets.find(t => t.q === cell.q && t.r === cell.r);
+    if (questTarget) {
+      this.drawQuestTargetIndicator(x, y, questTarget, cell, now);
+    }
+  }
+
+  private drawQuestTargetIndicator(x: number, y: number, target: QuestTarget, cell: Cell, now: number) {
+    let color = '#00ffff';
+    let isFulfilled = cell.enabled;
+
+    if (target.tool === 'WALL') {
+      color = '#ff3344';
+      isFulfilled = cell.isDead;
+    } else if (target.tool === 'DIRECTION') {
+      color = '#ffe600';
+      isFulfilled = target.expectedModifier ? cell.modifier === target.expectedModifier : (cell.modifier && cell.modifier !== 'NONE');
+    }
+
+    const pulse = 0.5 + 0.5 * Math.sin(now * 0.007);
+    const targetRadius = this.hexSize + 3 + pulse * 4;
+
+    this.ctx.save();
+    const vertices = getHexVertices(x, y, targetRadius);
+    this.ctx.beginPath();
+    vertices.forEach((pt, idx) => {
+      if (idx === 0) this.ctx.moveTo(pt.x, pt.y);
+      else this.ctx.lineTo(pt.x, pt.y);
+    });
+    this.ctx.closePath();
+
+    if (isFulfilled) {
+      this.ctx.strokeStyle = 'rgba(57, 255, 20, 0.75)';
+      this.ctx.shadowColor = 'rgba(57, 255, 20, 0.7)';
+      this.ctx.shadowBlur = 10;
+      this.ctx.lineWidth = 2.2;
+    } else {
+      this.ctx.strokeStyle = color;
+      this.ctx.shadowColor = color;
+      this.ctx.shadowBlur = 12 + 8 * pulse;
+      this.ctx.lineWidth = 2.2 + 1.2 * pulse;
+      this.ctx.setLineDash([6, 4]);
+    }
+    this.ctx.stroke();
+    this.ctx.restore();
   }
 
   private drawCellContent(x: number, y: number, cell: Cell, isDead: boolean, isEnabled: boolean, departureHead?: Playhead) {

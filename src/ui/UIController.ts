@@ -6,6 +6,9 @@ import { PRESETS } from '../sequencer/Presets';
 import { ProjectStorage } from '../sequencer/ProjectStorage';
 import { TutorialModal } from './TutorialModal';
 import { getLocale, setLocale, t, formatString, Locale } from '../i18n/translations';
+import { QuestManager } from '../quests/QuestManager';
+import { QUESTS } from '../quests/Quests';
+import { QuestDefinition } from '../quests/QuestTypes';
 
 export type CellTool = 'ENABLE' | 'DISABLE' | 'DEAD';
 export type EditorTool = 'BEAT' | 'WALL' | 'DIRECTION';
@@ -34,6 +37,7 @@ export class UIController {
   private loadedProjectsMap = new Map<string, ProjectData>();
   private currentStep: number = 0;
   private tutorialModal: TutorialModal;
+  private questManager: QuestManager;
 
   // DOM Elements
   private btnHelp = document.getElementById('btn-help') as HTMLButtonElement | null;
@@ -51,6 +55,27 @@ export class UIController {
   private stepIndicator = document.getElementById('step-indicator') as HTMLSpanElement;
   private toast = document.getElementById('toast') as HTMLDivElement | null;
   private toastTimeout: any = null;
+
+  // Academy & Guided Quest Elements
+  private btnAcademy = document.getElementById('btn-academy') as HTMLButtonElement | null;
+  private questHud = document.getElementById('quest-hud') as HTMLDivElement | null;
+  private questBadgeText = document.getElementById('quest-badge-text') as HTMLSpanElement | null;
+  private questTitleText = document.getElementById('quest-title-text') as HTMLSpanElement | null;
+  private questDescText = document.getElementById('quest-desc-text') as HTMLParagraphElement | null;
+  private questGoalText = document.getElementById('quest-goal-text') as HTMLSpanElement | null;
+  private btnQuestReset = document.getElementById('btn-quest-reset') as HTMLButtonElement | null;
+  private btnQuestQuit = document.getElementById('btn-quest-quit') as HTMLButtonElement | null;
+
+  private modalAcademy = document.getElementById('modal-academy') as HTMLDivElement | null;
+  private btnCloseAcademyModal = document.getElementById('btn-close-academy-modal') as HTMLButtonElement | null;
+  private btnCloseAcademy = document.getElementById('btn-close-academy') as HTMLButtonElement | null;
+  private academyQuestsList = document.getElementById('academy-quests-list') as HTMLDivElement | null;
+
+  private modalQuestVictory = document.getElementById('modal-quest-victory') as HTMLDivElement | null;
+  private btnCloseVictoryModal = document.getElementById('btn-close-victory-modal') as HTMLButtonElement | null;
+  private btnVictoryStudio = document.getElementById('btn-victory-studio') as HTMLButtonElement | null;
+  private btnVictoryNext = document.getElementById('btn-victory-next') as HTMLButtonElement | null;
+  private victoryQuestTitle = document.getElementById('victory-quest-title') as HTMLParagraphElement | null;
 
   // Project Save & Load Elements
   private btnSaveProject = document.getElementById('btn-save-project') as HTMLButtonElement | null;
@@ -94,10 +119,12 @@ export class UIController {
     private hexCanvas: HexCanvas
   ) {
     this.tutorialModal = new TutorialModal();
+    this.questManager = new QuestManager(this.sequencer, this.audioEngine);
     this.initEvents();
     this.initToolPalette();
     this.initKeyboardShortcuts();
     this.initProjectControls();
+    this.initQuestControls();
     this.initLanguageAndHelp();
     this.updateAllTranslations();
     this.updatePresetSelectDropdown();
@@ -339,6 +366,7 @@ export class UIController {
     this.sequencer.addStepListener((stepIndex: number) => {
       this.currentStep = stepIndex;
       this.stepIndicator.textContent = formatString(t('stepPrefix'), stepIndex);
+      this.questManager.onSequencerStep();
     });
   }
 
@@ -450,6 +478,8 @@ export class UIController {
       const isAnyModalOpen = !this.modalSave?.classList.contains('hidden') ||
                              !this.modalLoad?.classList.contains('hidden') ||
                              !this.modalRoute?.classList.contains('hidden') ||
+                             !this.modalAcademy?.classList.contains('hidden') ||
+                             !this.modalQuestVictory?.classList.contains('hidden') ||
                              this.tutorialModal.isOpen();
       if (isAnyModalOpen) return;
 
@@ -537,7 +567,7 @@ export class UIController {
     this.btnCloseLoad?.addEventListener('click', closeLoad);
 
     // Close on backdrop click
-    [this.modalSave, this.modalLoad].forEach(modal => {
+    [this.modalSave, this.modalLoad, this.modalAcademy, this.modalQuestVictory].forEach(modal => {
       modal?.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.add('hidden');
       });
@@ -548,6 +578,8 @@ export class UIController {
       if (e.key === 'Escape') {
         this.modalSave?.classList.add('hidden');
         this.modalLoad?.classList.add('hidden');
+        this.modalAcademy?.classList.add('hidden');
+        this.modalQuestVictory?.classList.add('hidden');
       }
     });
 
@@ -569,6 +601,143 @@ export class UIController {
         if (this.fileImportProject) this.fileImportProject.value = '';
       }
     });
+  }
+
+  private initQuestControls() {
+    this.questManager.setCallbacks({
+      onQuestStarted: (quest: QuestDefinition) => {
+        this.questHud?.classList.remove('hidden');
+        this.setActiveTool(quest.defaultTool);
+        this.hexCanvas.setQuestTargets(quest.targets);
+        this.hexCanvas.setSelectedCell(0, null);
+        this.selectedCoords = null;
+
+        if (this.questBadgeText) {
+          this.questBadgeText.textContent = formatString(t('questBadge'), quest.index, QUESTS.length);
+        }
+        if (this.questTitleText) {
+          this.questTitleText.textContent = t(quest.titleKey);
+        }
+        if (this.questDescText) {
+          this.questDescText.textContent = t(quest.descKey);
+        }
+
+        this.bpmSlider.value = `${quest.initialBpm}`;
+        this.bpmValue.textContent = `${quest.initialBpm}`;
+
+        if (!this.audioEngine.getIsPlaying()) {
+          this.audioEngine.start();
+          this.btnPlay.textContent = '⏸';
+          this.btnPlay.title = t('pauseTitle');
+          this.btnPlay.classList.add('is-playing');
+        }
+      },
+
+      onProgressUpdated: (progressText: string) => {
+        if (this.questGoalText) {
+          this.questGoalText.textContent = progressText;
+        }
+      },
+
+      onQuestVictory: (quest: QuestDefinition, isLast: boolean) => {
+        this.hexCanvas.setQuestTargets([]);
+        if (this.victoryQuestTitle) {
+          this.victoryQuestTitle.textContent = `${quest.index}. ${t(quest.titleKey)}`;
+        }
+        if (this.btnVictoryNext) {
+          if (isLast) {
+            this.btnVictoryNext.textContent = t('questContinueStudioBtn');
+          } else {
+            this.btnVictoryNext.textContent = t('questNextBtn');
+          }
+        }
+        this.modalQuestVictory?.classList.remove('hidden');
+      },
+
+      onQuestExited: () => {
+        this.questHud?.classList.add('hidden');
+        this.hexCanvas.setQuestTargets([]);
+        this.updateToolHint();
+      }
+    });
+
+    // Header Academy Button opens Academy Modal
+    this.btnAcademy?.addEventListener('click', () => {
+      this.openAcademyModal();
+    });
+
+    // Quest HUD Actions
+    this.btnQuestReset?.addEventListener('click', () => {
+      this.questManager.resetCurrentQuest();
+    });
+
+    this.btnQuestQuit?.addEventListener('click', () => {
+      this.questManager.exitQuest();
+    });
+
+    // Close Academy Modal
+    const closeAcademy = () => this.modalAcademy?.classList.add('hidden');
+    this.btnCloseAcademyModal?.addEventListener('click', closeAcademy);
+    this.btnCloseAcademy?.addEventListener('click', closeAcademy);
+
+    // Victory Modal Handlers
+    this.btnCloseVictoryModal?.addEventListener('click', () => {
+      this.modalQuestVictory?.classList.add('hidden');
+    });
+
+    this.btnVictoryStudio?.addEventListener('click', () => {
+      this.modalQuestVictory?.classList.add('hidden');
+      this.questManager.exitQuest();
+    });
+
+    this.btnVictoryNext?.addEventListener('click', () => {
+      this.modalQuestVictory?.classList.add('hidden');
+      this.questManager.nextQuest();
+    });
+  }
+
+  private openAcademyModal() {
+    if (!this.academyQuestsList) return;
+    this.academyQuestsList.innerHTML = '';
+
+    QUESTS.forEach((quest, idx) => {
+      const isCompleted = this.questManager.isQuestCompleted(quest.id);
+      const isUnlocked = this.questManager.isQuestUnlocked(idx);
+
+      const card = document.createElement('div');
+      card.className = `academy-quest-card ${isCompleted ? 'is-completed' : ''} ${!isUnlocked ? 'is-locked' : ''}`;
+
+      let statusHtml = '';
+      if (isCompleted) {
+        statusHtml = `<span class="academy-quest-status status-completed">${t('questStatusCompleted')}</span>`;
+      } else if (isUnlocked) {
+        statusHtml = `<span class="academy-quest-status status-ready">${t('questStatusUnlocked')}</span>`;
+      } else {
+        statusHtml = `<span class="academy-quest-status status-locked">🔒 ${t('questStatusLocked')}</span>`;
+      }
+
+      card.innerHTML = `
+        <div class="academy-quest-meta">
+          <div class="academy-quest-title">${quest.index}. ${t(quest.titleKey)}</div>
+          <div class="academy-quest-desc">${t(quest.descKey)}</div>
+          ${statusHtml}
+        </div>
+        <div class="academy-quest-action">
+          <button class="btn btn-sm btn-quest-launch ${isCompleted ? '' : 'btn-primary'}" ${!isUnlocked ? 'disabled' : ''}>
+            ${t('questPlayBtn')}
+          </button>
+        </div>
+      `;
+
+      card.querySelector('.btn-quest-launch')?.addEventListener('click', () => {
+        this.modalAcademy?.classList.add('hidden');
+        this.questManager.startQuest(idx);
+      });
+
+      this.academyQuestsList?.appendChild(card);
+    });
+
+    this.modalAcademy?.classList.remove('hidden');
   }
 
   public async shareCurrentProject() {
@@ -1023,6 +1192,49 @@ export class UIController {
 
     // Re-render project list if modal is present
     this.renderSavedProjectsList();
+
+    // Academy button & modal labels
+    if (this.btnAcademy) {
+      this.btnAcademy.title = t('academyTitle');
+      this.btnAcademy.setAttribute('aria-label', t('academyTitle'));
+    }
+    const acadTitle = document.getElementById('academy-modal-title');
+    if (acadTitle) acadTitle.textContent = t('academyTitle');
+    const acadSubtitle = document.getElementById('academy-modal-subtitle');
+    if (acadSubtitle) acadSubtitle.textContent = t('academySubtitle');
+    const closeAcad = document.getElementById('btn-close-academy');
+    if (closeAcad) closeAcad.textContent = t('closeBtn');
+    const closeAcadModal = document.getElementById('btn-close-academy-modal');
+    if (closeAcadModal) {
+      closeAcadModal.title = t('closeBtn');
+      closeAcadModal.setAttribute('aria-label', t('closeBtn'));
+    }
+
+    // Victory modal labels
+    const victTitle = document.getElementById('victory-modal-title');
+    if (victTitle) victTitle.textContent = t('questVictoryTitle');
+    const victSubtitle = document.getElementById('victory-modal-subtitle');
+    if (victSubtitle) victSubtitle.textContent = t('questVictorySubtitle');
+    if (this.btnVictoryStudio) this.btnVictoryStudio.textContent = t('questContinueStudioBtn');
+    if (this.btnVictoryNext) this.btnVictoryNext.textContent = t('questNextBtn');
+    const closeVictModal = document.getElementById('btn-close-victory-modal');
+    if (closeVictModal) {
+      closeVictModal.title = t('closeBtn');
+      closeVictModal.setAttribute('aria-label', t('closeBtn'));
+    }
+
+    // Quest HUD active re-translation
+    const activeQuest = this.questManager.getActiveQuest();
+    if (activeQuest) {
+      if (this.questBadgeText) this.questBadgeText.textContent = formatString(t('questBadge'), activeQuest.index, QUESTS.length);
+      if (this.questTitleText) this.questTitleText.textContent = t(activeQuest.titleKey);
+      if (this.questDescText) this.questDescText.textContent = t(activeQuest.descKey);
+    }
+
+    // Re-render academy quests list if modal is open
+    if (this.modalAcademy && !this.modalAcademy.classList.contains('hidden')) {
+      this.openAcademyModal();
+    }
   }
 
   private openRouteModal() {

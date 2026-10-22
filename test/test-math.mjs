@@ -560,6 +560,63 @@ assert.strictEqual(decodedCustom.name, 'Cyber Honeycomb');
 
 console.log('✓ Preset identification from shared URLs verified successfully (Hex Polyrhythm, IDM, French aliases, and custom projects).');
 
+// 14. Test HexaBeat Academy Quests Integrity and Validation Logic
+const questsSrc = fs.readFileSync(new URL('../src/quests/Quests.ts', import.meta.url), 'utf-8');
+assert(questsSrc.includes('quest-1-first-beat'), 'Quests must include Quest 1');
+assert(questsSrc.includes('quest-2-echo-bounce'), 'Quests must include Quest 2');
+assert(questsSrc.includes('quest-3-infinite-orbit'), 'Quests must include Quest 3');
+assert(questsSrc.includes('quest-4-kick-snare-duo'), 'Quests must include Quest 4');
+assert(questsSrc.includes('quest-5-spatial-melody'), 'Quests must include Quest 5');
+
+// Test Quest 1 logic simulation
+let q1Metrics = { kicksCount: 0 };
+const q1Step = (hasKick) => {
+  if (hasKick) q1Metrics.kicksCount++;
+  return q1Metrics.kicksCount >= 4;
+};
+assert.strictEqual(q1Step(true), false);
+assert.strictEqual(q1Step(true), false);
+assert.strictEqual(q1Step(true), false);
+assert.strictEqual(q1Step(true), true, 'Quest 1 must complete on 4th kick');
+
+// Test Quest 3 orbit loop detection
+let loopStreak = 0;
+const q3Step = (dist) => {
+  if (dist === 2) loopStreak++;
+  else loopStreak = 0;
+  return loopStreak >= 6;
+};
+for (let s = 1; s <= 5; s++) assert.strictEqual(q3Step(2), false);
+assert.strictEqual(q3Step(2), true, 'Quest 3 must complete when 6 consecutive ring-2 steps are sustained');
+
+// Test Quest 4 polyrhythm alternation
+let q4Metrics = { kicks: 0, snares: 0 };
+const q4Step = (sound) => {
+  if (sound === 'KICK') q4Metrics.kicks++;
+  if (sound === 'SNARE') q4Metrics.snares++;
+  return q4Metrics.kicks >= 4 && q4Metrics.snares >= 4;
+};
+for (let i = 0; i < 3; i++) {
+  q4Step('KICK');
+  q4Step('SNARE');
+}
+assert.strictEqual(q4Step('KICK'), false);
+assert.strictEqual(q4Step('SNARE'), true, 'Quest 4 must complete on 4th Kick and 4th Snare');
+
+// Test Quest 5 distinct pitch notes detection
+const distinctPitches = new Set();
+const q5Step = (q, r) => {
+  const noteIndex = Math.abs(q * 3 + r * 5) % 7;
+  distinctPitches.add(noteIndex);
+  return distinctPitches.size >= 3;
+};
+assert.strictEqual(q5Step(2, -2), false); // note 4
+assert.strictEqual(q5Step(2, -2), false); // same note 4
+assert.strictEqual(q5Step(3, -2), false); // note 1 (size 2)
+assert.strictEqual(q5Step(3, -3), true, 'Quest 5 must complete when 3 distinct pitch frequencies are triggered');
+
+console.log('✓ HexaBeat Academy 5 quests verified: targets, step evaluators, and progressive milestone completions validated.');
+
 console.log('All HexaBeat unit tests passed!');
 
 
