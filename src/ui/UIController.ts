@@ -184,6 +184,7 @@ export class UIController {
 
     // 2. Stop Playback & Put Playheads back to Departure Positions on circle 1
     const handleStop = () => {
+      this.audioEngine.stop();
       this.sequencer.stop();
       this.btnPlay.textContent = '▶';
       this.btnPlay.title = t('playTitle');
@@ -199,6 +200,8 @@ export class UIController {
 
     // 3. Clear Grid
     this.btnClear.addEventListener('click', () => {
+      this.audioEngine.stop();
+      this.sequencer.stop();
       this.sequencer.clearGrid();
       this.btnPlay.textContent = '▶';
       this.btnPlay.title = t('playTitle');
@@ -221,6 +224,7 @@ export class UIController {
     // 5. Presets & Saved Projects
     this.presetSelect.addEventListener('change', () => {
       // Stop playback, return playheads to departure bays, and reset step counter
+      this.audioEngine.stop();
       this.sequencer.stop();
       this.btnPlay.textContent = t('play');
       this.btnPlay.title = t('playTitle');
@@ -625,12 +629,12 @@ export class UIController {
         this.bpmSlider.value = `${quest.initialBpm}`;
         this.bpmValue.textContent = `${quest.initialBpm}`;
 
-        if (!this.audioEngine.getIsPlaying()) {
-          this.audioEngine.start();
-          this.btnPlay.textContent = '⏸';
-          this.btnPlay.title = t('pauseTitle');
-          this.btnPlay.classList.add('is-playing');
-        }
+        // Ensure playback starts stopped so player can place elements first
+        this.btnPlay.textContent = t('play');
+        this.btnPlay.title = t('playTitle');
+        this.btnPlay.classList.remove('is-playing');
+        this.currentStep = 0;
+        this.stepIndicator.textContent = formatString(t('stepPrefix'), 0);
       },
 
       onProgressUpdated: (progressText: string) => {
@@ -864,6 +868,7 @@ export class UIController {
   }
 
   private loadProject(project: ProjectData) {
+    this.audioEngine.stop();
     this.sequencer.stop();
     this.btnPlay.textContent = t('play');
     this.btnPlay.title = t('playTitle');
