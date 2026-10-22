@@ -1745,5 +1745,20 @@ html, body {
   display: flex;
   justify-content: center;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-victory-retry {
+  background: rgba(255, 230, 0, 0.15);
+  border-color: rgba(255, 230, 0, 0.55);
+  color: #ffe600;
+  font-weight: 700;
+}
+
+.btn-victory-retry:hover {
+  background: rgba(255, 230, 0, 0.28);
+  border-color: #ffe600;
+  box-shadow: 0 0 10px rgba(255, 230, 0, 0.45);
+  color: #ffffff;
 }
 
