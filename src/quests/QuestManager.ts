@@ -191,6 +191,9 @@ export class QuestManager {
     // 2. Check grid cells
     const grid = this.sequencer.getGrid();
     for (const [key, cell] of grid) {
+      if (this.sequencer.isDepartureCell(cell.q, cell.r) || (cell.q === 0 && cell.r === 0)) {
+        continue;
+      }
       const isTarget = targetMap.has(key);
       const initial = initialMap.get(key);
 
@@ -241,6 +244,9 @@ export class QuestManager {
   }
 
   public calculateStars(quest: QuestDefinition, steps: number, extraModifications: number): number {
+    if (steps <= 1) {
+      return 3;
+    }
     if (steps <= quest.threeStarsMaxSteps && extraModifications === 0) {
       return 3;
     }

@@ -1,4 +1,6 @@
 import assert from 'node:assert';
+import fs from 'node:fs';
+
 
 // 6 axial directions in pointy-topped orientation
 const HEX_DIRECTIONS = [
@@ -462,7 +464,7 @@ for (const h of testHeads) {
 console.log('✓ Stop function verified: audio stopped, step reset to 0, all heads returned to radius-1 departure pads.');
 
 // 12. Test i18n Dictionary Parity & Presets
-import fs from 'node:fs';
+
 
 const translationsSrc = fs.readFileSync(new URL('../src/i18n/translations.ts', import.meta.url), 'utf-8');
 const presetsSrc = fs.readFileSync(new URL('../src/sequencer/Presets.ts', import.meta.url), 'utf-8');
@@ -692,6 +694,7 @@ console.log('✓ Quest 5 tight chamber bounce simulation verified: reaches 3 dis
 
 // 16. Test Star Rating System (⭐⭐⭐) Across All 5 Quests
 function calculateStarsTest(questConfig, steps, extraEdits) {
+  if (steps <= 1) return 3;
   if (steps <= questConfig.threeStarsMaxSteps && extraEdits === 0) return 3;
   if (steps <= questConfig.twoStarsMaxSteps && extraEdits <= 1) return 2;
   return 1;
@@ -701,11 +704,15 @@ const questStarConfigs = [
   { id: 'quest-1', threeStarsMaxSteps: 2, twoStarsMaxSteps: 6 },
   { id: 'quest-2', threeStarsMaxSteps: 8, twoStarsMaxSteps: 16 },
   { id: 'quest-3', threeStarsMaxSteps: 20, twoStarsMaxSteps: 36 },
-  { id: 'quest-4', threeStarsMaxSteps: 26, twoStarsMaxSteps: 42 },
+  { id: 'quest-4', threeStarsMaxSteps: 30, twoStarsMaxSteps: 48 },
   { id: 'quest-5', threeStarsMaxSteps: 8, twoStarsMaxSteps: 18 },
 ];
 
 for (const cfg of questStarConfigs) {
+  // 1-step completion must always award 3 stars regardless of quest thresholds
+  assert.strictEqual(calculateStarsTest(cfg, 1, 0), 3, `${cfg.id} completed in 1 step must award 3 stars`);
+  assert.strictEqual(calculateStarsTest(cfg, 1, 1), 3, `${cfg.id} completed in 1 step must award 3 stars`);
+
   // Test 3 stars: optimal steps and 0 extraneous modifications
   assert.strictEqual(calculateStarsTest(cfg, cfg.threeStarsMaxSteps, 0), 3, `${cfg.id} must award 3 stars on optimal run`);
   // Test 2 stars with extra edits or intermediate steps
@@ -716,6 +723,68 @@ for (const cfg of questStarConfigs) {
   assert.strictEqual(calculateStarsTest(cfg, cfg.threeStarsMaxSteps, 2), 1, `${cfg.id} with 2 extra edits must award 1 star`);
 }
 console.log('✓ Star rating evaluation (1, 2, 3 stars) verified for shortest paths and instruction adherence across all quests.');
+
+// 17. Verify Quest 4 Dual-Loop Simulation & 3-Star Rating
+{
+  const q4Ring2 = [
+    { q: 2, r: 0, dir: 2 }, // BL
+    { q: 1, r: 1, dir: 2 },
+    { q: 0, r: 2, dir: 3 }, // L
+    { q: -1, r: 2, dir: 3 },
+    { q: -2, r: 2, dir: 4 }, // TL
+    { q: -2, r: 1, dir: 4 },
+    { q: -2, r: 0, dir: 5 }, // TR
+    { q: -1, r: -1, dir: 5 },
+    { q: 0, r: -2, dir: 0 }, // R
+    { q: 1, r: -2, dir: 0 },
+    { q: 2, r: -2, dir: 1 }, // BR
+    { q: 2, r: -1, dir: 1 },
+  ];
+  const ringMap = new Map();
+  q4Ring2.forEach(cell => ringMap.set(`${cell.q},${cell.r}`, cell));
+
+  let alphaQ = 1, alphaR = 0, alphaDir = 0; // starts at (1, 0) heading R
+  let betaQ = 0, betaR = 1, betaDir = 1;   // starts at (0, 1) heading BR
+  let kicks = 0, snares = 0;
+  let q4Steps = 0;
+
+  while ((kicks < 4 || snares < 4) && q4Steps < 50) {
+    q4Steps++;
+    // Advance Alpha
+    alphaQ += HEX_DIRECTIONS[alphaDir].dq;
+    alphaR += HEX_DIRECTIONS[alphaDir].dr;
+    const aCell = ringMap.get(`${alphaQ},${alphaR}`);
+    if (aCell) alphaDir = aCell.dir;
+    // Advance Beta
+    betaQ += HEX_DIRECTIONS[betaDir].dq;
+    betaR += HEX_DIRECTIONS[betaDir].dr;
+    const bCell = ringMap.get(`${betaQ},${betaR}`);
+    if (bCell) betaDir = bCell.dir;
+
+    // Check triggers on sound beats: Kick on (2, 0) and Snare on (0, 2)
+    if ((alphaQ === 2 && alphaR === 0) || (alphaQ === 0 && alphaR === 2)) kicks++;
+    if ((betaQ === 2 && betaR === 0) || (betaQ === 0 && betaR === 2)) snares++;
+  }
+
+  assert.strictEqual(q4Steps, 23, `Quest 4 dual loop must reach 4 kicks and 4 snares in exactly 23 steps, got ${q4Steps}`);
+  const q4Cfg = questStarConfigs.find(c => c.id === 'quest-4');
+  assert.strictEqual(calculateStarsTest(q4Cfg, q4Steps, 0), 3, 'Quest 4 perfect run at step 23 must award 3 stars');
+  console.log(`✓ Quest 4 dual loop verified: reached 4 kicks + 4 snares at step ${q4Steps} and awards 3 stars.`);
+}
+
+// 18. Verify no cell coordinate patterns e.g. (0,0), (0,1), (q, r) in quests & tutorial texts
+{
+  const translationsSource = fs.readFileSync('src/i18n/translations.ts', 'utf8');
+  const tutorialSource = fs.readFileSync('src/ui/TutorialModal.ts', 'utf8');
+  
+  // Check quest title/desc/goal sections for coordinates
+  const questDescMatches = translationsSource.match(/quest\d(Desc|Goal|Title):\s*['"].*?\(\s*-?\d+\s*,\s*-?\d+\s*\).*?['"]/g);
+  assert.strictEqual(questDescMatches, null, `Found coordinate references in quest descriptions: ${questDescMatches}`);
+
+  const tutorialMatches = tutorialSource.match(/<p class="tut-p">[\s\S]*?\(\s*-?\d+\s*,\s*-?\d+\s*\)[\s\S]*?<\/p>/g);
+  assert.strictEqual(tutorialMatches, null, `Found coordinate references in tutorial modal: ${tutorialMatches}`);
+  console.log('✓ Verified 0 technical cell coordinate references across all tutorial slides and quest texts.');
+}
 
 console.log('✓ HexaBeat Academy 5 quests verified: targets, step evaluators, and progressive milestone completions validated.');
 

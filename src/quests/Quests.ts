@@ -14,9 +14,7 @@ export const QUESTS: QuestDefinition[] = [
     defaultTool: 'BEAT',
     initialBpm: 120,
     initialActivePlayheadIds: [1], // Alpha only
-    initialCells: [
-      { q: 1, r: 0, enabled: false, isDead: false, modifier: 'DIR_R' }
-    ],
+    initialCells: [],
     targets: [
       { q: 2, r: 0, tool: 'BEAT' }
     ],
@@ -111,8 +109,6 @@ export const QUESTS: QuestDefinition[] = [
     initialBpm: 120,
     initialActivePlayheadIds: [1], // Alpha only
     initialCells: [
-      // Alpha departure pad guides directly to (2, 0)
-      { q: 1, r: 0, enabled: false, isDead: false, modifier: 'DIR_R' },
       // 6 vertices of Ring 2 orbit pre-loaded with Kick beats:
       { q: 2, r: 0, enabled: true, isDead: false, modifier: 'NONE' },
       { q: 0, r: 2, enabled: true, isDead: false, modifier: 'DIR_L' },
@@ -174,8 +170,6 @@ export const QUESTS: QuestDefinition[] = [
     initialBpm: 120,
     initialActivePlayheadIds: [1], // Alpha active, Beta (2) waiting at (0, 1)
     initialCells: [
-      // Alpha start route from departure pad
-      { q: 1, r: 0, enabled: false, isDead: false, modifier: 'DIR_R' },
       // Ring 2 hexagon orbit with Kick on (2, 0)
       { q: 2, r: 0, enabled: true, isDead: false, modifier: 'DIR_BL' },
       { q: 1, r: 1, enabled: false, isDead: false, modifier: 'DIR_BL' },
@@ -196,8 +190,8 @@ export const QUESTS: QuestDefinition[] = [
       { q: 0, r: 1, tool: 'BEAT' }, // Beta launch pad
       { q: 0, r: 2, tool: 'BEAT', expectedModifier: 'DIR_L' }  // Snare trigger node
     ],
-    threeStarsMaxSteps: 26,
-    twoStarsMaxSteps: 42,
+    threeStarsMaxSteps: 30,
+    twoStarsMaxSteps: 48,
     resetMetrics: (): QuestMetrics => ({
       kicksCount: 0,
       snaresCount: 0,

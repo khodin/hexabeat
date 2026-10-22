@@ -211,7 +211,7 @@ export class TutorialModal {
           <div class="tut-slide">
             <h4 class="tut-title">6 Têtes de Lecture & Instruments</h4>
             <p class="tut-p">
-              Le cœur central (0, 0) héberge 6 têtes de lecture autour de lui. Touchez une baie pour l'activer ou la couper :
+              Le cœur central héberge 6 têtes de lecture autour de lui. Touchez une baie pour l'activer ou la couper :
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
@@ -262,7 +262,7 @@ export class TutorialModal {
           <div class="tut-slide">
             <h4 class="tut-title">6 Playheads & Instruments</h4>
             <p class="tut-p">
-              The core (0, 0) is surrounded by 6 departure bay pads. Tap any pad to arm or mute it:
+              The central core is surrounded by 6 departure bay pads. Tap any pad to arm or mute it:
             </p>
             <div class="tut-card-grid">
               <div class="tut-badge-card">
