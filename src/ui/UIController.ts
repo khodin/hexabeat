@@ -695,8 +695,10 @@ export class UIController {
         if (this.btnVictoryNext) {
           if (isLast) {
             this.btnVictoryNext.textContent = t('questContinueStudioBtn');
+            this.btnVictoryStudio?.classList.add('hidden');
           } else {
             this.btnVictoryNext.textContent = t('questNextBtn');
+            this.btnVictoryStudio?.classList.remove('hidden');
           }
         }
         this.modalQuestVictory?.classList.remove('hidden');
