@@ -622,6 +622,10 @@ html, body {
   display: none !important;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .modal-card {
   background: #111320;
   border: 1px solid rgba(0, 255, 255, 0.35);
